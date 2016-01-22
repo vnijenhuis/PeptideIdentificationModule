@@ -30,7 +30,7 @@ public class ProteinPeptideCollectionCreator {
         String[] path = file.split("\\\\");
         String patient = path[path.length-2];
         String dataset = path[path.length-4];
-        System.out.println("Collecting peptides from " + patient + " " + dataset + "...");
+        System.out.println("Collecting protein-peptides from " + patient + " " + dataset + "...");
         FileReader fr = new FileReader(file);
         BufferedReader bffFr = new BufferedReader(fr);
         String line;
@@ -71,7 +71,6 @@ public class ProteinPeptideCollectionCreator {
                 proteinPeptides.addPeptideMatch(proteinPeptideMatch);
             }
         }
-        System.out.println(proteinPeptides.getPeptideMatches().size());
         return proteinPeptides;
     }
 }

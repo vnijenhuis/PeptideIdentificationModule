@@ -59,14 +59,14 @@ public class PeptideToProteinPeptideMatcher {
         return finalPeptides;
     }
     
-    final ArrayList<String> readUniquePeptideFile(final String uniquePeptideFile,
-            final ArrayList<String> uniquePeptides) throws FileNotFoundException, IOException {
-        FileReader fr = new FileReader(uniquePeptideFile);
-        BufferedReader bffFr = new BufferedReader(fr);
-        String line;
-        while ((line = bffFr.readLine()) != null) {
-            uniquePeptides.add(line);
-        }
-        return uniquePeptides;
-    }
+//    final ArrayList<String> readUniquePeptideFile(final String uniquePeptideFile,
+//            final ArrayList<String> uniquePeptides) throws FileNotFoundException, IOException {
+//        FileReader fr = new FileReader(uniquePeptideFile);
+//        BufferedReader bffFr = new BufferedReader(fr);
+//        String line;
+//        while ((line = bffFr.readLine()) != null) {
+//            uniquePeptides.add(line);
+//        }
+//        return uniquePeptides;
+//    }
 }
