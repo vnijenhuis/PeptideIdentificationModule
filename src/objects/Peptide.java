@@ -9,7 +9,7 @@ package objects;
  * Creates a database search PSM object.
  * @author vnijenhuis
  */
-public class DatabasePSM {
+public class Peptide {
     /**
      * Amino acid sequence of the protein.
      */
@@ -19,7 +19,7 @@ public class DatabasePSM {
      * Creates a DatabasePSM object.
      * @param peptideSequence contains the peptide amino acid sequence.
      */
-    public DatabasePSM(final String peptideSequence) {
+    public Peptide(final String peptideSequence) {
         this.peptideSequence = peptideSequence;
     }
 

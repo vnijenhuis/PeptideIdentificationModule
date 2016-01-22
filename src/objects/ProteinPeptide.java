@@ -7,17 +7,15 @@ package objects;
 
 /**
  * ProteinPeptide object class.
+ *
  * @author vnijenhuis
  */
 public class ProteinPeptide {
+
     /**
      * ID of the group of proteins that this protein belongs to.
      */
-    private String protein_group;
-    /**
-     * Amino acid sequence of the peptide.
-     */
-    private String sequence;
+    private final String proteinGroup;
 
     /**
      * Accession number of the protein that this peptide belongs to.
@@ -25,117 +23,158 @@ public class ProteinPeptide {
     private String accession;
 
     /**
-     * ID of the protein that this peptide belongs to.
+     * Amino acid sequence of the peptide.
      */
-    private String id;
+    private final String sequence;
 
     /**
-     * Group number of a set of proteins which this peptide belongs to.
+     * Unique to 1 protein group.
      */
-    private String group;
-    private String dataSet;
+    private final String uniqueToGroup;
 
     /**
-     * Array with peptide values.
+     * Unique to one individual sequence.
      */
-//    private final ArrayList peptideObject;
+    private final Integer flag;
+
+    /**
+     * Dataset that the peptide belongs to.
+     */
+    private final String dataset;
+
+    /**
+     * Occurrences of the peptide.
+     */
+    private Integer count;
+
+    /**
+     * Highest coverage value of the peptide.
+     */
+    private Double coverage;
 
     /**
      * Creates a protein object.
-     * @param accession contains the protein id.
-     * @param sequence contains the amino acid sequence.
-     * @param dataSet dataset that the peptide belongs to.
+     * @param proteinGroup protein group id that this protein belongs to.
+     * @param accession protein accession number(s).
+     * @param sequence contains the peptide amino acid sequence.
+     * @param dataSet dataset(s) that the peptide belongs to.
+     * @param uniqueGroup (yes/no) Y if unique to one protein group, otherwise its a N.
+     * @param unique flag to check if a peptide is present in only one sequence of the individual database.
+     * @param count counting number of the sequence.
+     * @param coverage
      */
-    public ProteinPeptide(final String accession, final String sequence, final String dataSet) {
-        //Add individual data.
+    public ProteinPeptide(final String proteinGroup, final String accession, final String sequence,
+            final String dataSet, final String uniqueToGroup, final Integer unique, final Integer count,
+            final Double coverage) {
+        this.proteinGroup = proteinGroup;
         this.accession = accession;
         this.sequence = sequence;
-        this.dataSet = dataSet;
+        this.uniqueToGroup = uniqueToGroup;
+        this.flag = unique;
+        this.dataset = dataSet;
+        this.count = count;
+        this.coverage = coverage;
     }
-//    public final String getProteinGroup() {
-//        return this.group;
-//    }
-//    
-//    public final void setProteinGroup(final String group) {
-//        this.group = group;
-//    }
-//    /**
-//     * Gets the ID of the protein that this peptide belongs to.
-//     * @return protein ID as string.
-//     */
-//    public final String getProteinID() {
-//        return this.id;
-//    }
-//    
-//    public final void setProteinID(final String id) {
-//        this.id = id;
-//    }
 
     /**
-     * Returns the protein accession number.
-     * @return accession id as string.
+     * Returns the protein group that this peptide belongs to.
+     * @return protein_group as String.
+     */
+    public final String getProteinGroup() {
+        return this.proteinGroup;
+    }
+
+    /**
+     * Returns the accession id of the protein.
+     * @return accession id as String.
      */
     public final String getAccession() {
         return this.accession;
     }
     
-    public final void setAccession(final String acc) {
-        this.accession = acc;
+    /**
+     * Sets the accession id of the protein.
+     * @param accession accession id as String.
+     */
+    public final void addAccession(final String accession) {
+        this.accession = (this.accession + "|" + accession);
     }
 
     /**
-     * Returns the amino acid sequence of the peptide.
-     * @return amino acid sequence as string.
+     * Returns the peptide amino acid sequence.
+     * @return sequence as String.
      */
     public final String getSequence() {
         return this.sequence;
     }
-    
-    public final void setSequence(final String seq) {
-       this.sequence = seq;
-    }
-    
-    /**
-     * Returns the data set that this peptide belongs to.
-     * @return data set name as string.
-     */
-    public final String getDataSet() {
-        return this.dataSet;
-    }
-    
-//    /**
-//     * Returns the data set that this peptide belongs to.
-//     */
-//    public final void setDataSet(final String data) {
-//        this.dataSet = data;
-//    }
 
     /**
+     * Flag to check if a peptide is unique to a protein group.
+     * @return flag Y when a peptide belongs to one protein group, or flag N when a peptide
+     * belongs to multiple protein groups.
+     */
+    public final String getUniqueGroup() {
+        return this.uniqueToGroup;
+    }
+
+    /**
+     * Flag number to check in how many individual databases this peptide is found.
+     * @return flag number as Integer.
+     */
+    public final Integer getUniqueFlag() {
+        return this.flag;
+    }
+
+    /**
+     * Returns the name of the dataset that this peptide belongs to.
+     * @return dataset as String.
+     */
+    public final String getDataset() {
+        return this.dataset;
+    }
+
+    /**
+     * Returns the number of occurrences of this peptide.
+     * @return counting number as Integer.
+     */
+    public final Integer getCounter() {
+        return this.count;
+    }
+    
+    /**
+     * Adds a count number to the peptide occurrence counter.
+     * @param count counting number as Integer.
+     */
+    public final void setCounter(final Integer count) {
+        Integer newCount = this.count + count;
+        this.count = newCount;
+    }
+
+    /**
+     * Coverage identity % of the peptide sequence.
+     * @return coverage % as Double.
+     */
+    public final Double getCoverage() {
+        return this.coverage;
+    }
+
+    /**
+     * Sets the coverage of the peptide sequence.
+     * @param cover 
+     */
+    public final void setCoverage(final Double cover) {
+        this.coverage = cover;
+    }
+    
+    /**
      * To string function.
-     * @return peptide object as string.
+     * @return protein object as string.
      */
     @Override
     public final String toString() {
-        return "Peptide{protein group; " + this.group + ", protein id; " + this.id
-                + ", accession; " + this.accession + ", Sequence; "
-                + this.sequence + ", data set; " + this.dataSet + "}";
+        return "Peptide{protein group; " + this.proteinGroup + " accession; " + this.accession
+                + " sequence; " + this.sequence + " unique; " + this.uniqueToGroup + " flag; "
+                + this.flag + " dataset; " + this.dataset + " count; " + this.count + " coverage; "
+                + this.coverage + "}";
     }
-
-//    public static class Peptide2 {
-//
-//        private final String group;
-//        private final String id;
-//        private final String accession;
-//        private final String sequence;
-//        private final String dataSet;
-//
-//        public Peptide2(final String protein_group, final String protein_id,
-//                final String accession, final String sequence, final String dataSet) {
-//            this.group = protein_group;
-//            this.id = protein_id;
-//            this.accession = accession;
-//            this.sequence = sequence;
-//            this.dataSet = dataSet;
-//        }
-//    }
 }
