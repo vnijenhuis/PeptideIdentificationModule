@@ -11,6 +11,7 @@ import collections.ProteinPeptideCollection;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import objects.ProteinPeptide;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -19,11 +20,14 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import tools.CsvMatrixCreator;
+import tools.DataToCsvWriter;
 import tools.PeptideCollectionCreator;
 import tools.SequenceToDatabaseMatcher;
 import tools.PeptideToProteinPeptideMatcher;
 import tools.ProteinCollectionCreator;
 import tools.ProteinPeptideCollectionCreator;
+import tools.SetMatrixValues;
 import tools.ValidFileChecker;
 
 /**
@@ -84,6 +88,9 @@ public class PeptideIdentifictionQualityControl {
     private ProteinPeptideCollection proteinPeptides;
     private final PeptideToProteinPeptideMatcher proteinPeptideMatching;
     private final SequenceToDatabaseMatcher sequenceMatcher;
+    private final DataToCsvWriter fileWriter;
+    private final CsvMatrixCreator createMatrix;
+    private final SetMatrixValues matrix;
     
     /**
      * Private constructor to define primary functions.
@@ -131,6 +138,9 @@ public class PeptideIdentifictionQualityControl {
         proteinPeptideCollection = new ProteinPeptideCollectionCreator();
         proteinPeptideMatching = new PeptideToProteinPeptideMatcher();
         sequenceMatcher = new SequenceToDatabaseMatcher();
+        fileWriter = new DataToCsvWriter();
+        createMatrix = new CsvMatrixCreator();
+        matrix = new SetMatrixValues();
     }
 
     /**
@@ -161,32 +171,35 @@ public class PeptideIdentifictionQualityControl {
             proPepFiles = input.checkFileValidity(path, proPepFile);
             indivDbFiles = input.checkFileValidity(path, indivDbFile);
             input.checkFileValidity(databasePath, "01_uniprot_taxonomy.fasta.gz");
-            PeptideQualityControl(checkPath, psmFiles, proPepFiles, indivDbFiles);
+            PeptideQualityControl(psmFiles, proPepFiles, indivDbFiles, outputPath);
         }
     }
 
     /**
-     * 
-     * @param checPath
+     * Starts the quality control procedure.
      * @param psmFiles
      * @param proPepFiles
      * @param indivDbFiles
+     * @param outputPath
      * @throws IOException 
      */
-    public final void PeptideQualityControl(final File checPath, ArrayList<String> psmFiles
-    , final ArrayList<String> proPepFiles, final ArrayList<String> indivDbFiles)  throws IOException {
+    public final void PeptideQualityControl(ArrayList<String> psmFiles, final ArrayList<String> proPepFiles,
+            final ArrayList<String> indivDbFiles, final String outputPath)  throws IOException {
 //        Integer sampleSize = psmFiles.size();
         Integer sampleSize = 1;
+        HashSet<ArrayList<String>> peptideMatrix = new HashSet<>();
         for (int sample = 0; sample < sampleSize; sample++) {
+            String[] path = psmFiles.get(sample).split("\\\\");
+            String patient = path[path.length-2];
+            String dataSet = path[path.length-4];
             peptides = peptideCollection.createCollection(psmFiles.get(sample));
             proteinPeptides = proteinPeptideCollection.createCollection(proPepFiles.get(sample));
             proteinPeptides = proteinPeptideMatching.matchPeptides(peptides, proteinPeptides);
             proteins = databaseCollection.createCollection(indivDbFiles.get(sample));
             proteinPeptides = sequenceMatcher.matchPeptides(proteins, proteinPeptides);
-            for (ProteinPeptide match: proteinPeptides.getPeptideMatches()) {
-                System.out.println(match.getSequence() + " | " + match.getFlag());
-            }
-            
+            peptideMatrix = createMatrix.createMatrix(proteinPeptides, peptideMatrix, sampleSize);
+            matrix.setValues(proteinPeptides, peptideMatrix, patient, sampleSize);
+            fileWriter.generateCsvFile(peptideMatrix, outputPath, patient, dataSet);
         }
     }
 }
