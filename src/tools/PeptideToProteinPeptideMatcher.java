@@ -28,14 +28,13 @@ public class PeptideToProteinPeptideMatcher {
     public final ProteinPeptideCollection matchPeptides(final PeptideCollection peptides,
             final ProteinPeptideCollection proteinPeptides) throws FileNotFoundException, IOException {
         ProteinPeptideCollection proteinPeptideMatches = new ProteinPeptideCollection();
-        int count = 0;
         System.out.println("Starting to match peptides to protein database.");
         for (ProteinPeptide proteinPeptide : proteinPeptides.getPeptideMatches()) {
-            boolean newMatch = true;
+            boolean newMatch = false;
             for (Peptide peptide : peptides.getPeptides()) {
                 // Cast object to protein and check if peptide is present
                 if (proteinPeptide.getSequence().equals(peptide.getSequence())) {
-                    newMatch = false;
+                    newMatch = true;
                     break;
                 }
             }

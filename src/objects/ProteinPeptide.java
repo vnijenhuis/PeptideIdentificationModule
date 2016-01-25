@@ -121,7 +121,7 @@ public class ProteinPeptide {
      * Flag number to check in how many individual databases this peptide is found.
      * @return flag number as Integer.
      */
-    public final Integer getUniqueFlag() {
+    public final Integer getFlag() {
         return this.flag;
     }
 

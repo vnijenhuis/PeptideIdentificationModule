@@ -11,6 +11,7 @@ import collections.ProteinPeptideCollection;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import objects.ProteinPeptide;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -19,6 +20,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import tools.PeptideCollectionCreator;
+import tools.SequenceToDatabaseMatcher;
 import tools.PeptideToProteinPeptideMatcher;
 import tools.ProteinCollectionCreator;
 import tools.ProteinPeptideCollectionCreator;
@@ -78,9 +80,10 @@ public class PeptideIdentifictionQualityControl {
     private PeptideCollection peptides;
     private final ProteinCollectionCreator databaseCollection;
     private ProteinCollection proteins;
-    private ProteinPeptideCollectionCreator proteinPeptideCollection;
+    private final ProteinPeptideCollectionCreator proteinPeptideCollection;
     private ProteinPeptideCollection proteinPeptides;
     private final PeptideToProteinPeptideMatcher proteinPeptideMatching;
+    private final SequenceToDatabaseMatcher sequenceMatcher;
     
     /**
      * Private constructor to define primary functions.
@@ -127,6 +130,7 @@ public class PeptideIdentifictionQualityControl {
         databaseCollection = new ProteinCollectionCreator();
         proteinPeptideCollection = new ProteinPeptideCollectionCreator();
         proteinPeptideMatching = new PeptideToProteinPeptideMatcher();
+        sequenceMatcher = new SequenceToDatabaseMatcher();
     }
 
     /**
@@ -175,9 +179,13 @@ public class PeptideIdentifictionQualityControl {
         Integer sampleSize = 1;
         for (int sample = 0; sample < sampleSize; sample++) {
             peptides = peptideCollection.createCollection(psmFiles.get(sample));
-//            proteins = databaseCollection.createCollection(indivDbFiles.get(sample));
             proteinPeptides = proteinPeptideCollection.createCollection(proPepFiles.get(sample));
             proteinPeptides = proteinPeptideMatching.matchPeptides(peptides, proteinPeptides);
+            proteins = databaseCollection.createCollection(indivDbFiles.get(sample));
+            proteinPeptides = sequenceMatcher.matchPeptides(proteins, proteinPeptides);
+            for (ProteinPeptide match: proteinPeptides.getPeptideMatches()) {
+                System.out.println(match.getSequence() + " | " + match.getFlag());
+            }
         }
     }
 }
