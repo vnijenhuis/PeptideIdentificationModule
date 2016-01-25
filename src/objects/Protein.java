@@ -27,7 +27,7 @@ public class Protein {
      * Returns the amino acid sequence.
      * @return string containing the amino acid sequence.
      */
-    public final String getAminoAcidSequence() {
+    public final String getSequence() {
         return this.aminoAcidSequence;
     }
 

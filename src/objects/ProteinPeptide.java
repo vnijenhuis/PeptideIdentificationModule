@@ -35,7 +35,7 @@ public class ProteinPeptide {
     /**
      * Unique to one individual sequence.
      */
-    private final Integer flag;
+    private Integer flag;
 
     /**
      * Dataset that the peptide belongs to.
@@ -58,7 +58,7 @@ public class ProteinPeptide {
      * @param accession protein accession number(s).
      * @param sequence contains the peptide amino acid sequence.
      * @param dataSet dataset(s) that the peptide belongs to.
-     * @param uniqueGroup (yes/no) Y if unique to one protein group, otherwise its a N.
+     * @param uniqueToGroup (yes/no) Y if unique to one protein group, otherwise its a N.
      * @param unique flag to check if a peptide is present in only one sequence of the individual database.
      * @param count counting number of the sequence.
      * @param coverage
@@ -91,7 +91,7 @@ public class ProteinPeptide {
     public final String getAccession() {
         return this.accession;
     }
-    
+
     /**
      * Sets the accession id of the protein.
      * @param accession accession id as String.
@@ -126,6 +126,15 @@ public class ProteinPeptide {
     }
 
     /**
+     * Sets the flag number to 0, 1 or more.
+     * 0 means zero matches, 1 means one match etc.
+     * @param count count of 1.
+     */
+    public final void setUniqueFlag(final Integer count) {
+        this.flag = (this.flag + count);
+    }
+
+    /**
      * Returns the name of the dataset that this peptide belongs to.
      * @return dataset as String.
      */
@@ -140,14 +149,13 @@ public class ProteinPeptide {
     public final Integer getCounter() {
         return this.count;
     }
-    
+
     /**
      * Adds a count number to the peptide occurrence counter.
      * @param count counting number as Integer.
      */
     public final void setCounter(final Integer count) {
-        Integer newCount = this.count + count;
-        this.count = newCount;
+        this.count = (this.count + count);
     }
 
     /**
@@ -160,12 +168,12 @@ public class ProteinPeptide {
 
     /**
      * Sets the coverage of the peptide sequence.
-     * @param cover 
+     * @param cover
      */
     public final void setCoverage(final Double cover) {
         this.coverage = cover;
     }
-    
+
     /**
      * To string function.
      * @return protein object as string.

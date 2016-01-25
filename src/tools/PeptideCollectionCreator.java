@@ -1,7 +1,7 @@
 /*
  * @author vnijenhuis
- * @project peptide spectrum matrix quality control  * 
- * @copyrights vnijenhuis, Dr. P.I. Horvatovich  * 
+ * @project peptide spectrum matrix quality control  *
+ * @copyrights vnijenhuis, Dr. P.I. Horvatovich  *
  */
 package tools;
 
@@ -18,11 +18,11 @@ import objects.Peptide;
  */
 public class PeptideCollectionCreator {
     /**
-     * 
-     * @param file
-     * @return
+     * Creates a collection of peptide objects.
+     * @param file loads a DB search psm.csv file and reads only the peptide sequences.
+     * @return Collection of peptide objects.
      * @throws FileNotFoundException
-     * @throws IOException 
+     * @throws IOException
      */
     public final PeptideCollection createCollection(final String file) throws FileNotFoundException, IOException {
         // Read the file
@@ -34,14 +34,14 @@ public class PeptideCollectionCreator {
         FileReader fr = new FileReader(file);
         BufferedReader bffFr = new BufferedReader(fr);
         String line;
-        Integer count = 0;
+        //Reads each line in the given file.
         while ((line = bffFr.readLine()) != null) {
-            // Split data into strings
-            count +=1;
             String[] data = line.split(",");
             String sequence = data[0];
+            sequence = sequence.replaceAll("\\(\\+[0-9]+\\.[0-9]+\\)", "");
             Peptide peptide = new Peptide(sequence);
             Boolean newPeptide = true;
+            //Create new peptide objects.
             if (!peptides.getPeptides().isEmpty()) {
                 for (Peptide p: peptides.getPeptides()) {
                     if (p.getSequence().equals(sequence)) {

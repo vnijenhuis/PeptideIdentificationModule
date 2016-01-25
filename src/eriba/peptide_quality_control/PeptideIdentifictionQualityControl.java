@@ -76,11 +76,11 @@ public class PeptideIdentifictionQualityControl {
      */
     private final PeptideCollectionCreator peptideCollection;
     private PeptideCollection peptides;
-    private ProteinCollectionCreator databaseCollection;
+    private final ProteinCollectionCreator databaseCollection;
     private ProteinCollection proteins;
-    private final ProteinPeptideCollectionCreator proteinPeptideCollection;
+    private ProteinPeptideCollectionCreator proteinPeptideCollection;
     private ProteinPeptideCollection proteinPeptides;
-    private final PeptideToProteinPeptideMatcher individualDatabaseMatcher;
+    private final PeptideToProteinPeptideMatcher proteinPeptideMatching;
     
     /**
      * Private constructor to define primary functions.
@@ -126,7 +126,7 @@ public class PeptideIdentifictionQualityControl {
         peptideCollection = new PeptideCollectionCreator();
         databaseCollection = new ProteinCollectionCreator();
         proteinPeptideCollection = new ProteinPeptideCollectionCreator();
-        individualDatabaseMatcher = new PeptideToProteinPeptideMatcher();
+        proteinPeptideMatching = new PeptideToProteinPeptideMatcher();
     }
 
     /**
@@ -175,9 +175,9 @@ public class PeptideIdentifictionQualityControl {
         Integer sampleSize = 1;
         for (int sample = 0; sample < sampleSize; sample++) {
             peptides = peptideCollection.createCollection(psmFiles.get(sample));
-            proteins = databaseCollection.createCollection(indivDbFiles.get(sample));
+//            proteins = databaseCollection.createCollection(indivDbFiles.get(sample));
             proteinPeptides = proteinPeptideCollection.createCollection(proPepFiles.get(sample));
-//            individualDatabaseMatcher.matchPeptides(peptides, proteinPeptides);
+            proteinPeptides = proteinPeptideMatching.matchPeptides(peptides, proteinPeptides);
         }
     }
 }

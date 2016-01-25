@@ -6,6 +6,8 @@
 package tools;
 
 import collections.PeptideCollection;
+import collections.ProteinCollection;
+import objects.Protein;
 import collections.ProteinPeptideCollection;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -16,31 +18,36 @@ import objects.ProteinPeptide;
  * Matches peptides from a txt file to a collection of proteins (uniprot for example).
  * @author vnijenhuis
  */
-public class PeptideToProteinPeptideMatcher {
+public class PeptideToDatabaseMatcher {
     /**
      * Matches peptide sequences to a protein database.
-     * @param peptides collection of DB seach psm peptides.
+     * @param proteins collection of database protein sequences.
      * @param proteinPeptides collection of protein-peptide objects.
-     * @return array of peptides.
+     * @return protein peptide objects and their match with the database.
      * @throws FileNotFoundException file not found.
      * @throws IOException can't open file.
      */
-    public final ProteinPeptideCollection matchPeptides(final PeptideCollection peptides,
+    public final ProteinPeptideCollection matchPeptides(final ProteinCollection proteins,
             final ProteinPeptideCollection proteinPeptides) throws FileNotFoundException, IOException {
         ProteinPeptideCollection proteinPeptideMatches = new ProteinPeptideCollection();
-        int count = 0;
+        int cnt = 0;
         System.out.println("Starting to match peptides to protein database.");
         for (ProteinPeptide proteinPeptide : proteinPeptides.getPeptideMatches()) {
+            cnt += 1;
             boolean newMatch = true;
-            for (Peptide peptide : peptides.getPeptides()) {
+            for (Protein protein : proteins.getProteins()) {
                 // Cast object to protein and check if peptide is present
-                if (proteinPeptide.getSequence().equals(peptide.getSequence())) {
+                if (protein.getSequence().contains(proteinPeptide.getSequence())) {
+                    System.out.println(proteinPeptide.getSequence() + " | " + protein.getSequence());
+                    proteinPeptide.getUniqueFlag();
                     newMatch = false;
-                    break;
                 }
             }
             if (newMatch) {
                 proteinPeptideMatches.addPeptideMatch(proteinPeptide);
+            }
+            if (cnt % 1000 == 0) {
+                System.out.println("Matched " + cnt + " peptide sequences to database.");
             }
         }
         System.out.println("Finished matching " + proteinPeptideMatches.getPeptideMatches().size() + " peptides!");

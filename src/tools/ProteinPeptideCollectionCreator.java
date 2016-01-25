@@ -27,28 +27,36 @@ public class ProteinPeptideCollectionCreator {
      */
     public final ProteinPeptideCollection createCollection(final String file) throws FileNotFoundException, IOException {
         ProteinPeptideCollection proteinPeptides = new ProteinPeptideCollection();
+        //Creates dataset and patient names depending on the map names.
         String[] path = file.split("\\\\");
         String patient = path[path.length-2];
         String dataset = path[path.length-4];
         System.out.println("Collecting protein-peptides from " + patient + " " + dataset + "...");
+        // Load the file.
         FileReader fr = new FileReader(file);
         BufferedReader bffFr = new BufferedReader(fr);
         String line;
         Integer count = 1;
         Integer uniqueFlag = 0;
         Boolean firstLine = true;
+        //Read the file.
         while ((line = bffFr.readLine()) != null) {
             if (firstLine) {
                 line = bffFr.readLine();
             }
+            //Assign data to variables.
             String[] data = line.split(",");
             String proteinGroup = data[0];
             String accession = data[2];
             String sequence = data[3];
+            sequence = sequence.replaceAll("\\.[A-Z]$", "");
+            sequence = sequence.replaceAll("^[A-Z]\\.", "");
+            sequence = sequence.replace("\\(\\+\\d+\\.\\d+\\)", "");
             String uniqueToGroup = data[4];
             Double coverage = Double.parseDouble(data[5]);
             boolean newPeptide = true;
             ProteinPeptide proteinPeptideMatch = new ProteinPeptide(proteinGroup, accession,sequence, dataset, uniqueToGroup, uniqueFlag, count, coverage);
+            //Add matches to a ProteinPeptideCollection.
             if (!proteinPeptides.getPeptideMatches().isEmpty()) {
                 for (ProteinPeptide proteinPeptide: proteinPeptides.getPeptideMatches()) {
                     if (proteinPeptide.getSequence().equals(sequence)) {
@@ -64,6 +72,7 @@ public class ProteinPeptideCollectionCreator {
                         }
                     }
                 }
+                //If no match was found: add new entry to collection.
                 if (newPeptide) {
                     proteinPeptides.addPeptideMatch(proteinPeptideMatch);
                 }
@@ -71,6 +80,7 @@ public class ProteinPeptideCollectionCreator {
                 proteinPeptides.addPeptideMatch(proteinPeptideMatch);
             }
         }
+        System.out.println("Collected " + proteinPeptides.getPeptideMatches().size() + " protein-peptides from " + file);
         return proteinPeptides;
     }
 }
