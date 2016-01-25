@@ -131,7 +131,7 @@ public class ProteinPeptide {
      * @param count count of 1.
      */
     public final void setUniqueFlag(final Integer count) {
-        this.flag = (this.flag + count);
+        this.flag = count;
     }
 
     /**

@@ -186,6 +186,7 @@ public class PeptideIdentifictionQualityControl {
             for (ProteinPeptide match: proteinPeptides.getPeptideMatches()) {
                 System.out.println(match.getSequence() + " | " + match.getFlag());
             }
+            
         }
     }
 }

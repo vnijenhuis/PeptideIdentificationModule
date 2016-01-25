@@ -38,7 +38,7 @@ public class PeptideCollectionCreator {
         while ((line = bffFr.readLine()) != null) {
             String[] data = line.split(",");
             String sequence = data[0];
-            sequence = sequence.replaceAll("\\(\\+[0-9]+\\.[0-9]+\\)", "");
+//            sequence = sequence.replaceAll("\\(\\+[0-9]+\\.[0-9]+\\)", "");
             Peptide peptide = new Peptide(sequence);
             Boolean newPeptide = true;
             //Create new peptide objects.

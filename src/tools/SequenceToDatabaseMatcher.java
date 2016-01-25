@@ -35,7 +35,8 @@ public class SequenceToDatabaseMatcher {
             cnt += 1;
             for (Protein protein : proteins.getProteins()) {
                 // Cast object to protein and check if peptide is present
-                if (protein.getSequence().contains(proteinPeptide.getSequence())) {
+                String sequence = proteinPeptide.getSequence().replaceAll("\\(\\+[0-9]+\\.[0-9]+\\)", "");
+                if (protein.getSequence().contains(sequence)) {
                     proteinPeptide.setUniqueFlag((proteinPeptide.getFlag() + 1));
                 }
             }

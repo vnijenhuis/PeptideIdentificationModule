@@ -51,7 +51,7 @@ public class ProteinPeptideCollectionCreator {
             String sequence = data[3];
             sequence = sequence.replaceAll("\\.[A-Z]$", "");
             sequence = sequence.replaceAll("^[A-Z]\\.", "");
-            sequence = sequence.replaceAll("\\(\\+[0-9]+\\.[0-9]+\\)", "");
+//            sequence = sequence.replaceAll("\\(\\+[0-9]+\\.[0-9]+\\)", "");
             String uniqueToGroup = data[4];
             Double coverage = Double.parseDouble(data[5]);
             boolean newPeptide = true;
