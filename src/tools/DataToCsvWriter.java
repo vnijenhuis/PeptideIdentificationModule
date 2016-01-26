@@ -5,7 +5,6 @@
  */
 package tools;
 
-import collections.ProteinPeptideCollection;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,12 +19,12 @@ public class DataToCsvWriter {
      * Writes data from a ProteinPeptideCollection to a .csv file.
      * @param peptideMatrix set of arrays with protein-peptide data.
      * @param path path to write the output file to.
-     * @param patient ID of the patient.
      * @param dataSet name of the data set to which the peptides belong.
+     * @param sampleSize amount of samples.
      * @throws IOException can't open/find the specified file.
      */
     public void generateCsvFile(HashSet<ArrayList<String>> peptideMatrix, final String path,
-            final String patient, final String dataSet) throws IOException {
+            final String dataSet, final Integer sampleSize) throws IOException {
         //Create a new FileWriter instance.
 	try (FileWriter writer = new FileWriter(path + "unknown_" + dataSet + "_peptide_matrix.csv")) {
             System.out.println("Starting text writer...");
@@ -37,10 +36,10 @@ public class DataToCsvWriter {
             writer.append("Accession,");
             writer.append("Sequence,");
             writer.append("Unique,");
-            writer.append("Flag,");
+            writer.append("Unique Combined,");
             writer.append("Dataset,");
             for (String state: states) {
-                for (int i = 1; i <=10; i++) {
+                for (int i = 1; i <=(sampleSize / 2); i++) {
                     writer.append(state + i + ",");
                     writer.append(state.substring(0, 1) + i + " cov%,");
                 }

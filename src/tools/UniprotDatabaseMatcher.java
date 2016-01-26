@@ -5,20 +5,18 @@
  */
 package tools;
 
-import collections.PeptideCollection;
 import collections.ProteinCollection;
 import objects.Protein;
 import collections.ProteinPeptideCollection;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import objects.Peptide;
 import objects.ProteinPeptide;
 
 /**
  * Matches peptides from a txt file to a collection of proteins (uniprot for example).
  * @author vnijenhuis
  */
-public class SequenceToDatabaseMatcher {
+public class UniprotDatabaseMatcher {
     /**
      * Matches peptide sequences to a protein database.
      * @param proteins collection of database protein sequences.
@@ -27,19 +25,25 @@ public class SequenceToDatabaseMatcher {
      * @throws FileNotFoundException file not found.
      * @throws IOException can't open file.
      */
-    public final ProteinPeptideCollection matchPeptides(final ProteinCollection proteins,
+    public final ProteinPeptideCollection matchProteinPeptides(final ProteinCollection proteins,
             final ProteinPeptideCollection proteinPeptides) throws FileNotFoundException, IOException {
         int cnt = 0;
+        ProteinPeptideCollection newCollection = new ProteinPeptideCollection();
         System.out.println("Starting to match peptides to protein database.");
         for (ProteinPeptide proteinPeptide : proteinPeptides.getPeptideMatches()) {
             cnt += 1;
+            boolean match = true;
             for (Protein protein : proteins.getProteins()) {
                 // Cast object to protein and check if peptide is present
                 String sequence = proteinPeptide.getSequence().replaceAll("\\(\\+[0-9]+\\.[0-9]+\\)", "");
                 if (protein.getSequence().contains(sequence)) {
-                    proteinPeptide.setUniqueFlag((proteinPeptide.getFlag() + 1));
+                        match = false;
+                        break;
+                    }
                 }
-            }
+                if (match) {
+                    newCollection.addPeptideMatch(proteinPeptide);
+                }
             if (cnt % 1000 == 0) {
                 System.out.println("Matched " + cnt + " peptide sequences to database.");
             }

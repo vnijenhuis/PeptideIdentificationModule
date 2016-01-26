@@ -30,41 +30,43 @@ public class ProteinCollectionCreator {
     private BufferedReader dbReader;
 
     /**
-     * Reads a protein fasta.gz file such as the uniprot-database.fasta.gz 
+     * Reads proteins.fasta files or database file such as the uniprot-database.fasta.gz 
      * and creates a protein collection.
-     * @param dbFile database file.
+     * @param databases database file(s).
+     * @param proteins protein collection.
      * @return returns a collection of proteins.
      */
-    public final ProteinCollection createCollection(final String dbFile) {
-        ProteinCollection proteins = new ProteinCollection();
+    public final ProteinCollection createCollection(final ArrayList<String> databases,
+            final ProteinCollection proteins) {
         try {
-            System.out.println("Loading individual proteins...");
-            File file = new File(dbFile);
-            if (dbFile.contains(".gz")) {
-                InputStream fileStream = new FileInputStream(file);
-                InputStream gzipStream = new GZIPInputStream(fileStream);
-                Reader decoder = new InputStreamReader(gzipStream, "US-ASCII");
-                dbReader = new BufferedReader(decoder);
-            } else {
-                FileReader fr = new FileReader(file);
-                dbReader = new BufferedReader(fr);
-            }
-            String line;
-            boolean firstLine = true;
-            String sequence = "";
-            //Create protein objects with a sequence.
-            while ((line = dbReader.readLine()) != null) {
-                if (line.startsWith(">") && firstLine) {
-                    firstLine = false;
-                } else if (line.startsWith(">")) {
-                    Protein protein = new Protein(sequence);
-                    proteins.addProtein(protein);
-                    sequence = "";
+            System.out.println("Loading database proteins...");
+            for (String database: databases) {
+                File file = new File(database);
+                if (database.contains(".gz")) {
+                    InputStream fileStream = new FileInputStream(file);
+                    InputStream gzipStream = new GZIPInputStream(fileStream);
+                    Reader decoder = new InputStreamReader(gzipStream, "US-ASCII");
+                    dbReader = new BufferedReader(decoder);
                 } else {
-                    sequence += line.trim();
+                    FileReader fr = new FileReader(file);
+                    dbReader = new BufferedReader(fr);
+                }
+                String line;
+                boolean firstLine = true;
+                String sequence = "";
+                //Create protein objects with a sequence.
+                while ((line = dbReader.readLine()) != null) {
+                    if (line.startsWith(">") && firstLine) {
+                        firstLine = false;
+                    } else if (line.startsWith(">")) {
+                        Protein protein = new Protein(sequence);
+                        proteins.addProtein(protein);
+                        sequence = "";
+                    } else {
+                        sequence += line.trim();
+                    }
                 }
             }
-
         }   catch (FileNotFoundException ex) {
                 System.out.println("File nout found: " + ex.getMessage());
         }   catch (IOException ex) {

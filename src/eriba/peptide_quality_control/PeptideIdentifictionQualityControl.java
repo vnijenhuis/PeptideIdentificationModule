@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import objects.Protein;
 import objects.ProteinPeptide;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -20,10 +21,11 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import tools.DatabaseMatcher;
 import tools.CsvMatrixCreator;
 import tools.DataToCsvWriter;
 import tools.PeptideCollectionCreator;
-import tools.SequenceToDatabaseMatcher;
+import tools.UniprotDatabaseMatcher;
 import tools.PeptideToProteinPeptideMatcher;
 import tools.ProteinCollectionCreator;
 import tools.ProteinPeptideCollectionCreator;
@@ -87,10 +89,16 @@ public class PeptideIdentifictionQualityControl {
     private final ProteinPeptideCollectionCreator proteinPeptideCollection;
     private ProteinPeptideCollection proteinPeptides;
     private final PeptideToProteinPeptideMatcher proteinPeptideMatching;
-    private final SequenceToDatabaseMatcher sequenceMatcher;
+    private final UniprotDatabaseMatcher sequenceMatcher;
     private final DataToCsvWriter fileWriter;
     private final CsvMatrixCreator createMatrix;
     private final SetMatrixValues matrix;
+    private final DatabaseMatcher matchCombinedDatabase;
+    private ArrayList<String> databases;
+    private ProteinCollection database;
+    private HashSet<ProteinCollection> combinedProteins;
+    private HashSet<ProteinCollection> databaseProteins;
+    private ProteinCollection combinedDatabase;
     
     /**
      * Private constructor to define primary functions.
@@ -137,10 +145,11 @@ public class PeptideIdentifictionQualityControl {
         databaseCollection = new ProteinCollectionCreator();
         proteinPeptideCollection = new ProteinPeptideCollectionCreator();
         proteinPeptideMatching = new PeptideToProteinPeptideMatcher();
-        sequenceMatcher = new SequenceToDatabaseMatcher();
-        fileWriter = new DataToCsvWriter();
+        sequenceMatcher = new UniprotDatabaseMatcher();
         createMatrix = new CsvMatrixCreator();
         matrix = new SetMatrixValues();
+        matchCombinedDatabase = new DatabaseMatcher();
+        fileWriter = new DataToCsvWriter();
     }
 
     /**
@@ -170,36 +179,52 @@ public class PeptideIdentifictionQualityControl {
             psmFiles = input.checkFileValidity(path, psmFile);
             proPepFiles = input.checkFileValidity(path, proPepFile);
             indivDbFiles = input.checkFileValidity(path, indivDbFile);
-            input.checkFileValidity(databasePath, "01_uniprot_taxonomy.fasta.gz");
-            PeptideQualityControl(psmFiles, proPepFiles, indivDbFiles, outputPath);
+            System.out.println(databasePath);
+            databases = input.checkFileValidity(databasePath, ".fasta");
+            System.out.println(databases);
+            PeptideQualityControl(psmFiles, proPepFiles, indivDbFiles, databases, outputPath);
         }
     }
 
     /**
      * Starts the quality control procedure.
-     * @param psmFiles
-     * @param proPepFiles
-     * @param indivDbFiles
-     * @param outputPath
-     * @throws IOException 
+     * @param psmFiles DB seach psm.csv file of each sample.
+     * @param proPepFiles protein-peptides.csv file of each sample
+     * @param indivDbFiles individual database files of each sample.
+     * @param databases protein database(s) such as uniprot.
+     * @param outputPath outputpath for the matrix csv file.
+     * @throws IOException could not open/find the specified file or directory.
      */
     public final void PeptideQualityControl(ArrayList<String> psmFiles, final ArrayList<String> proPepFiles,
-            final ArrayList<String> indivDbFiles, final String outputPath)  throws IOException {
+            final ArrayList<String> indivDbFiles, final ArrayList<String> databases, final String outputPath)  throws IOException {
 //        Integer sampleSize = psmFiles.size();
         Integer sampleSize = 1;
+        String[] path = psmFiles.get(1).split("\\\\");
+        String dataSet = path[path.length-4];
         HashSet<ArrayList<String>> peptideMatrix = new HashSet<>();
+        //Creates a uniprot (and possibly other) database collection.
+        database = new ProteinCollection();
+        database = databaseCollection.createCollection(databases, database);
+        System.out.println(database.getProteins().size());
+        System.out.println("Starting to combine individual databases.");
+        combinedDatabase = new ProteinCollection();
+        combinedDatabase = databaseCollection.createCollection(indivDbFiles, combinedDatabase);
+        System.out.println("Finished loading combined database!");
         for (int sample = 0; sample < sampleSize; sample++) {
-            String[] path = psmFiles.get(sample).split("\\\\");
-            String patient = path[path.length-2];
-            String dataSet = path[path.length-4];
+//            proteins = new ProteinCollection();
+            String[] samplePath = psmFiles.get(sample).split("\\\\");
+            String patient = samplePath[samplePath.length-2];
             peptides = peptideCollection.createCollection(psmFiles.get(sample));
             proteinPeptides = proteinPeptideCollection.createCollection(proPepFiles.get(sample));
             proteinPeptides = proteinPeptideMatching.matchPeptides(peptides, proteinPeptides);
-            proteins = databaseCollection.createCollection(indivDbFiles.get(sample));
-            proteinPeptides = sequenceMatcher.matchPeptides(proteins, proteinPeptides);
-            peptideMatrix = createMatrix.createMatrix(proteinPeptides, peptideMatrix, sampleSize);
+//            proteins = databaseCollection.createCollection(indivDbFiles.get(sample), proteins);
+            proteinPeptides = sequenceMatcher.matchProteinPeptides(combinedDatabase, proteinPeptides);
+            proteinPeptides = sequenceMatcher.matchProteinPeptides(combinedDatabase, proteinPeptides);
+            createMatrix.createMatrix(proteinPeptides, peptideMatrix, sampleSize);
             matrix.setValues(proteinPeptides, peptideMatrix, patient, sampleSize);
-            fileWriter.generateCsvFile(peptideMatrix, outputPath, patient, dataSet);
         }
+//        peptideMatrix = matchCombinedDatabase.matchToDatabase(peptideMatrix, databaseProteins);
+//        peptideMatrix = matchCombinedDatabase.matchToDatabase(peptideMatrix, combinedProteins);
+//        fileWriter.generateCsvFile(peptideMatrix, outputPath, dataSet, sampleSize);
     }
 }

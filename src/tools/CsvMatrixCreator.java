@@ -25,13 +25,15 @@ public class CsvMatrixCreator {
             data.add(proteinPeptide.getAccession());
             data.add(proteinPeptide.getSequence());
             data.add(proteinPeptide.getUniqueGroup());
-            data.add(proteinPeptide.getFlag().toString());
+            data.add(proteinPeptide.getFlag());
+            data.add(proteinPeptide.getUniqueCombined());
             data.add(proteinPeptide.getDataset());
             for (int i = 0; i <size; i++) {
                 data.add("0");
                 data.add("0");
             }
             boolean newArray = true;
+            //Checks if the matrix exists already.
             if (!peptideMatrix.isEmpty()) {
                 for (ArrayList<String> array: peptideMatrix) {
                     if (array.get(0).equals(data.get(0))

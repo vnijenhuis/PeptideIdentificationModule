@@ -5,7 +5,6 @@
  */
 package tools;
 
-import collections.PeptideCollection;
 import collections.ProteinPeptideCollection;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -14,8 +13,8 @@ import java.io.IOException;
 import objects.ProteinPeptide;
 
 /**
- *
- * @author f103013
+ * Creates a protein-peptide collection.
+ * @author vnijenhuis
  */
 public class ProteinPeptideCollectionCreator {
     /**
@@ -37,7 +36,7 @@ public class ProteinPeptideCollectionCreator {
         BufferedReader bffFr = new BufferedReader(fr);
         String line;
         Integer count = 1;
-        Integer uniqueFlag = 0;
+        String uniqueCombined = "N";
         Boolean firstLine = true;
         //Read the file.
         while ((line = bffFr.readLine()) != null) {
@@ -55,7 +54,7 @@ public class ProteinPeptideCollectionCreator {
             String uniqueToGroup = data[4];
             Double coverage = Double.parseDouble(data[5]);
             boolean newPeptide = true;
-            ProteinPeptide proteinPeptideMatch = new ProteinPeptide(proteinGroup, accession,sequence, dataset, uniqueToGroup, uniqueFlag, count, coverage);
+            ProteinPeptide proteinPeptideMatch = new ProteinPeptide(proteinGroup, accession,sequence, dataset, uniqueToGroup, uniqueCombined, count, coverage);
             //Add matches to a ProteinPeptideCollection.
             if (!proteinPeptides.getPeptideMatches().isEmpty()) {
                 for (ProteinPeptide proteinPeptide: proteinPeptides.getPeptideMatches()) {

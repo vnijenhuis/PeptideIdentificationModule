@@ -35,7 +35,7 @@ public class ProteinPeptide {
     /**
      * Unique to one individual sequence.
      */
-    private Integer flag;
+    private String flag;
 
     /**
      * Dataset that the peptide belongs to.
@@ -51,6 +51,11 @@ public class ProteinPeptide {
      * Highest coverage value of the peptide.
      */
     private Double coverage;
+    
+    /**
+     * Unique to one sequence in the combined database.
+     */
+    private String uniqueCombined;
 
     /**
      * Creates a protein object.
@@ -59,18 +64,18 @@ public class ProteinPeptide {
      * @param sequence contains the peptide amino acid sequence.
      * @param dataSet dataset(s) that the peptide belongs to.
      * @param uniqueToGroup (yes/no) Y if unique to one protein group, otherwise its a N.
-     * @param unique flag to check if a peptide is present in only one sequence of the individual database.
+     * @param uniqueCombined unique to one sequence in the combined database.
      * @param count counting number of the sequence.
-     * @param coverage
+     * @param coverage coverage % of the sequence.
      */
     public ProteinPeptide(final String proteinGroup, final String accession, final String sequence,
-            final String dataSet, final String uniqueToGroup, final Integer unique, final Integer count,
-            final Double coverage) {
+            final String dataSet, final String uniqueToGroup, final String uniqueCombined,
+            final Integer count, final Double coverage) {
         this.proteinGroup = proteinGroup;
         this.accession = accession;
         this.sequence = sequence;
         this.uniqueToGroup = uniqueToGroup;
-        this.flag = unique;
+        this.uniqueCombined = uniqueCombined;
         this.dataset = dataSet;
         this.count = count;
         this.coverage = coverage;
@@ -108,11 +113,6 @@ public class ProteinPeptide {
         return this.sequence;
     }
 
-    /**
-     * Flag to check if a peptide is unique to a protein group.
-     * @return flag Y when a peptide belongs to one protein group, or flag N when a peptide
-     * belongs to multiple protein groups.
-     */
     public final String getUniqueGroup() {
         return this.uniqueToGroup;
     }
@@ -121,19 +121,26 @@ public class ProteinPeptide {
      * Flag number to check in how many individual databases this peptide is found.
      * @return flag number as Integer.
      */
-    public final Integer getFlag() {
+    public final String getFlag() {
         return this.flag;
     }
 
     /**
-     * Sets the flag number to 0, 1 or more.
-     * 0 means zero matches, 1 means one match etc.
-     * @param count count of 1.
+     * Returns Y if the sequence is present once or N if present less/more inside the database.
+     * @param flag flag of Y or N.
      */
-    public final void setUniqueFlag(final Integer count) {
-        this.flag = count;
+    public final void setUniqueFlag(final String flag) {
+        this.flag = flag;
     }
 
+    public final String getUniqueCombined() {
+        return this.uniqueCombined;
+    }
+    
+    public final void setUniqueCombined(final String flag) {
+        this.uniqueCombined = flag;
+    }
+    
     /**
      * Returns the name of the dataset that this peptide belongs to.
      * @return dataset as String.
