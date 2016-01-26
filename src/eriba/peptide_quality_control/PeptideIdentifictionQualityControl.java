@@ -212,7 +212,7 @@ public class PeptideIdentifictionQualityControl {
     public final void PeptideQualityControl(ArrayList<String> psmFiles, final ArrayList<String> proPepFiles,
             final ArrayList<String> indivDbFiles, final ArrayList<String> databases, final String outputPath)  throws IOException {
         Integer sampleSize = psmFiles.size();
-//        Integer sampleSize = 1;
+//        Integer sampleSize = 2;
         String[] path = psmFiles.get(1).split("\\\\");
         String dataSet = path[path.length-4];
         ProteinPeptideCollection finalCollection = new ProteinPeptideCollection();
@@ -238,10 +238,7 @@ public class PeptideIdentifictionQualityControl {
         //Create a matrix of all final ProteinPeptide objects.
         HashSet<ArrayList<String>> proteinPeptideMatrix = new HashSet<>();
         proteinPeptideMatrix = createMatrix.createMatrix(finalCollection, sampleSize);
-        proteinPeptideMatrix = matrix.setValues(finalCollection, proteinPeptideMatrix, 20);
-        for (ArrayList<String> proteinPeptide: proteinPeptideMatrix) {
-            System.out.println(proteinPeptide);
-        }
+        proteinPeptideMatrix = matrix.setValues(finalCollection, proteinPeptideMatrix, sampleSize);
         fileWriter.generateCsvFile(proteinPeptideMatrix, outputPath, dataSet, sampleSize);
     }
 }

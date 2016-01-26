@@ -34,7 +34,7 @@ public class CombinedIndividualDatabaseMatcher {
             }
             //Set uniqueness depending on the oneMatch counter.
             if (oneMatch == 1) {
-                if (proteinPeptide.getUniqueCombined().equals("")) {
+                if (proteinPeptide.getUniqueCombined().equals("") || proteinPeptide.getUniqueCombined().equals("N")) {
                     proteinPeptide.setUniqueCombined(("Y;" + proteinPeptide.getSample()));    
                 } else if (!proteinPeptide.getUniqueCombined().contains(proteinPeptide.getSample())) {
                     proteinPeptide.setUniqueCombined((proteinPeptide.getSample() + "|Y;" + proteinPeptide.getSample()));    
