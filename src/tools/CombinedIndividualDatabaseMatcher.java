@@ -7,8 +7,6 @@ package tools;
 
 import collections.ProteinCollection;
 import collections.ProteinPeptideCollection;
-import java.util.ArrayList;
-import java.util.HashSet;
 import objects.Protein;
 import objects.ProteinPeptide;
 
@@ -28,18 +26,22 @@ public class CombinedIndividualDatabaseMatcher {
         System.out.println("Matching sequences to combined inidividual database.");
         for (ProteinPeptide proteinPeptide: proteinPeptides.getPeptideMatches()) {
             Integer oneMatch = 0;
+            //Test if a protein sequence contains the peptide sequence.
             for (Protein protein: proteins.getProteins()) {
                 if (protein.getSequence().contains(proteinPeptide.getSequence())) {
                     oneMatch += 1;
                 }
             }
+            //Set uniqueness depending on the oneMatch counter.
             if (oneMatch == 1) {
-                proteinPeptide.setUniqueCombined((proteinPeptide.getSample() + "Y/" + proteinPeptide.getSample()));
-                System.out.println("Matched: " + oneMatch + " | " + proteinPeptide.toString());
+                if (proteinPeptide.getUniqueCombined().equals("")) {
+                    proteinPeptide.setUniqueCombined(("Y;" + proteinPeptide.getSample()));    
+                } else if (!proteinPeptide.getUniqueCombined().contains(proteinPeptide.getSample())) {
+                    proteinPeptide.setUniqueCombined((proteinPeptide.getSample() + "|Y;" + proteinPeptide.getSample()));    
+                } 
             } else {
-                System.out.println("Else: " + oneMatch + " | " + proteinPeptide.toString());
                 proteinPeptide.setUniqueCombined("N");
-                break;
+
             }
         }
         return proteinPeptides;

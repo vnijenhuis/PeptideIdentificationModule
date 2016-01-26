@@ -27,7 +27,7 @@ public class DataToCsvWriter {
             final String dataSet, final Integer sampleSize) throws IOException {
         //Create a new FileWriter instance.
 	try (FileWriter writer = new FileWriter(path + "unknown_" + dataSet + "_peptide_matrix.csv")) {
-            System.out.println("Starting text writer...");
+            System.out.println("Writing data to text file...");
             ArrayList<String> states = new ArrayList<>();
             // Create header with line separator="," and line ending="\n"
             states.add("Healthy");
@@ -40,6 +40,7 @@ public class DataToCsvWriter {
             writer.append("Dataset,");
             for (String state: states) {
                 for (int i = 1; i <=(sampleSize / 2); i++) {
+                    System.out.println(state + i);
                     writer.append(state + i + ",");
                     writer.append(state.substring(0, 1) + i + " cov%,");
                 }

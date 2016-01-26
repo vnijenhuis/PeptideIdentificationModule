@@ -211,19 +211,18 @@ public class PeptideIdentifictionQualityControl {
      */
     public final void PeptideQualityControl(ArrayList<String> psmFiles, final ArrayList<String> proPepFiles,
             final ArrayList<String> indivDbFiles, final ArrayList<String> databases, final String outputPath)  throws IOException {
-//        Integer sampleSize = psmFiles.size();
-        Integer sampleSize = 1;
+        Integer sampleSize = psmFiles.size();
+//        Integer sampleSize = 2;
         String[] path = psmFiles.get(1).split("\\\\");
         String dataSet = path[path.length-4];
-        HashSet<ArrayList<String>> peptideMatrix = new HashSet<>();
+        ProteinPeptideCollection finalCollection = new ProteinPeptideCollection();
         //Creates a uniprot (and possibly other) database collection.
         database = new ProteinCollection();
         database = databaseCollection.createCollection(databases, database);
         combinedDatabase = new ProteinCollection();
         combinedDatabase = databaseCollection.createCollection(indivDbFiles, combinedDatabase);
         for (int sample = 0; sample < sampleSize; sample++) {
-            String[] samplePath = psmFiles.get(sample).split("\\\\");
-            String patient = samplePath[samplePath.length-2];
+            proteinPeptides = new ProteinPeptideCollection();
             //Loads unique peptide sequences from DB search psm.csv.
             peptides = peptideCollection.createCollection(psmFiles.get(sample));
             //Makes protein peptide objects, remove flag, add patient ID
@@ -234,15 +233,15 @@ public class PeptideIdentifictionQualityControl {
             proteinPeptides = databaseMatcher.matchToDatabases(database, proteinPeptides);
             //Match to the individual database. Flags sequences that occur once inside this database.
             proteinPeptides = individualDatabaseMatcher.matchToIndividuals(proteinPeptides, combinedDatabase);
-            for (ProteinPeptide p: proteinPeptides.getPeptideMatches()) {
-                System.out.println(p.toString());
-            }
-//            //Creates a matrix.
-//            createMatrix.createMatrix(proteinPeptides, peptideMatrix, sampleSize);
-//            matrix.setValues(proteinPeptides, peptideMatrix, patient, sampleSize);
+            finalCollection.getPeptideMatches().addAll(proteinPeptides.getPeptideMatches());
         }
-//        peptideMatrix = matchCombinedDatabase.matchToDatabase(peptideMatrix, databaseProteins);
-//        peptideMatrix = matchCombinedDatabase.matchToDatabase(peptideMatrix, combinedProteins);
-//        fileWriter.generateCsvFile(peptideMatrix, outputPath, dataSet, sampleSize);
+        //Create a matrix of all final ProteinPeptide objects.
+        HashSet<ArrayList<String>> proteinPeptideMatrix = new HashSet<>();
+        proteinPeptideMatrix = createMatrix.createMatrix(proteinPeptides, sampleSize);
+        proteinPeptideMatrix = matrix.setValues(proteinPeptides, proteinPeptideMatrix, sampleSize);
+        for (ArrayList<String> proteinPeptide: proteinPeptideMatrix) {
+            System.out.println(proteinPeptide);
+        }
+        fileWriter.generateCsvFile(proteinPeptideMatrix, outputPath, dataSet, sampleSize);
     }
 }
