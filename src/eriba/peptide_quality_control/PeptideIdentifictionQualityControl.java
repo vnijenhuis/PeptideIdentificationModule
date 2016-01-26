@@ -180,7 +180,7 @@ public class PeptideIdentifictionQualityControl {
             proPepFiles = input.checkFileValidity(path, proPepFile);
             indivDbFiles = input.checkFileValidity(path, indivDbFile);
             System.out.println(databasePath);
-            databases = input.checkFileValidity(databasePath, ".fasta");
+            databases = input.checkFileValidity(databasePath, "uniprot");
             System.out.println(databases);
             PeptideQualityControl(psmFiles, proPepFiles, indivDbFiles, databases, outputPath);
         }
@@ -205,23 +205,26 @@ public class PeptideIdentifictionQualityControl {
         //Creates a uniprot (and possibly other) database collection.
         database = new ProteinCollection();
         database = databaseCollection.createCollection(databases, database);
-        System.out.println(database.getProteins().size());
-        System.out.println("Starting to combine individual databases.");
         combinedDatabase = new ProteinCollection();
         combinedDatabase = databaseCollection.createCollection(indivDbFiles, combinedDatabase);
-        System.out.println("Finished loading combined database!");
         for (int sample = 0; sample < sampleSize; sample++) {
-//            proteins = new ProteinCollection();
             String[] samplePath = psmFiles.get(sample).split("\\\\");
             String patient = samplePath[samplePath.length-2];
             peptides = peptideCollection.createCollection(psmFiles.get(sample));
+            //Makes protein peptide objects, remove flag, add patient ID
             proteinPeptides = proteinPeptideCollection.createCollection(proPepFiles.get(sample));
-            proteinPeptides = proteinPeptideMatching.matchPeptides(peptides, proteinPeptides);
-//            proteins = databaseCollection.createCollection(indivDbFiles.get(sample), proteins);
-            proteinPeptides = sequenceMatcher.matchProteinPeptides(combinedDatabase, proteinPeptides);
-            proteinPeptides = sequenceMatcher.matchProteinPeptides(combinedDatabase, proteinPeptides);
-            createMatrix.createMatrix(proteinPeptides, peptideMatrix, sampleSize);
-            matrix.setValues(proteinPeptides, peptideMatrix, patient, sampleSize);
+            System.out.println(proteinPeptides.getPeptideMatches());
+            //Matches protein peptide to db peptides, keeps single matches and counts occurences etc.
+//            proteinPeptides = proteinPeptideMatching.matchPeptides(peptides, proteinPeptides);
+//            System.out.println(proteinPeptides.getPeptideMatches());
+//            // Match to uniprot. This removes proteinPeptides that match in a database sequence.
+//            proteinPeptides = sequenceMatcher.matchProteinPeptides(database, proteinPeptides);
+//            System.out.println(proteinPeptides.getPeptideMatches());
+//            //Match to the individual database. Flags sequences that occur once inside this database.
+//            proteinPeptides = sequenceMatcher.matchProteinPeptides(combinedDatabase, proteinPeptides);
+//            //Creates a matrix.
+//            createMatrix.createMatrix(proteinPeptides, peptideMatrix, sampleSize);
+//            matrix.setValues(proteinPeptides, peptideMatrix, patient, sampleSize);
         }
 //        peptideMatrix = matchCombinedDatabase.matchToDatabase(peptideMatrix, databaseProteins);
 //        peptideMatrix = matchCombinedDatabase.matchToDatabase(peptideMatrix, combinedProteins);

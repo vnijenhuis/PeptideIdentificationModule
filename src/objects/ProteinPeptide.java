@@ -7,11 +7,9 @@ package objects;
 
 /**
  * ProteinPeptide object class.
- *
  * @author vnijenhuis
  */
 public class ProteinPeptide {
-
     /**
      * ID of the group of proteins that this protein belongs to.
      */
@@ -28,17 +26,17 @@ public class ProteinPeptide {
     private final String sequence;
 
     /**
-     * Unique to 1 protein group.
+     * Unique to 1 protein group. (Y/N)
      */
     private final String uniqueToGroup;
 
     /**
-     * Unique to one individual sequence.
+     * Unique to one protein sequence from the combined individual database. (Y/N)
      */
-    private String flag;
+    private String uniqueCombined;
 
     /**
-     * Dataset that the peptide belongs to.
+     * Dataset that the peptide belongs to. (2DLCMSMS, 2D25CM etc.)
      */
     private final String dataset;
 
@@ -51,11 +49,11 @@ public class ProteinPeptide {
      * Highest coverage value of the peptide.
      */
     private Double coverage;
-    
+
     /**
-     * Unique to one sequence in the combined database.
+     * ID of the sample. (COPD1, Healthy2 etc) (might rename Healthy to Control).
      */
-    private String uniqueCombined;
+    private final String sample;
 
     /**
      * Creates a protein object.
@@ -63,17 +61,19 @@ public class ProteinPeptide {
      * @param accession protein accession number(s).
      * @param sequence contains the peptide amino acid sequence.
      * @param dataSet dataset(s) that the peptide belongs to.
+     * @param sample sample id (COPD1, Healthy4 etc)
      * @param uniqueToGroup (yes/no) Y if unique to one protein group, otherwise its a N.
      * @param uniqueCombined unique to one sequence in the combined database.
      * @param count counting number of the sequence.
      * @param coverage coverage % of the sequence.
      */
     public ProteinPeptide(final String proteinGroup, final String accession, final String sequence,
-            final String dataSet, final String uniqueToGroup, final String uniqueCombined,
+            final String dataSet, final String sample , final String uniqueToGroup, final String uniqueCombined,
             final Integer count, final Double coverage) {
         this.proteinGroup = proteinGroup;
         this.accession = accession;
         this.sequence = sequence;
+        this.sample = sample;
         this.uniqueToGroup = uniqueToGroup;
         this.uniqueCombined = uniqueCombined;
         this.dataset = dataSet;
@@ -83,7 +83,7 @@ public class ProteinPeptide {
 
     /**
      * Returns the protein group that this peptide belongs to.
-     * @return protein_group as String.
+     * @return protein group as String.
      */
     public final String getProteinGroup() {
         return this.proteinGroup;
@@ -113,34 +113,38 @@ public class ProteinPeptide {
         return this.sequence;
     }
 
+    /**
+     * Returns Y(yes) if a sequence is unique to a protein group.
+     * @return Y or N as String.
+     */
     public final String getUniqueGroup() {
         return this.uniqueToGroup;
     }
 
     /**
-     * Flag number to check in how many individual databases this peptide is found.
-     * @return flag number as Integer.
+     * Returns the sample ID.
+     * @return sample ID as String.
      */
-    public final String getFlag() {
-        return this.flag;
+    public final String getSample() {
+        return this.sample;
     }
 
     /**
-     * Returns Y if the sequence is present once or N if present less/more inside the database.
-     * @param flag flag of Y or N.
+     * Returns Y(yes) if a sequence is matched once to indiv. database or N(no) if matched more than once.
+     * @return Y or N as String.
      */
-    public final void setUniqueFlag(final String flag) {
-        this.flag = flag;
-    }
-
     public final String getUniqueCombined() {
         return this.uniqueCombined;
     }
-    
+
+    /**
+     * Sets the uniqueCombined value to yes or no depending on the flag.
+     * @param flag Y or N as String.
+     */
     public final void setUniqueCombined(final String flag) {
         this.uniqueCombined = flag;
     }
-    
+
     /**
      * Returns the name of the dataset that this peptide belongs to.
      * @return dataset as String.
@@ -187,9 +191,9 @@ public class ProteinPeptide {
      */
     @Override
     public final String toString() {
-        return "Peptide{protein group; " + this.proteinGroup + " accession; " + this.accession
-                + " sequence; " + this.sequence + " unique; " + this.uniqueToGroup + " flag; "
-                + this.flag + " dataset; " + this.dataset + " count; " + this.count + " coverage; "
-                + this.coverage + "}";
+        return "Protein-Peptide{protein group; " + this.proteinGroup + " accession; " + this.accession
+                + " sequence; " + this.sequence + " sample; " + this.sample + " unique group; "
+                + this.uniqueToGroup + " unique combined; " + this.uniqueCombined + " dataset; "
+                + this.dataset + " count; " + this.count + " coverage; " + this.coverage + "}";
     }
 }

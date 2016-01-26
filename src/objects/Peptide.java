@@ -6,7 +6,7 @@
 package objects;
 
 /**
- * Creates a database search PSM object.
+ * Creates a Peptide object.
  * @author vnijenhuis
  */
 public class Peptide {
@@ -37,6 +37,6 @@ public class Peptide {
      */
     @Override
     public final String toString() {
-        return "PSM{Sequence; " + this.peptideSequence + "}";
+        return "Peptide{Sequence; " + this.peptideSequence + "}";
     }
 }

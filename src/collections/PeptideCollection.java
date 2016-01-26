@@ -27,7 +27,7 @@ public class PeptideCollection {
 
     /**
      * Adds peptide objects to the HashSet.
-     * @param peptide protein.
+     * @param peptide peptide object.
      */
     public final void addPeptide(final Peptide peptide) {
         peptides.add(peptide);
@@ -35,7 +35,7 @@ public class PeptideCollection {
     
     /**
      * Removes peptide values from the HashSet.
-     * @param peptide protein.
+     * @param peptide peptide object.
      */
     public final void removePeptide(final Peptide peptide) {
         peptides.remove(peptide);
@@ -46,9 +46,5 @@ public class PeptideCollection {
      */
     public final HashSet<Peptide> getPeptides() {
         return peptides;
-    }
-    
-    public final Boolean containsPeptide(Peptide peptide) {
-        return peptides.contains(peptide);
     }
 }
