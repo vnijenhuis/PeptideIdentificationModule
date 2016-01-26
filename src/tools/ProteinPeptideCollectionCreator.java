@@ -42,6 +42,7 @@ public class ProteinPeptideCollectionCreator {
         while ((line = bffFr.readLine()) != null) {
             if (firstLine) {
                 line = bffFr.readLine();
+                firstLine = false;
             }
             //Assign data to variables.
             String[] data = line.split(",");

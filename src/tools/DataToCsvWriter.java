@@ -9,6 +9,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import objects.ProteinPeptide;
 
 /**
  * Writes array data to a text file.
@@ -48,6 +49,7 @@ public class DataToCsvWriter {
             writer.append("\n");
             //Write data to file, line separator="," and line ending="\n"
             for (ArrayList<String> proteinPeptide: peptideMatrix) {
+                //PRINT TEST
                 writer.append(proteinPeptide.get(0) + ",");
                 writer.append(proteinPeptide.get(1) + ",");
                 writer.append(proteinPeptide.get(2) + ",");
@@ -55,7 +57,7 @@ public class DataToCsvWriter {
                 writer.append(proteinPeptide.get(4) + ",");
                 writer.append(proteinPeptide.get(5) + ",");
                 //Write values to the data set.
-                for (int i = 5; i <proteinPeptide.size(); i++) {
+                for (int i = 6; i <proteinPeptide.size(); i++) {
                     if (i == proteinPeptide.size()-1) {
                         writer.append(proteinPeptide.get(i));
                     } else {
