@@ -29,7 +29,6 @@ public class ValidFileChecker {
     public ArrayList<String> checkFileValidity(final String filePath, String fileName) throws IOException {
         //Go through all folders and files in a given path.
         ArrayList<String> fileList = new ArrayList<>();
-        System.out.println(filePath);
         File file = new File(filePath);
         String[] directories = file.list(new FilenameFilter() {
             @Override

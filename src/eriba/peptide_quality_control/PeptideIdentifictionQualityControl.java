@@ -12,8 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import objects.Protein;
-import objects.ProteinPeptide;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -33,13 +31,15 @@ import tools.SetMatrixValues;
 import tools.ValidFileChecker;
 
 /**
- *
- * @author f103013
+ * A peptide identification quality control module.
+ * Checks the quality of peptide mass spectrum output of COPD and Control samples.
+ * Accounts for uniqueness to an individual database group, removes sequences known by uniprot,
+ * and counts the occurrences of each peptide per sample.
+ * @author vnijenhuis
  */
 public class PeptideIdentifictionQualityControl {
-
     /**
-     * @param args the command line arguments
+     * @param args the command line arguments.
      * @throws org.apache.commons.cli.ParseException exception encountered while processing
      * command line options. Please check the input.
      * @throws java.io.IOException could not open or find the specified file or directory.
@@ -93,7 +93,6 @@ public class PeptideIdentifictionQualityControl {
     private final DataToCsvWriter fileWriter;
     private final CsvMatrixCreator createMatrix;
     private final SetMatrixValues matrix;
-    private final DatabaseMatcher matchCombinedDatabase;
     private ArrayList<String> databases;
     private ProteinCollection database;
     private HashSet<ProteinCollection> combinedProteins;
@@ -102,6 +101,8 @@ public class PeptideIdentifictionQualityControl {
     
     /**
      * Private constructor to define primary functions.
+     * Defines command line argument options.
+     * Calls classes and functions to be used with this module.
      */
     private PeptideIdentifictionQualityControl() {
         options = new Options();
@@ -140,15 +141,23 @@ public class PeptideIdentifictionQualityControl {
                 .desc("Individual database file name.")
                 .build();
         options.addOption(output);
+        //Checks files.
         input = new ValidFileChecker();
+        //Creates peptide collections.
         peptideCollection = new PeptideCollectionCreator();
+        //Creates protein collections.
         databaseCollection = new ProteinCollectionCreator();
+        //Creates protein-peptide matching collections.
         proteinPeptideCollection = new ProteinPeptideCollectionCreator();
+        //Flags uniqueCombined column of each protein-peptide object.
         proteinPeptideMatching = new PeptideToProteinPeptideMatcher();
+        //creates a collection of protein-peptide objects that are not matched to a database(uniprot) protein sequence.
         sequenceMatcher = new UniprotDatabaseMatcher();
+        //Creates a hashset of arrays as matrix.
         createMatrix = new CsvMatrixCreator();
+        //Sets the values per matrix.
         matrix = new SetMatrixValues();
-        matchCombinedDatabase = new DatabaseMatcher();
+        //Writes data to file.
         fileWriter = new DataToCsvWriter();
     }
 
@@ -165,21 +174,22 @@ public class PeptideIdentifictionQualityControl {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("Quality Control", options );
         } else {
+            //Allocate command line input to variables.
             String path = cmd.getOptionValue("path");
             String psmFile = cmd.getOptionValue("psm");
             String proPepFile = cmd.getOptionValue("pp");
             String databasePath = cmd.getOptionValue("db");
             String indivDbFile = cmd.getOptionValue("idb");
             String outputPath = cmd.getOptionValue("o");
+            //Check all files and paths.
             File checkPath = new File(outputPath);
             if (!checkPath.isDirectory()) {
-            throw new IllegalArgumentException("Paramter -o requires a valid path "
+                throw new IllegalArgumentException("Paramter -o requires a valid path "
                     + "to write data to. \nYou provided an invalid path:" + checkPath);
             }
             psmFiles = input.checkFileValidity(path, psmFile);
             proPepFiles = input.checkFileValidity(path, proPepFile);
             indivDbFiles = input.checkFileValidity(path, indivDbFile);
-            System.out.println(databasePath);
             databases = input.checkFileValidity(databasePath, "uniprot");
             System.out.println(databases);
             PeptideQualityControl(psmFiles, proPepFiles, indivDbFiles, databases, outputPath);
@@ -205,11 +215,12 @@ public class PeptideIdentifictionQualityControl {
         //Creates a uniprot (and possibly other) database collection.
         database = new ProteinCollection();
         database = databaseCollection.createCollection(databases, database);
-        combinedDatabase = new ProteinCollection();
-        combinedDatabase = databaseCollection.createCollection(indivDbFiles, combinedDatabase);
+//        combinedDatabase = new ProteinCollection();
+//        combinedDatabase = databaseCollection.createCollection(indivDbFiles, combinedDatabase);
         for (int sample = 0; sample < sampleSize; sample++) {
             String[] samplePath = psmFiles.get(sample).split("\\\\");
             String patient = samplePath[samplePath.length-2];
+            //Loads unique peptide sequences from DB search psm.csv.
             peptides = peptideCollection.createCollection(psmFiles.get(sample));
             //Makes protein peptide objects, remove flag, add patient ID
             proteinPeptides = proteinPeptideCollection.createCollection(proPepFiles.get(sample));

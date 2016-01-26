@@ -68,8 +68,8 @@ public class ProteinPeptide {
      * @param coverage coverage % of the sequence.
      */
     public ProteinPeptide(final String proteinGroup, final String accession, final String sequence,
-            final String dataSet, final String sample , final String uniqueToGroup, final String uniqueCombined,
-            final Integer count, final Double coverage) {
+            final String sample, final String uniqueToGroup, final String uniqueCombined, final String dataSet,
+            final Integer count,final Double coverage) {
         this.proteinGroup = proteinGroup;
         this.accession = accession;
         this.sequence = sequence;
@@ -191,9 +191,9 @@ public class ProteinPeptide {
      */
     @Override
     public final String toString() {
-        return "Protein-Peptide{protein group; " + this.proteinGroup + " accession; " + this.accession
-                + " sequence; " + this.sequence + " sample; " + this.sample + " unique group; "
-                + this.uniqueToGroup + " unique combined; " + this.uniqueCombined + " dataset; "
-                + this.dataset + " count; " + this.count + " coverage; " + this.coverage + "}";
+        return "Protein-Peptide{protein group; " + this.proteinGroup + ", accession; " + this.accession
+                + ", sequence; " + this.sequence + ", sample; " + this.sample + ", unique group; "
+                + this.uniqueToGroup + ", unique combined; " + this.uniqueCombined + ", dataset; "
+                + this.dataset + ", count; " + this.count + ", coverage; " + this.coverage + "}";
     }
 }
