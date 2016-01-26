@@ -36,7 +36,7 @@ public class ProteinPeptideCollectionCreator {
         BufferedReader bffFr = new BufferedReader(fr);
         String line;
         Integer count = 1;
-        String uniqueCombined = "N";
+        String uniqueCombined = "";
         Boolean firstLine = true;
         //Read the file.
         while ((line = bffFr.readLine()) != null) {

@@ -25,23 +25,23 @@ public class UniprotDatabaseMatcher {
      * @throws FileNotFoundException file not found.
      * @throws IOException can't open file.
      */
-    public final ProteinPeptideCollection matchProteinPeptides(final ProteinCollection proteins,
+    public final ProteinPeptideCollection matchToDatabases(final ProteinCollection proteins,
             final ProteinPeptideCollection proteinPeptides) throws FileNotFoundException, IOException {
         int cnt = 0;
         ProteinPeptideCollection newCollection = new ProteinPeptideCollection();
         System.out.println("Starting to match peptides to protein database.");
         for (ProteinPeptide proteinPeptide : proteinPeptides.getPeptideMatches()) {
             cnt += 1;
-            boolean match = true;
+            boolean noMatch = true;
             for (Protein protein : proteins.getProteins()) {
                 // Cast object to protein and check if peptide is present
                 String sequence = proteinPeptide.getSequence().replaceAll("\\(\\+[0-9]+\\.[0-9]+\\)", "");
                 if (protein.getSequence().contains(sequence)) {
-                        match = false;
+                        noMatch = false;
                         break;
                     }
                 }
-                if (match) {
+                if (noMatch) {
                     newCollection.addPeptideMatch(proteinPeptide);
                 }
             if (cnt % 1000 == 0) {
@@ -49,6 +49,8 @@ public class UniprotDatabaseMatcher {
             }
         }
         System.out.println("Finished matching " + proteinPeptides.getPeptideMatches().size() + " peptides!");
-        return proteinPeptides;
+        System.out.println("Found " + newCollection.getPeptideMatches().size()
+                + " peptides that did not match the database.");
+        return newCollection;
     }
 }
