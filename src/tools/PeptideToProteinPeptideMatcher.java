@@ -27,7 +27,7 @@ public class PeptideToProteinPeptideMatcher {
     public final ProteinPeptideCollection matchPeptides(final PeptideCollection peptides,
             final ProteinPeptideCollection proteinPeptides) throws FileNotFoundException, IOException {
         ProteinPeptideCollection proteinPeptideMatches = new ProteinPeptideCollection();
-        System.out.println("Starting to match peptides to protein database.");
+        System.out.println("Starting to match peptides to protein-peptide entries.");
         for (ProteinPeptide proteinPeptide : proteinPeptides.getProteinPeptideMatches()) {
             boolean newMatch = false;
             for (Peptide peptide : peptides.getPeptides()) {
