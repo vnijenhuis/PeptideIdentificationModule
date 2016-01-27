@@ -1,7 +1,6 @@
 /*
- * @author vnijenhuis
+ * @author Vikthor Nijenhuis
  * @project peptide spectrum matrix quality control  * 
- * @copyrights vnijenhuis, Dr. P.I. Horvatovich  * 
  */
 package tools;
 
@@ -49,8 +48,10 @@ public class ProteinPeptideCollectionCreator {
             String proteinGroup = data[0];
             String accession = data[2];
             String sequence = data[3];
+            //Remove first and last 2 indices.
             sequence = sequence.replaceAll("\\.[A-Z]$", "");
             sequence = sequence.replaceAll("^[A-Z]\\.", "");
+            //Possibility to remove (+15.99) values from peptides
 //            sequence = sequence.replaceAll("\\(\\+[0-9]+\\.[0-9]+\\)", "");
             String uniqueToGroup = data[4];
             Double coverage = Double.parseDouble(data[5]);

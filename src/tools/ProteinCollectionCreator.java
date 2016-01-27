@@ -1,7 +1,6 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * @author Vikthor Nijenhuis
+ * @project peptide spectrum matrix quality control  * 
  */
 package tools;
 
@@ -42,6 +41,7 @@ public class ProteinCollectionCreator {
             System.out.println("Loading database proteins...");
             for (String database: databases) {
                 File file = new File(database);
+                //Read database files. Can read .fasta.gz and normal fasta files.
                 if (database.contains(".gz")) {
                     InputStream fileStream = new FileInputStream(file);
                     InputStream gzipStream = new GZIPInputStream(fileStream);

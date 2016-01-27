@@ -1,7 +1,6 @@
 /*
- * @author vnijenhuis
+ * @author Vikthor Nijenhuis
  * @project peptide spectrum matrix quality control  * 
- * @copyrights vnijenhuis, Dr. P.I. Horvatovich  * 
  */
 package eriba.peptide_quality_control;
 
@@ -12,7 +11,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import objects.ProteinPeptide;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -198,7 +196,6 @@ public class PeptideIdentifictionQualityControl {
             proPepFiles = input.checkFileValidity(path, proPepFile);
             indivDbFiles = input.checkFileValidity(path, indivDbFile);
             databases = input.checkFileValidity(databasePath, "uniprot");
-            System.out.println(databases);
             PeptideQualityControl(psmFiles, proPepFiles, indivDbFiles, databases, outputPath, sampleSize);
         }
     }
@@ -216,10 +213,16 @@ public class PeptideIdentifictionQualityControl {
     public final void PeptideQualityControl(ArrayList<String> psmFiles, final ArrayList<String> proPepFiles,
             final ArrayList<String> indivDbFiles, final ArrayList<String> databases, final String outputPath,
             final Integer sampleSize)  throws IOException {
-//        Integer sampleSize = 2;
-        String[] path = psmFiles.get(0).split("\\\\");
+        String[] path = new String[0];
+        if (path.toString().contains("\\\\")) {
+            path = psmFiles.get(0).split("\\\\");
+        } else if (path.toString().contains("/")) {
+            path = psmFiles.get(0).split("/");
+        }
+        System.out.println(psmFiles.get(0));
         String dataSet = path[path.length-4];
         System.out.println("Starting quality control on " + dataSet);
+        System.exit(0);
         ProteinPeptideCollection finalCollection = new ProteinPeptideCollection();
         //Creates a uniprot (and possibly other) database collection.
         database = new ProteinCollection();
@@ -244,6 +247,7 @@ public class PeptideIdentifictionQualityControl {
         HashSet<ArrayList<String>> proteinPeptideMatrix = new HashSet<>();
         proteinPeptideMatrix = createMatrix.createMatrix(finalCollection, sampleSize);
         proteinPeptideMatrix = matrix.setValues(finalCollection, proteinPeptideMatrix, sampleSize);
+        //Write data to unknown_dataset_peptide_matrix.csv.
         fileWriter.generateCsvFile(proteinPeptideMatrix, outputPath, dataSet, sampleSize);
     }
 }

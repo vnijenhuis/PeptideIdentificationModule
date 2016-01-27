@@ -1,7 +1,6 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * @author Vikthor Nijenhuis
+ * @project peptide spectrum matrix quality control  * 
  */
 package tools;
 
@@ -32,17 +31,19 @@ public class PeptideToProteinPeptideMatcher {
         for (ProteinPeptide proteinPeptide : proteinPeptides.getProteinPeptideMatches()) {
             boolean newMatch = false;
             for (Peptide peptide : peptides.getPeptides()) {
-                // Cast object to protein and check if peptide is present
+                //Test if peptide sequences are equal to each other.
                 if (proteinPeptide.getSequence().equals(peptide.getSequence())) {
                     newMatch = true;
                     break;
                 }
             }
+            //Adds matches to a new collection.
             if (newMatch) {
                 proteinPeptideMatches.addProteinPeptideMatch(proteinPeptide);
             }
         }
         System.out.println("Finished matching " + proteinPeptideMatches.getProteinPeptideMatches().size() + " peptides!");
+        //Returns the new collection.
         return proteinPeptideMatches;
     }
 }

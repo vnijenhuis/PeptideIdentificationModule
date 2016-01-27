@@ -1,7 +1,6 @@
 /*
- * @author vnijenhuis
- * @project peptide spectrum matrix quality control  *
- * @copyrights vnijenhuis, Dr. P.I. Horvatovich  *
+ * @author Vikthor Nijenhuis
+ * @project peptide spectrum matrix quality control  * 
  */
 package tools;
 
@@ -27,10 +26,16 @@ public class PeptideCollectionCreator {
     public final PeptideCollection createCollection(final String file) throws FileNotFoundException, IOException {
         // Read the file
         PeptideCollection peptides = new PeptideCollection();
-        String[] path = file.split("\\\\");
-        String patient = path[path.length-2];
-        String dataSet = path[path.length-4];
-        System.out.println("Collecting peptides from " + patient + " " + dataSet + "...");
+       String[] path = new String[0];
+        if (path.toString().contains("\\\\")) {
+            path = file.split("\\\\");
+        } else if (path.toString().contains("/")) {
+            path = file.split("/");
+        }
+        //Creates the dataset and sample names.
+        String sample = path[path.length-2];
+        String dataset = path[path.length-4];
+        System.out.println("Collecting peptides from " + sample + " " + dataset + "...");
         FileReader fr = new FileReader(file);
         BufferedReader bffFr = new BufferedReader(fr);
         String line;
@@ -40,6 +45,7 @@ public class PeptideCollectionCreator {
             String accession = data[8];
             if (!accession.matches("^ENST[0-9]+$")) {
                 String sequence = data[0];
+                //Can remove (+15.99) and similar matches from a peptide sequence.
 //                sequence = sequence.replaceAll("\\(\\+[0-9]+\\.[0-9]+\\)", "");
                 Peptide peptide = new Peptide(sequence);
                 Boolean newPeptide = true;
@@ -58,7 +64,7 @@ public class PeptideCollectionCreator {
                 }
             }
         }
-        System.out.println("Collected " + peptides.getPeptides().size() + " unique peptides from " + patient + " " + dataSet + "!");
+        System.out.println("Collected " + peptides.getPeptides().size() + " unique peptides from " + sample + " " + dataset + "!");
         return peptides;
     }
 }

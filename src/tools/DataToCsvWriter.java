@@ -1,7 +1,6 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * @author Vikthor Nijenhuis
+ * @project peptide spectrum matrix quality control  * 
  */
 package tools;
 
@@ -9,7 +8,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import objects.ProteinPeptide;
 
 /**
  * Writes array data to a text file.
@@ -33,6 +31,7 @@ public class DataToCsvWriter {
             // Create header with line separator="," and line ending="\n"
             states.add("Healthy");
             states.add("COPD");
+            //Writes values to the header, line separator="," and line ending="\n"
             writer.append("Protein Group,");
             writer.append("Accession,");
             writer.append("Sequence,");
@@ -42,14 +41,15 @@ public class DataToCsvWriter {
             for (String state: states) {
                 for (int i = 1; i <=(sampleSize / 2); i++) {
                     System.out.println(state + i);
+                    //Writes the sample id to the header.
                     writer.append(state + i + ",");
+                    //Writes the sample coverage % to the header.
                     writer.append(state.substring(0, 1) + i + " cov%,");
                 }
             }
             writer.append("\n");
             //Write data to file, line separator="," and line ending="\n"
             for (ArrayList<String> proteinPeptide: peptideMatrix) {
-                //PRINT TEST
                 writer.append(proteinPeptide.get(0) + ",");
                 writer.append(proteinPeptide.get(1) + ",");
                 writer.append(proteinPeptide.get(2) + ",");
@@ -66,6 +66,7 @@ public class DataToCsvWriter {
                 }
                 writer.append("\n");
             }
+            //Finishes the text file writing.
             writer.flush();
             writer.close();
             System.out.println("Finished writing the text file!");

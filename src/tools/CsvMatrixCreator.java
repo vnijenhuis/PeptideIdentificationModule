@@ -1,7 +1,6 @@
 /*
- * @author vnijenhuis
+ * @author Vikthor Nijenhuis
  * @project peptide spectrum matrix quality control  * 
- * @copyrights vnijenhuis, Dr. P.I. Horvatovich  * 
  */
 package tools;
 
@@ -11,8 +10,8 @@ import java.util.HashSet;
 import objects.ProteinPeptide;
 
 /**
- *
- * @author f103013
+ * Creates a HashSet of arrays which serves as a matrix.
+ * @author vnijenhuis
  */
 public class CsvMatrixCreator {
     public final HashSet<ArrayList<String>> createMatrix(final ProteinPeptideCollection proteinPeptides, final Integer size) {
@@ -28,6 +27,8 @@ public class CsvMatrixCreator {
             newMatch.add(proteinPeptide.getUniqueGroup());
             newMatch.add(proteinPeptide.getUniqueCombined());
             newMatch.add(proteinPeptide.getDataset());
+            //Add values for each sample: 1 value for count, 1 value for coverage.
+            //Starting values are zero.
             for (int i = 0; i <size; i++) {
                 newMatch.add("0");
                 newMatch.add("0");
@@ -36,6 +37,8 @@ public class CsvMatrixCreator {
             //Checks if the matrix exists already.
             if (!proteinPeptideMatrix.isEmpty()) {
                 for (ArrayList<String> match: proteinPeptideMatrix) {
+                    //Matches group id, accession and sequence to check for similar results.
+                    //Prevents multiple entries with the same values.
                     if (match.get(0).equals(newMatch.get(0))
                             && match.get(1).equals(newMatch.get(1))
                             && match.get(2).equals(newMatch.get(2))) {
@@ -52,6 +55,7 @@ public class CsvMatrixCreator {
                 proteinPeptideMatrix.add(newMatch);
             }
         }
+        //Returns the matrix.
         return proteinPeptideMatrix;
     }
 }

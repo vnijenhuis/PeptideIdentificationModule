@@ -1,7 +1,6 @@
 /*
- * @author vnijenhuis
+ * @author Vikthor Nijenhuis
  * @project peptide spectrum matrix quality control  * 
- * @copyrights vnijenhuis, Dr. P.I. Horvatovich  * 
  */
 package collections;
 

@@ -1,7 +1,6 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * @author Vikthor Nijenhuis
+ * @project peptide spectrum matrix quality control  * 
  */
 package tools;
 
@@ -28,6 +27,7 @@ public class UniprotDatabaseMatcher {
     public final ProteinPeptideCollection matchToDatabases(final ProteinCollection proteins,
             final ProteinPeptideCollection proteinPeptides) throws FileNotFoundException, IOException {
         int cnt = 0;
+        //New ProteinPeptide Collection for non matched entries.
         ProteinPeptideCollection newCollection = new ProteinPeptideCollection();
         System.out.println("Starting to match peptides to protein database.");
         for (ProteinPeptide proteinPeptide : proteinPeptides.getProteinPeptideMatches()) {
@@ -51,6 +51,7 @@ public class UniprotDatabaseMatcher {
         System.out.println("Finished matching " + proteinPeptides.getProteinPeptideMatches().size() + " peptides!");
         System.out.println("Found " + newCollection.getProteinPeptideMatches().size()
                 + " peptides that did not match the database.");
+        //Returns the new collection of ProteinPeptide objects.
         return newCollection;
     }
 }

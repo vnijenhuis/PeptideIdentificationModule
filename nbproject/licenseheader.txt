@@ -1,9 +1,9 @@
 <#if licenseFirst??>
 ${licenseFirst}
 </#if>
-${licensePrefix}@author vnijenhuis
+${licensePrefix}@author Vikthor Nijenhuis
 ${licensePrefix}@project peptide spectrum matrix quality control ${licensePrefix}
-${licensePrefix}@copyrights © vnijenhuis, Dr. P.I. Horvatovich ${licensePrefix}
+
 <#if licenseLast??>
 ${licenseLast}
 </#if>
