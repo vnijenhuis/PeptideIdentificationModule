@@ -42,6 +42,10 @@ public class SetMatrixValues {
                     } else if (proteinPeptide.getSample().contains("COPD")) {
                         int cntIndex = (Integer.parseInt(proteinPeptide.getSample().substring(4))*2 + 4 + sampleSize);
                         int covIndex = (Integer.parseInt(proteinPeptide.getSample().substring(4))*2 + 5 + sampleSize);
+                        System.out.println(array.size());
+                        System.out.println(cntIndex);
+                        System.out.println(covIndex);
+                        System.out.println(array);
                         array.set(cntIndex, proteinPeptide.getCounter().toString());
                         array.set(covIndex, proteinPeptide.getCoverage().toString());
                         break;

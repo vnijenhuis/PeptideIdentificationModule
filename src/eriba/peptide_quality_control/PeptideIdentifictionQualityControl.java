@@ -28,6 +28,7 @@ import tools.UniprotDatabaseMatcher;
 import tools.PeptideToProteinPeptideMatcher;
 import tools.ProteinCollectionCreator;
 import tools.ProteinPeptideCollectionCreator;
+import tools.SampleSizeGenerator;
 import tools.SetMatrixValues;
 import tools.ValidFileChecker;
 
@@ -191,12 +192,14 @@ public class PeptideIdentifictionQualityControl {
                 throw new IllegalArgumentException("Paramter -o requires a valid path "
                     + "to write data to. \nYou provided an invalid path:" + checkPath);
             }
+            SampleSizeGenerator sizeGenerator = new SampleSizeGenerator();
+            Integer sampleSize = sizeGenerator.getSamples(path);
             psmFiles = input.checkFileValidity(path, psmFile);
             proPepFiles = input.checkFileValidity(path, proPepFile);
             indivDbFiles = input.checkFileValidity(path, indivDbFile);
             databases = input.checkFileValidity(databasePath, "uniprot");
             System.out.println(databases);
-            PeptideQualityControl(psmFiles, proPepFiles, indivDbFiles, databases, outputPath);
+            PeptideQualityControl(psmFiles, proPepFiles, indivDbFiles, databases, outputPath, sampleSize);
         }
     }
 
@@ -207,13 +210,14 @@ public class PeptideIdentifictionQualityControl {
      * @param indivDbFiles individual database files of each sample.
      * @param databases protein database(s) such as uniprot.
      * @param outputPath outputpath for the matrix csv file.
+     * @param sampleSize size of the samples. (10x COPD and 9x Healthy = sample size of 20 (healthy 10 is empty)
      * @throws IOException could not open/find the specified file or directory.
      */
     public final void PeptideQualityControl(ArrayList<String> psmFiles, final ArrayList<String> proPepFiles,
-            final ArrayList<String> indivDbFiles, final ArrayList<String> databases, final String outputPath)  throws IOException {
-        Integer sampleSize = psmFiles.size();
+            final ArrayList<String> indivDbFiles, final ArrayList<String> databases, final String outputPath,
+            final Integer sampleSize)  throws IOException {
 //        Integer sampleSize = 2;
-        String[] path = psmFiles.get(1).split("\\\\");
+        String[] path = psmFiles.get(0).split("\\\\");
         String dataSet = path[path.length-4];
         ProteinPeptideCollection finalCollection = new ProteinPeptideCollection();
         //Creates a uniprot (and possibly other) database collection.
@@ -221,7 +225,7 @@ public class PeptideIdentifictionQualityControl {
         database = databaseCollection.createCollection(databases, database);
         combinedDatabase = new ProteinCollection();
         combinedDatabase = databaseCollection.createCollection(indivDbFiles, combinedDatabase);
-        for (int sample = 0; sample < sampleSize; sample++) {
+        for (int sample = 0; sample < psmFiles.size(); sample++) {
             proteinPeptides = new ProteinPeptideCollection();
             //Loads unique peptide sequences from DB search psm.csv.
             peptides = peptideCollection.createCollection(psmFiles.get(sample));
