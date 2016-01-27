@@ -213,16 +213,13 @@ public class PeptideIdentifictionQualityControl {
     public final void PeptideQualityControl(ArrayList<String> psmFiles, final ArrayList<String> proPepFiles,
             final ArrayList<String> indivDbFiles, final ArrayList<String> databases, final String outputPath,
             final Integer sampleSize)  throws IOException {
-        String[] path = new String[0];
-        if (path.toString().contains("\\\\")) {
-            path = psmFiles.get(0).split("\\\\");
-        } else if (path.toString().contains("/")) {
-            path = psmFiles.get(0).split("/");
-        }
+        //Linux
+//        String[] path = psmFiles.get(0).split("/");
+        //Windows
+        String[] path = psmFiles.get(0).split("\\\\");
         System.out.println(psmFiles.get(0));
         String dataSet = path[path.length-4];
         System.out.println("Starting quality control on " + dataSet);
-        System.exit(0);
         ProteinPeptideCollection finalCollection = new ProteinPeptideCollection();
         //Creates a uniprot (and possibly other) database collection.
         database = new ProteinCollection();

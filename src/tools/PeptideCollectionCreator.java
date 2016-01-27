@@ -26,12 +26,10 @@ public class PeptideCollectionCreator {
     public final PeptideCollection createCollection(final String file) throws FileNotFoundException, IOException {
         // Read the file
         PeptideCollection peptides = new PeptideCollection();
-       String[] path = new String[0];
-        if (path.toString().contains("\\\\")) {
-            path = file.split("\\\\");
-        } else if (path.toString().contains("/")) {
-            path = file.split("/");
-        }
+        //Windows
+        String[] path = file.split("\\\\");
+        //Linux
+//        String[] path = file.split("/");
         //Creates the dataset and sample names.
         String sample = path[path.length-2];
         String dataset = path[path.length-4];
