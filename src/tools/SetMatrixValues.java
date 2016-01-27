@@ -25,6 +25,8 @@ public class SetMatrixValues {
             final HashSet<ArrayList<String>> peptideMatrix, final Integer sampleSize) {
         //Go throigh all arrays for each proteinPeptide object.
         for (ArrayList<String> array: peptideMatrix) {
+            //TEST PRINT....
+            System.out.println(array);
             for (ProteinPeptide proteinPeptide: proteinPeptides.getProteinPeptideMatches()) {
                 //Check if ProteinPeptide exists inside the matrix.
                 if (array.get(0).equals(proteinPeptide.getProteinGroup()) 
@@ -36,14 +38,12 @@ public class SetMatrixValues {
                         int covIndex = (Integer.parseInt(proteinPeptide.getSample().substring(7))*2 + 5);
                         array.set(cntIndex, proteinPeptide.getCounter().toString());
                         array.set(covIndex, proteinPeptide.getCoverage().toString());
-                        break;
                     //Add COPD sample data
                     } else if (proteinPeptide.getSample().contains("COPD")) {
                         int cntIndex = (Integer.parseInt(proteinPeptide.getSample().substring(4))*2 + 4 + sampleSize);
                         int covIndex = (Integer.parseInt(proteinPeptide.getSample().substring(4))*2 + 5 + sampleSize);
                         array.set(cntIndex, proteinPeptide.getCounter().toString());
                         array.set(covIndex, proteinPeptide.getCoverage().toString());
-                        break;
                     }
                 }
             }
