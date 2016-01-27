@@ -41,8 +41,9 @@ public class CombinedIndividualDatabaseMatcher {
                 } 
                 //Set flag to N(o) if more/less then one match was found.
             } else {
-                proteinPeptide.setUniqueCombined("N");
-
+                if (!proteinPeptide.getUniqueCombined().contains("Y")) {
+                    proteinPeptide.setUniqueCombined("N");
+                }
             }
         }
         return proteinPeptides;
