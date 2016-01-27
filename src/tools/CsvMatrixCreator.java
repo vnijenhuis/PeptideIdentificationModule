@@ -20,7 +20,7 @@ public class CsvMatrixCreator {
         HashSet<ArrayList<String>> proteinPeptideMatrix = new HashSet<>();
         //Make an array of each proteinPeptide object.
         System.out.println("Creating protein-peptide matrix...");
-        for (ProteinPeptide proteinPeptide: proteinPeptides.getPeptideMatches()) {
+        for (ProteinPeptide proteinPeptide: proteinPeptides.getProteinPeptideMatches()) {
             newMatch = new ArrayList<>();
             newMatch.add(proteinPeptide.getProteinGroup());
             newMatch.add(proteinPeptide.getAccession());

@@ -26,25 +26,25 @@ public class ProteinPeptideCollection {
     }
 
     /**
-     * Adds peptide objects to the HashSet.
-     * @param proteinPeptideMatch protein.
+     * Adds ProteinPeptide object to the HashSet.
+     * @param proteinPeptideMatch ProteinPeptide object.
      */
-    public final void addPeptideMatch(final ProteinPeptide proteinPeptideMatch) {
+    public final void addProteinPeptideMatch(final ProteinPeptide proteinPeptideMatch) {
         matches.add(proteinPeptideMatch);
     }
     
     /**
-     * Removes peptide values from the HashSet.
-     * @param proteinPeptideMatch protein.
+     * Removes ProteinPeptide value from the HashSet.
+     * @param proteinPeptideMatch ProteinPeptide.
      */
-    public final void removePeptideMatch(final ProteinPeptide proteinPeptideMatch) {
+    public final void removeProteinPeptideMatch(final ProteinPeptide proteinPeptideMatch) {
         matches.remove(proteinPeptideMatch);
     }
     /**
      * Returns the HashSet.
-     * @return HashSet of peptides.
+     * @return HashSet of ProteinPeptides.
      */
-    public final HashSet<ProteinPeptide> getPeptideMatches() {
+    public final HashSet<ProteinPeptide> getProteinPeptideMatches() {
         return matches;
     }
 }

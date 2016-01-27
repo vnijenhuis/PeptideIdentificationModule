@@ -58,8 +58,8 @@ public class ProteinPeptideCollectionCreator {
             ProteinPeptide match = new ProteinPeptide(proteinGroup, accession, sequence, patient,uniqueToGroup,
                     uniqueCombined, dataset, count, coverage);
             //Add matches to a ProteinPeptideCollection.
-            if (!proteinPeptides.getPeptideMatches().isEmpty()) {
-                for (ProteinPeptide proteinPeptide: proteinPeptides.getPeptideMatches()) {
+            if (!proteinPeptides.getProteinPeptideMatches().isEmpty()) {
+                for (ProteinPeptide proteinPeptide: proteinPeptides.getProteinPeptideMatches()) {
                     if (proteinPeptide.getSequence().equals(sequence)) {
                         if ((proteinPeptide.getProteinGroup().equals(proteinGroup))) {
                             newPeptide = false;
@@ -75,13 +75,13 @@ public class ProteinPeptideCollectionCreator {
                 }
                 //If no match was found: add new entry to collection.
                 if (newPeptide) {
-                    proteinPeptides.addPeptideMatch(match);
+                    proteinPeptides.addProteinPeptideMatch(match);
                 }
             } else {
-                proteinPeptides.addPeptideMatch(match);
+                proteinPeptides.addProteinPeptideMatch(match);
             }
         }
-        System.out.println("Collected " + proteinPeptides.getPeptideMatches().size() + " protein-peptides from " + file);
+        System.out.println("Collected " + proteinPeptides.getProteinPeptideMatches().size() + " protein-peptides from " + file);
         return proteinPeptides;
     }
 }

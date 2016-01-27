@@ -30,7 +30,7 @@ public class UniprotDatabaseMatcher {
         int cnt = 0;
         ProteinPeptideCollection newCollection = new ProteinPeptideCollection();
         System.out.println("Starting to match peptides to protein database.");
-        for (ProteinPeptide proteinPeptide : proteinPeptides.getPeptideMatches()) {
+        for (ProteinPeptide proteinPeptide : proteinPeptides.getProteinPeptideMatches()) {
             cnt += 1;
             boolean noMatch = true;
             for (Protein protein : proteins.getProteins()) {
@@ -42,14 +42,14 @@ public class UniprotDatabaseMatcher {
                     }
                 }
                 if (noMatch) {
-                    newCollection.addPeptideMatch(proteinPeptide);
+                    newCollection.addProteinPeptideMatch(proteinPeptide);
                 }
             if (cnt % 1000 == 0) {
                 System.out.println("Matched " + cnt + " peptide sequences to database.");
             }
         }
-        System.out.println("Finished matching " + proteinPeptides.getPeptideMatches().size() + " peptides!");
-        System.out.println("Found " + newCollection.getPeptideMatches().size()
+        System.out.println("Finished matching " + proteinPeptides.getProteinPeptideMatches().size() + " peptides!");
+        System.out.println("Found " + newCollection.getProteinPeptideMatches().size()
                 + " peptides that did not match the database.");
         return newCollection;
     }

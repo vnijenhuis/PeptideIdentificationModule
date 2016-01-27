@@ -24,7 +24,7 @@ public class CombinedIndividualDatabaseMatcher {
      */
     public final ProteinPeptideCollection matchToIndividuals(ProteinPeptideCollection proteinPeptides, ProteinCollection proteins) {
         System.out.println("Matching sequences to combined inidividual database.");
-        for (ProteinPeptide proteinPeptide: proteinPeptides.getPeptideMatches()) {
+        for (ProteinPeptide proteinPeptide: proteinPeptides.getProteinPeptideMatches()) {
             Integer oneMatch = 0;
             //Test if a protein sequence contains the peptide sequence.
             for (Protein protein: proteins.getProteins()) {

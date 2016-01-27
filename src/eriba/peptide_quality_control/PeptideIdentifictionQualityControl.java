@@ -219,6 +219,7 @@ public class PeptideIdentifictionQualityControl {
 //        Integer sampleSize = 2;
         String[] path = psmFiles.get(0).split("\\\\");
         String dataSet = path[path.length-4];
+        System.out.println("Starting quality control on " + dataSet);
         ProteinPeptideCollection finalCollection = new ProteinPeptideCollection();
         //Creates a uniprot (and possibly other) database collection.
         database = new ProteinCollection();
@@ -237,7 +238,7 @@ public class PeptideIdentifictionQualityControl {
             proteinPeptides = databaseMatcher.matchToDatabases(database, proteinPeptides);
             //Match to the individual database. Flags sequences that occur once inside this database.
             proteinPeptides = individualDatabaseMatcher.matchToIndividuals(proteinPeptides, combinedDatabase);
-            finalCollection.getPeptideMatches().addAll(proteinPeptides.getPeptideMatches());
+            finalCollection.getProteinPeptideMatches().addAll(proteinPeptides.getProteinPeptideMatches());
         }
         //Create a matrix of all final ProteinPeptide objects.
         HashSet<ArrayList<String>> proteinPeptideMatrix = new HashSet<>();
