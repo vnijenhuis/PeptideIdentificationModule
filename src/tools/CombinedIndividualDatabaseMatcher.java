@@ -29,6 +29,9 @@ public class CombinedIndividualDatabaseMatcher {
             for (Protein protein: proteins.getProteins()) {
                 if (protein.getSequence().contains(proteinPeptide.getSequence())) {
                     oneMatch += 1;
+                    if (proteinPeptide.getSequence().equals("EVQLVESGGGVIRPGGSLR")) {
+                        System.out.println(oneMatch);
+                    }
                 }
             }
             //Set uniqueness depending on the oneMatch counter.

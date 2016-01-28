@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import objects.ProteinPeptide;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -113,7 +114,7 @@ public class PeptideIdentifictionQualityControl {
                 .build();
         options.addOption(help);
         Option path = Option.builder("path")
-                .hasArg()
+                .hasArgs()
                 .desc("Path to the dataset (map with COPD/Healthy samples).")
                 .build();
         options.addOption(path);
@@ -132,6 +133,11 @@ public class PeptideIdentifictionQualityControl {
                 .desc("Path to the uniprot database.")
                 .build();
         options.addOption(dbPath);
+        Option dbName= Option.builder("dbn")
+                .hasArg()
+                .desc("Individual database file name.")
+                .build();
+        options.addOption(dbName);
         Option individualDB = Option.builder("idb")
                 .hasArg()
                 .desc("Individual database file name.")
@@ -178,10 +184,11 @@ public class PeptideIdentifictionQualityControl {
             formatter.printHelp("Quality Control", options );
         } else {
             //Allocate command line input to variables.
-            String path = cmd.getOptionValue("path");
+            String[] path = cmd.getOptionValues("path");
             String psmFile = cmd.getOptionValue("psm");
             String proPepFile = cmd.getOptionValue("pp");
             String databasePath = cmd.getOptionValue("db");
+            String dbName = cmd.getOptionValue("dbn");
             String indivDbFile = cmd.getOptionValue("idb");
             String outputPath = cmd.getOptionValue("o");
             //Check all files and paths.
@@ -190,13 +197,20 @@ public class PeptideIdentifictionQualityControl {
                 throw new IllegalArgumentException("Paramter -o requires a valid path "
                     + "to write data to. \nYou provided an invalid path:" + checkPath);
             }
-            SampleSizeGenerator sizeGenerator = new SampleSizeGenerator();
-            Integer sampleSize = sizeGenerator.getSamples(path);
-            psmFiles = input.checkFileValidity(path, psmFile);
-            proPepFiles = input.checkFileValidity(path, proPepFile);
-            indivDbFiles = input.checkFileValidity(path, indivDbFile);
-            databases = input.checkFileValidity(databasePath, "uniprot");
+            Integer sampleSize = 0;
+            for (String folder: path) {
+                SampleSizeGenerator sizeGenerator = new SampleSizeGenerator();
+                Integer size = sizeGenerator.getSamples(folder);
+                psmFiles = input.checkFileValidity(folder, psmFile, psmFiles);
+                proPepFiles = input.checkFileValidity(folder, proPepFile, proPepFiles);
+                indivDbFiles = input.checkFileValidity(folder, indivDbFile, indivDbFiles);
+                if (size > sampleSize) {
+                    sampleSize = size;
+                }
+            }
             PeptideQualityControl(psmFiles, proPepFiles, indivDbFiles, databases, outputPath, sampleSize);
+            //usually uniprot.
+            databases = input.checkFileValidity(databasePath, dbName, databases);
         }
     }
 
@@ -217,7 +231,6 @@ public class PeptideIdentifictionQualityControl {
 //        String[] path = psmFiles.get(0).split("/");
         //Windows
         String[] path = psmFiles.get(0).split("\\\\");
-        System.out.println(psmFiles.get(0));
         String dataSet = path[path.length-4];
         System.out.println("Starting quality control on " + dataSet);
         ProteinPeptideCollection finalCollection = new ProteinPeptideCollection();
@@ -240,6 +253,7 @@ public class PeptideIdentifictionQualityControl {
             proteinPeptides = individualDatabaseMatcher.matchToIndividuals(proteinPeptides, combinedDatabase);
             finalCollection.getProteinPeptideMatches().addAll(proteinPeptides.getProteinPeptideMatches());
         }
+        System.out.println(finalCollection.getProteinPeptideMatches().size());
         //Create a matrix of all final ProteinPeptide objects.
         HashSet<ArrayList<String>> proteinPeptideMatrix = new HashSet<>();
         proteinPeptideMatrix = createMatrix.createMatrix(finalCollection, sampleSize);

@@ -27,6 +27,7 @@ public class ProteinPeptideCollectionCreator {
         ProteinPeptideCollection proteinPeptides = new ProteinPeptideCollection();
         //Creates dataset and patient names depending on the map names.
         String[] path = file.split("\\\\");
+//        String[] path = file.split("/");
         String patient = path[path.length-2];
         String dataset = path[path.length-4];
         System.out.println("Collecting protein-peptides from " + patient + " " + dataset + "...");

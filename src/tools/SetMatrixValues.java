@@ -25,8 +25,6 @@ public class SetMatrixValues {
             final HashSet<ArrayList<String>> peptideMatrix, final Integer sampleSize) {
         //Go throigh all arrays for each proteinPeptide object.
         for (ArrayList<String> array: peptideMatrix) {
-            //TEST PRINT....
-            System.out.println(array);
             for (ProteinPeptide proteinPeptide: proteinPeptides.getProteinPeptideMatches()) {
                 //Check if ProteinPeptide exists inside the matrix.
                 if (array.get(0).equals(proteinPeptide.getProteinGroup()) 
