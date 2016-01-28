@@ -55,7 +55,7 @@ public class ProteinPeptideCollectionCreator {
             //Possibility to remove (+15.99) values from peptides
 //            sequence = sequence.replaceAll("\\(\\+[0-9]+\\.[0-9]+\\)", "");
             String uniqueToGroup = data[4];
-            Double coverage = Double.parseDouble(data[5]);
+            Double coverage = Double.parseDouble(data[6]);
             boolean newPeptide = true;
             ProteinPeptide match = new ProteinPeptide(proteinGroup, accession, sequence, patient,uniqueToGroup,
                     uniqueCombined, dataset, count, coverage);

@@ -197,6 +197,9 @@ public class PeptideIdentifictionQualityControl {
                 throw new IllegalArgumentException("Paramter -o requires a valid path "
                     + "to write data to. \nYou provided an invalid path:" + checkPath);
             }
+            psmFiles = new ArrayList<>();
+            proPepFiles = new ArrayList<>();
+            indivDbFiles = new ArrayList<>();
             Integer sampleSize = 0;
             for (String folder: path) {
                 SampleSizeGenerator sizeGenerator = new SampleSizeGenerator();
@@ -208,9 +211,10 @@ public class PeptideIdentifictionQualityControl {
                     sampleSize = size;
                 }
             }
-            PeptideQualityControl(psmFiles, proPepFiles, indivDbFiles, databases, outputPath, sampleSize);
             //usually uniprot.
+            databases = new ArrayList<>();
             databases = input.checkFileValidity(databasePath, dbName, databases);
+            PeptideQualityControl(psmFiles, proPepFiles, indivDbFiles, databases, outputPath, sampleSize);
         }
     }
 

@@ -25,7 +25,7 @@ public class DataToCsvWriter {
     public void generateCsvFile(HashSet<ArrayList<String>> peptideMatrix, final String path,
             final String dataSet, final Integer sampleSize) throws IOException {
         //Create a new FileWriter instance.
-	try (FileWriter writer = new FileWriter(path)) {
+	try (FileWriter writer = new FileWriter(path + "combined_1D2D_peptide_matrix.csv")) {
             System.out.println("Writing data to text file...");
             ArrayList<String> states = new ArrayList<>();
             // Create header with line separator="," and line ending="\n"
@@ -43,7 +43,7 @@ public class DataToCsvWriter {
                     //Writes the sample id to the header.
                     writer.append(state + i + ",");
                     //Writes the sample coverage % to the header.
-                    writer.append(state.substring(0, 1) + i + " cov%,");
+                    writer.append(state.substring(0, 1) + i + " -10lgP,");
                 }
             }
             writer.append("\n");
