@@ -6,9 +6,11 @@ package tools;
 
 import collections.PeptideCollection;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.regex.Pattern;
 import objects.Peptide;
 
 /**
@@ -26,23 +28,43 @@ public class PeptideCollectionCreator {
     public final PeptideCollection createCollection(final String file) throws FileNotFoundException, IOException {
         // Read the file
         PeptideCollection peptides = new PeptideCollection();
-        //Windows
-        String[] path = file.split("\\\\");
-        //Linux
-//        String[] path = file.split("/");
+        String pattern = Pattern.quote(File.separator);
+        String[] path = file.split(pattern);
+        String sample = "";
+        String dataset = "";
         //Creates the dataset and sample names.
-        String sample = path[path.length-2];
-        String dataset = path[path.length-4];
+        for (int i = 0; i < path.length; i++) {
+            if (path[i].toLowerCase().contains("copd") || path[i].toLowerCase().contains("healthy")) {
+                sample = path[i];
+            } else if (path[i].toLowerCase().contains("2D") || path[i].toLowerCase().contains("1D")) {
+                dataset = path[i];
+            }
+        }
         System.out.println("Collecting peptides from " + sample + " " + dataset + "...");
         FileReader fr = new FileReader(file);
         BufferedReader bffFr = new BufferedReader(fr);
         String line;
+        int accessionIndex = 0;
+        int peptideIndex = 0;
+        boolean firstLine = true;
         //Reads each line in the given file.
         while ((line = bffFr.readLine()) != null) {
+            if (firstLine) {
+                String[] data = line.split(",");
+                for (int i = 0; i < data.length; i++) {
+                    if (data[i].toLowerCase().equals("peptide")) {
+                        peptideIndex = i;
+                    } else if (data[i].toLowerCase().contains("accession")) {
+                        accessionIndex = i; 
+                    }
+                }
+                firstLine = false;
+                line = bffFr.readLine();
+            }
             String[] data = line.split(",");
-            String accession = data[8];
+            String accession = data[accessionIndex];
             if (!accession.matches("^ENST[0-9]+$")) {
-                String sequence = data[0];
+                String sequence = data[peptideIndex];
                 //Can remove (+15.99) and similar matches from a peptide sequence.
 //                sequence = sequence.replaceAll("\\(\\+[0-9]+\\.[0-9]+\\)", "");
                 Peptide peptide = new Peptide(sequence);

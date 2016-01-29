@@ -6,9 +6,11 @@ package tools;
 
 import collections.ProteinPeptideCollection;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.regex.Pattern;
 import objects.ProteinPeptide;
 
 /**
@@ -26,38 +28,65 @@ public class ProteinPeptideCollectionCreator {
     public final ProteinPeptideCollection createCollection(final String file) throws FileNotFoundException, IOException {
         ProteinPeptideCollection proteinPeptides = new ProteinPeptideCollection();
         //Creates dataset and patient names depending on the map names.
-        String[] path = file.split("\\\\");
-//        String[] path = file.split("/");
-        String patient = path[path.length-2];
-        String dataset = path[path.length-4];
-        System.out.println("Collecting protein-peptides from " + patient + " " + dataset + "...");
+        String pattern = Pattern.quote(File.separator);
+        String[] path = file.split(pattern);
+        String sample = "";
+        String dataset = "";
+        for (int i = 0; i < path.length; i++) {
+            if (path[i].toLowerCase().contains("copd") || path[i].toLowerCase().contains("healthy")) {
+                sample = path[i];
+            } else if (path[i].toLowerCase().contains("2D") || path[i].toLowerCase().contains("1D")) {
+                dataset = path[i];
+            }
+        }
+        System.out.println("Collecting protein-peptides from " + sample + " " + dataset + "...");
         // Load the file.
         FileReader fr = new FileReader(file);
         BufferedReader bffFr = new BufferedReader(fr);
         String line;
         Integer count = 1;
         String uniqueCombined = "";
+        //Some indixes may vary, so a check is needed to find their position inside a file.
+        int groupIndex = 0;
+        int accessionIndex = 0;
+        int peptideIndex = 0;
+        int uniqueIndex = 0;
+        int coverageIndex = 0;
         Boolean firstLine = true;
         //Read the file.
         while ((line = bffFr.readLine()) != null) {
             if (firstLine) {
-                line = bffFr.readLine();
+                String[] data = line.split(",");
+                for (int i = 0; i < data.length; i++) {
+                    if (data[i].toLowerCase().contains("protein group")) {
+                        groupIndex = i;
+                    } else if (data[i].toLowerCase().contains("accession")) {
+                        accessionIndex = i;
+                    } else if (data[i].toLowerCase().contains("peptide")) {
+                        peptideIndex = i; 
+                    } else if (data[i].toLowerCase().contains("unique")) {
+                        uniqueIndex = i;
+                    } else if (data[i].toLowerCase().contains("coverage")) {
+                        coverageIndex = i;
+                    }
+                }
                 firstLine = false;
+                line = bffFr.readLine();
             }
             //Assign data to variables.
             String[] data = line.split(",");
-            String proteinGroup = data[0];
-            String accession = data[2];
-            String sequence = data[3];
+            String proteinGroup = data[groupIndex];
+            String accession = data[accessionIndex];
+            String sequence = data[peptideIndex];
             //Remove first and last 2 indices.
             sequence = sequence.replaceAll("\\.[A-Z]$", "");
             sequence = sequence.replaceAll("^[A-Z]\\.", "");
             //Possibility to remove (+15.99) values from peptides
 //            sequence = sequence.replaceAll("\\(\\+[0-9]+\\.[0-9]+\\)", "");
-            String uniqueToGroup = data[4];
-            Double coverage = Double.parseDouble(data[6]);
+            String uniqueToGroup = data[uniqueIndex];
+            Double coverage = Double.parseDouble(data[coverageIndex]);
             boolean newPeptide = true;
-            ProteinPeptide match = new ProteinPeptide(proteinGroup, accession, sequence, patient,uniqueToGroup,
+            ProteinPeptide match = new ProteinPeptide(proteinGroup, accession, sequence, sample, uniqueToGroup,
                     uniqueCombined, dataset, count, coverage);
             //Add matches to a ProteinPeptideCollection.
             if (!proteinPeptides.getProteinPeptideMatches().isEmpty()) {

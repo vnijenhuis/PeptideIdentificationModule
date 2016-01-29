@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.regex.Pattern;
 import objects.ProteinPeptide;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -211,7 +212,7 @@ public class PeptideIdentifictionQualityControl {
                     sampleSize = size;
                 }
             }
-            //usually uniprot.
+                        //usually uniprot.
             databases = new ArrayList<>();
             databases = input.checkFileValidity(databasePath, dbName, databases);
             PeptideQualityControl(psmFiles, proPepFiles, indivDbFiles, databases, outputPath, sampleSize);
@@ -231,12 +232,16 @@ public class PeptideIdentifictionQualityControl {
     public final void PeptideQualityControl(ArrayList<String> psmFiles, final ArrayList<String> proPepFiles,
             final ArrayList<String> indivDbFiles, final ArrayList<String> databases, final String outputPath,
             final Integer sampleSize)  throws IOException {
-        //Linux
-//        String[] path = psmFiles.get(0).split("/");
-        //Windows
-        String[] path = psmFiles.get(0).split("\\\\");
-        String dataSet = path[path.length-4];
-        System.out.println("Starting quality control on " + dataSet);
+        //Gets the separator for files of the current system.
+        String pattern = Pattern.quote(File.separator);
+        String[] path = psmFiles.get(0).split(pattern);
+        String dataset = "";
+        for (int i = 0; i < path.length; i++) {
+            if (path[i].toLowerCase().contains("2D") || path[i].toLowerCase().contains("1D")) {
+                dataset = path[i];
+            }
+        }
+        System.out.println("Starting quality control on " + dataset);
         ProteinPeptideCollection finalCollection = new ProteinPeptideCollection();
         //Creates a uniprot (and possibly other) database collection.
         database = new ProteinCollection();
@@ -263,6 +268,6 @@ public class PeptideIdentifictionQualityControl {
         proteinPeptideMatrix = createMatrix.createMatrix(finalCollection, sampleSize);
         proteinPeptideMatrix = matrix.setValues(finalCollection, proteinPeptideMatrix, sampleSize);
         //Write data to unknown_dataset_peptide_matrix.csv.
-        fileWriter.generateCsvFile(proteinPeptideMatrix, outputPath, dataSet, sampleSize);
+        fileWriter.generateCsvFile(proteinPeptideMatrix, outputPath, dataset, sampleSize);
     }
 }
