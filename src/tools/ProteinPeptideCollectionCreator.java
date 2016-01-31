@@ -35,7 +35,7 @@ public class ProteinPeptideCollectionCreator {
         for (int i = 0; i < path.length; i++) {
             if (path[i].toLowerCase().contains("copd") || path[i].toLowerCase().contains("healthy")) {
                 sample = path[i];
-            } else if (path[i].toLowerCase().contains("2D") || path[i].toLowerCase().contains("1D")) {
+            } else if (path[i].toUpperCase().contains("2D") || path[i].toUpperCase().contains("1D")) {
                 dataset = path[i];
             }
         }

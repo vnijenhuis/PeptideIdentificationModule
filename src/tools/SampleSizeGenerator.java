@@ -19,8 +19,6 @@ public class SampleSizeGenerator {
      * @return sample size
      */
     public final Integer getSamples(final String filePath) {
-        ArrayList<String> copdSamples = new ArrayList<>();
-        ArrayList<String> healthySamples = new ArrayList<>();
         File file = new File(filePath);
         String[] directories = file.list(new FilenameFilter() {
             @Override
@@ -31,15 +29,16 @@ public class SampleSizeGenerator {
         Integer sampleSize = 0;
         for (String sample: directories) { 
             if (sample.contains("COPD")) {
-                copdSamples.add(sample);
+                int index = (Integer.parseInt(sample.substring(4))*2);
+                if (sampleSize < index) {
+                    sampleSize = index;
+                }
             } else if (sample.contains("Healthy")) {
-                healthySamples.add(sample);
+                int index = (Integer.parseInt(sample.substring(7))*2);
+                if (sampleSize < index) {
+                    sampleSize = index;
+                }
             }
-        }
-        if (copdSamples.size() >= healthySamples.size()) {
-            sampleSize = (copdSamples.size()*2);
-        } else {
-            sampleSize = (healthySamples.size()*2);
         }
         return sampleSize;
     }

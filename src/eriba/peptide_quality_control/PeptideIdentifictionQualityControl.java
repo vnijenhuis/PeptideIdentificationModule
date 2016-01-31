@@ -9,6 +9,7 @@ import collections.ProteinCollection;
 import collections.ProteinPeptideCollection;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.regex.Pattern;
@@ -101,6 +102,7 @@ public class PeptideIdentifictionQualityControl {
     private HashSet<ProteinCollection> databaseProteins;
     private ProteinCollection combinedDatabase;
     private final CombinedIndividualDatabaseMatcher individualDatabaseMatcher;
+    private HashSet<ArrayList<String>> proteinPeptideMatrix;
     
     /**
      * Private constructor to define primary functions.
@@ -237,7 +239,7 @@ public class PeptideIdentifictionQualityControl {
         String[] path = psmFiles.get(0).split(pattern);
         String dataset = "";
         for (int i = 0; i < path.length; i++) {
-            if (path[i].toLowerCase().contains("2D") || path[i].toLowerCase().contains("1D")) {
+            if (path[i].toUpperCase().contains("2D") || path[i].toUpperCase().contains("1D")) {
                 dataset = path[i];
             }
         }
@@ -262,9 +264,8 @@ public class PeptideIdentifictionQualityControl {
             proteinPeptides = individualDatabaseMatcher.matchToIndividuals(proteinPeptides, combinedDatabase);
             finalCollection.getProteinPeptideMatches().addAll(proteinPeptides.getProteinPeptideMatches());
         }
-        System.out.println(finalCollection.getProteinPeptideMatches().size());
         //Create a matrix of all final ProteinPeptide objects.
-        HashSet<ArrayList<String>> proteinPeptideMatrix = new HashSet<>();
+        proteinPeptideMatrix = new HashSet<>();
         proteinPeptideMatrix = createMatrix.createMatrix(finalCollection, sampleSize);
         proteinPeptideMatrix = matrix.setValues(finalCollection, proteinPeptideMatrix, sampleSize);
         //Write data to unknown_dataset_peptide_matrix.csv.
