@@ -25,7 +25,7 @@ public class DataToCsvWriter {
     public void generateCsvFile(HashSet<ArrayList<String>> peptideMatrix, final String path,
             final String dataSet, final Integer sampleSize) throws IOException {
         //Create a new FileWriter instance.
-	try (FileWriter writer = new FileWriter(path + "combined_1D2D_peptide_matrix.csv")) {
+	try (FileWriter writer = new FileWriter(path + "combined_1D2D_CommonRNASeq_peptide_matrix.csv")) {
             System.out.println("Writing data to text file...");
             ArrayList<String> states = new ArrayList<>();
             // Create header with line separator="," and line ending="\n"

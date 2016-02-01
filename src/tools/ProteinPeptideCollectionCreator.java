@@ -54,6 +54,7 @@ public class ProteinPeptideCollectionCreator {
         int coverageIndex = 0;
         Boolean firstLine = true;
         //Read the file.
+        System.out.println(file);
         while ((line = bffFr.readLine()) != null) {
             if (firstLine) {
                 String[] data = line.split(",");
@@ -66,7 +67,7 @@ public class ProteinPeptideCollectionCreator {
                         peptideIndex = i; 
                     } else if (data[i].toLowerCase().contains("unique")) {
                         uniqueIndex = i;
-                    } else if (data[i].toLowerCase().contains("coverage")) {
+                    } else if (data[i].toLowerCase().contains("lgp")) {
                         coverageIndex = i;
                     }
                 }
