@@ -35,10 +35,8 @@ public class CombinedIndividualDatabaseMatcher {
             if (oneMatch == 1) {
                 //If only one match has been found: set flag to Y(es)
                 if (proteinPeptide.getUniqueCombined().equals("") || proteinPeptide.getUniqueCombined().equals("N")) {
-                    proteinPeptide.setUniqueCombined(("Y;" + proteinPeptide.getSample()));    
-                } else if (!proteinPeptide.getUniqueCombined().contains(proteinPeptide.getSample())) {
-                    proteinPeptide.setUniqueCombined((proteinPeptide.getSample() + "|Y;" + proteinPeptide.getSample()));    
-                } 
+                    proteinPeptide.setUniqueCombined("Y");    
+                }
                 //Set flag to N(o) if more/less then one match was found.
             } else {
                 if (!proteinPeptide.getUniqueCombined().contains("Y")) {

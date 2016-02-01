@@ -63,7 +63,7 @@ public class PeptideCollectionCreator {
             }
             String[] data = line.split(",");
             String accession = data[accessionIndex];
-            if (!accession.matches("^ENST[0-9]+$")) {
+            if (!accession.toUpperCase().matches("^ENST[0-9]+$") && !accession.toUpperCase().contains("DECOY")) {
                 String sequence = data[peptideIndex];
                 //Can remove (+15.99) and similar matches from a peptide sequence.
 //                sequence = sequence.replaceAll("\\(\\+[0-9]+\\.[0-9]+\\)", "");

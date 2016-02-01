@@ -28,20 +28,16 @@ public class CsvMatrixCreator {
             newMatch.add(proteinPeptide.getUniqueCombined());
             newMatch.add(proteinPeptide.getDataset());
             //Add values for each sample: 1 value for count, 1 value for coverage.
-            //Starting values are zero.
-            for (int i = 0; i <size; i++) {
-                newMatch.add("0");
-                newMatch.add("0");
-            }
+            newMatch.add(proteinPeptide.getSample()+ " " + proteinPeptide.getCounter());
+            newMatch.add(proteinPeptide.getSample() + " " + proteinPeptide.getCoverage());
+            newMatch.add("0"); //empty slot for total count.
             boolean newArray = true;
             //Checks if the matrix exists already.
             if (!proteinPeptideMatrix.isEmpty()) {
                 for (ArrayList<String> match: proteinPeptideMatrix) {
                     //Matches group id, accession and sequence to check for similar results.
                     //Prevents multiple entries with the same values.
-                    if (match.get(0).equals(newMatch.get(0))
-                            && match.get(1).equals(newMatch.get(1))
-                            && match.get(2).equals(newMatch.get(2))) {
+                    if (match.get(1).equals(newMatch.get(1)) && match.get(2).equals(newMatch.get(2))) {
                         newArray = false;
                         break;
                     }

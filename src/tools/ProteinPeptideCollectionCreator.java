@@ -93,15 +93,19 @@ public class ProteinPeptideCollectionCreator {
             if (!proteinPeptides.getProteinPeptideMatches().isEmpty()) {
                 for (ProteinPeptide proteinPeptide: proteinPeptides.getProteinPeptideMatches()) {
                     if (proteinPeptide.getSequence().equals(sequence)) {
-                        if ((proteinPeptide.getProteinGroup().equals(proteinGroup))) {
-                            newPeptide = false;
-                            proteinPeptide.setCounter(count);
-                            if (!proteinPeptide.getAccession().contains(accession)) {
-                                proteinPeptide.addAccession(accession);
-                            }
-                            if (proteinPeptide.getCoverage() < coverage) {
-                                proteinPeptide.setCoverage(coverage);
-                            }
+                        newPeptide = false;
+                        proteinPeptide.setCounter(count);
+                        if (!proteinPeptide.getAccession().contains(accession)) {
+                            proteinPeptide.addAccession(accession);
+                        }
+                        if (proteinPeptide.getCoverage() < coverage) {
+                            proteinPeptide.setCoverage(coverage);
+                        }
+                        if (!proteinPeptide.getAccession().contains(accession)) {
+                            proteinPeptide.addAccession(accession);
+                        }
+                        if (!proteinPeptide.getDataset().contains(dataset)) {
+                            proteinPeptide.addAccession(dataset);
                         }
                     }
                 }

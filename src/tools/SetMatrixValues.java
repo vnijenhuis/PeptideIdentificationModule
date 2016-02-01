@@ -30,18 +30,21 @@ public class SetMatrixValues {
                 if (array.get(0).equals(proteinPeptide.getProteinGroup()) 
                         && array.get(1).equals(proteinPeptide.getAccession())
                         && array.get(2).equals(proteinPeptide.getSequence())) {
+                    int lastIndex = array.size()-1;
                     //Add Healthy sample data.
                     if (proteinPeptide.getSample().contains("Healthy")) {
-                        int cntIndex = (Integer.parseInt(proteinPeptide.getSample().substring(7))*2 + 4);
-                        int covIndex = (Integer.parseInt(proteinPeptide.getSample().substring(7))*2 + 5);
-                        array.set(cntIndex, proteinPeptide.getCounter().toString());
-                        array.set(covIndex, proteinPeptide.getCoverage().toString());
+                        if (!array.get(6).contains(proteinPeptide.getSample())) {
+                            array.set(6, array.get(6) + "|" + proteinPeptide.getCounter().toString());
+                            array.set(7, array.get(7) + ";" + proteinPeptide.getSample() + "|" + proteinPeptide.getCoverage().toString());
+                            array.set(lastIndex, array.get(lastIndex) + proteinPeptide.getCounter());
+                        }
                     //Add COPD sample data
                     } else if (proteinPeptide.getSample().contains("COPD")) {
-                        int cntIndex = (Integer.parseInt(proteinPeptide.getSample().substring(4))*2 + 4 + sampleSize);
-                        int covIndex = (Integer.parseInt(proteinPeptide.getSample().substring(4))*2 + 5 + sampleSize);
-                        array.set(cntIndex, proteinPeptide.getCounter().toString());
-                        array.set(covIndex, proteinPeptide.getCoverage().toString());
+                        if (!array.get(6).contains(proteinPeptide.getSample())) {
+                            array.set(6, array.get(6) + ";" + "|" + proteinPeptide.getCounter().toString());
+                            array.set(7, array.get(7) + ";" + proteinPeptide.getSample() + "|" + proteinPeptide.getCoverage().toString());
+                            array.set(lastIndex, array.get(lastIndex) + proteinPeptide.getCounter());
+                        }
                     }
                 }
             }

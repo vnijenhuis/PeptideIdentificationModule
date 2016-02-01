@@ -37,7 +37,7 @@ public class ProteinPeptide {
     /**
      * Dataset that the peptide belongs to. (2DLCMSMS, 2D25CM etc.)
      */
-    private final String dataset;
+    private String dataset;
 
     /**
      * Occurrences of the peptide.
@@ -150,6 +150,14 @@ public class ProteinPeptide {
      */
     public final String getDataset() {
         return this.dataset;
+    }
+
+    /**
+     * Adds a dataset name to the object.
+     * @param set dataset name.
+     */
+    public final void addDataset(final String set) {
+        this.dataset = this.dataset + set;
     }
 
     /**
