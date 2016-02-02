@@ -35,7 +35,6 @@ public class SetMatrixValues {
                         int covIndex = (Integer.parseInt(proteinPeptide.getSample().substring(7)) + 5 + sampleSize);
                         array.set(cntIndex, proteinPeptide.getCounter().toString());
                         array.set(covIndex, proteinPeptide.getCoverage().toString());
-                        System.out.println(proteinPeptide.getSample() + "" + covIndex);
                     //Add COPD sample data
                     } else if (proteinPeptide.getSample().contains("COPD")) {
                         int cntIndex = (Integer.parseInt(proteinPeptide.getSample().substring(4)) + 5 + sampleSize/2);
