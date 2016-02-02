@@ -14,7 +14,8 @@ import objects.ProteinPeptide;
  * @author vnijenhuis
  */
 public class CsvMatrixCreator {
-    public final HashSet<ArrayList<String>> createMatrix(final ProteinPeptideCollection proteinPeptides, final Integer size) {
+    public final HashSet<ArrayList<String>> createMatrix(final ProteinPeptideCollection proteinPeptides,
+            final Integer size, final ArrayList<String> datasets) {
         ArrayList<String> newMatch;
         HashSet<ArrayList<String>> proteinPeptideMatrix = new HashSet<>();
         //Make an array of each proteinPeptide object.
@@ -28,9 +29,14 @@ public class CsvMatrixCreator {
             newMatch.add(proteinPeptide.getUniqueCombined());
             newMatch.add(proteinPeptide.getDataset());
             //Add values for each sample: 1 value for count, 1 value for coverage.
-            newMatch.add(proteinPeptide.getSample()+ " " + proteinPeptide.getCounter());
-            newMatch.add(proteinPeptide.getSample() + " " + proteinPeptide.getCoverage());
-            newMatch.add("0"); //empty slot for total count.
+            //Starting values are zero.
+            for (int i = 0; i <size; i++) {
+                newMatch.add("0");
+                newMatch.add("0");
+            }
+            for (String dataset : datasets) {
+                newMatch.add("0");
+            }
             boolean newArray = true;
             //Checks if the matrix exists already.
             if (!proteinPeptideMatrix.isEmpty()) {

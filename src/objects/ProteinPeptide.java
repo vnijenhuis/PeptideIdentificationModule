@@ -153,8 +153,8 @@ public class ProteinPeptide {
     }
 
     /**
-     * Adds a dataset name to the object.
-     * @param set dataset name.
+     * Adds a dataset.
+     * @param set dataset.
      */
     public final void addDataset(final String set) {
         this.dataset = this.dataset + set;

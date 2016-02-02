@@ -212,7 +212,7 @@ public class PeptideIdentifictionQualityControl {
                     sampleSize = size;
                 }
             }
-                        //usually uniprot.
+            //usually uniprot.
             databases = new ArrayList<>();
             databases = input.checkFileValidity(databasePath, dbName, databases);
             PeptideQualityControl(psmFiles, proPepFiles, indivDbFiles, databases, outputPath, sampleSize);
@@ -234,14 +234,7 @@ public class PeptideIdentifictionQualityControl {
             final Integer sampleSize)  throws IOException {
         //Gets the separator for files of the current system.
         String pattern = Pattern.quote(File.separator);
-        String[] path = psmFiles.get(0).split(pattern);
-        String dataset = "";
-        for (int i = 0; i < path.length; i++) {
-            if (path[i].toUpperCase().contains("2D") || path[i].toUpperCase().contains("1D")) {
-                dataset = path[i];
-            }
-        }
-        System.out.println("Starting quality control on " + dataset);
+        ArrayList<String> datasets = new ArrayList<>();
         ProteinPeptideCollection finalCollection = new ProteinPeptideCollection();
         //Creates a uniprot (and possibly other) database collection.
         database = new ProteinCollection();
@@ -249,6 +242,13 @@ public class PeptideIdentifictionQualityControl {
         combinedDatabase = new ProteinCollection();
         combinedDatabase = databaseCollection.createCollection(indivDbFiles, combinedDatabase);
         for (int sample = 0; sample < psmFiles.size(); sample++) {
+            String[] path = psmFiles.get(sample).split(pattern);
+            String dataset = "";
+            for (int i = 0; i < path.length; i++) {
+                if (path[i].toUpperCase().contains("2D") || path[i].toUpperCase().contains("1D")) {
+                    dataset = path[i];
+                }
+            }
             proteinPeptides = new ProteinPeptideCollection();
             //Loads unique peptide sequences from DB search psm.csv.
             peptides = peptideCollection.createCollection(psmFiles.get(sample));
@@ -261,12 +261,15 @@ public class PeptideIdentifictionQualityControl {
             //Match to the individual database. Flags sequences that occur once inside this database.
             proteinPeptides = individualDatabaseMatcher.matchToIndividuals(proteinPeptides, combinedDatabase);
             finalCollection.getProteinPeptideMatches().addAll(proteinPeptides.getProteinPeptideMatches());
+            if (!datasets.contains(dataset)) {
+                datasets.add(dataset);
+            }
         }
         //Create a matrix of all final ProteinPeptide objects.
         proteinPeptideMatrix = new HashSet<>();
-        proteinPeptideMatrix = createMatrix.createMatrix(finalCollection, sampleSize);
-        proteinPeptideMatrix = matrix.setValues(finalCollection, proteinPeptideMatrix, sampleSize);
+        proteinPeptideMatrix = createMatrix.createMatrix(finalCollection, sampleSize, datasets);
+        proteinPeptideMatrix = matrix.setValues(finalCollection, proteinPeptideMatrix, sampleSize, datasets);
         //Write data to unknown_dataset_peptide_matrix.csv.
-        fileWriter.generateCsvFile(proteinPeptideMatrix, outputPath, dataset, sampleSize);
+        fileWriter.generateCsvFile(proteinPeptideMatrix, outputPath, datasets, sampleSize);
     }
 }
