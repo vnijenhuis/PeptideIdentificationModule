@@ -34,18 +34,28 @@ public class SetMatrixValues {
                         int cntIndex = (Integer.parseInt(proteinPeptide.getSample().substring(7)) + 5);
                         int covIndex = (Integer.parseInt(proteinPeptide.getSample().substring(7)) + 5 + sampleSize);
                         array.set(cntIndex, proteinPeptide.getCounter().toString());
-                        array.set(covIndex, proteinPeptide.getCoverage().toString());
+                        if (array.get(covIndex).equals("0.0")) {
+                            array.set(covIndex, proteinPeptide.getCoverage().toString());
+                        } else {
+                        array.set(covIndex, array.get(covIndex) + "|" + proteinPeptide.getCoverage().toString());
+                        }
+                        System.out.println(array);
                     //Add COPD sample data
                     } else if (proteinPeptide.getSample().contains("COPD")) {
                         int cntIndex = (Integer.parseInt(proteinPeptide.getSample().substring(4)) + 5 + sampleSize/2);
                         int covIndex = (Integer.parseInt(proteinPeptide.getSample().substring(4)) + 5 + sampleSize + sampleSize/2);
                         array.set(cntIndex, proteinPeptide.getCounter().toString());
-                        array.set(covIndex, proteinPeptide.getCoverage().toString());
+                        if (array.get(covIndex).equals("0.0")) {
+                            array.set(covIndex, proteinPeptide.getCoverage().toString());
+                        } else {
+                        array.set(covIndex, array.get(covIndex) + "|" + proteinPeptide.getCoverage().toString());
+                        }
+                        System.out.println(array);
                     }
                     for (int i = 0; i < datasets.size(); i++) {
                         if (proteinPeptide.getDataset().equals(datasets.get(i))) {
                             int index = (arraySize-datasets.size())+i;
-                            Integer count = Integer.parseInt(array.get(index))+proteinPeptide.getCounter();
+                            Integer count = Integer.parseInt(array.get(index)) + proteinPeptide.getCounter();
                             array.set(index, count.toString());  
                         }
                     }

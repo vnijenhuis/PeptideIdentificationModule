@@ -54,7 +54,6 @@ public class ProteinPeptideCollectionCreator {
         int coverageIndex = 0;
         Boolean firstLine = true;
         //Read the file.
-        System.out.println(file);
         while ((line = bffFr.readLine()) != null) {
             if (firstLine) {
                 String[] data = line.split(",");
@@ -95,6 +94,9 @@ public class ProteinPeptideCollectionCreator {
                     if (proteinPeptide.getSequence().equals(sequence)) {
                         newPeptide = false;
                         proteinPeptide.setCounter(count);
+                        if (!proteinPeptide.getProteinGroup().contains(proteinGroup)) {
+                            proteinPeptide.setProteinGroup(proteinGroup);
+                        }
                         if (!proteinPeptide.getAccession().contains(accession)) {
                             proteinPeptide.addAccession(accession);
                         }
@@ -105,7 +107,7 @@ public class ProteinPeptideCollectionCreator {
                             proteinPeptide.addAccession(accession);
                         }
                         if (!proteinPeptide.getDataset().contains(dataset)) {
-                            proteinPeptide.addAccession(dataset);
+                            proteinPeptide.addDataset(dataset);
                         }
                     }
                 }

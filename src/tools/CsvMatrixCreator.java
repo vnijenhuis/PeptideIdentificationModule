@@ -32,7 +32,7 @@ public class CsvMatrixCreator {
             //Starting values are zero.
             for (int i = 0; i <size; i++) {
                 newMatch.add("0");
-                newMatch.add("0");
+                newMatch.add("0.0");
             }
             for (String dataset : datasets) {
                 newMatch.add("0");

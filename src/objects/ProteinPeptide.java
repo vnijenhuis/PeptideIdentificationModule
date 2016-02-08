@@ -12,7 +12,7 @@ public class ProteinPeptide {
     /**
      * ID of the group of proteins that this protein belongs to.
      */
-    private final String proteinGroup;
+    private String proteinGroup;
 
     /**
      * Accession number of the protein that this peptide belongs to.
@@ -87,6 +87,14 @@ public class ProteinPeptide {
     public final String getProteinGroup() {
         return this.proteinGroup;
     }
+    
+    /**
+     * Set the protein group(s) that this peptide belongs to.
+     * @param proteinGroup protein group as String.
+     */
+    public final void setProteinGroup(final String proteinGroup) {
+        this.proteinGroup = this.proteinGroup + "" + proteinGroup;
+    }
 
     /**
      * Returns the accession id of the protein.
@@ -157,7 +165,7 @@ public class ProteinPeptide {
      * @param set dataset.
      */
     public final void addDataset(final String set) {
-        this.dataset = this.dataset + set;
+        this.dataset = this.dataset + "|" + set;
     }
 
     /**

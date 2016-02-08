@@ -144,11 +144,16 @@ public class PeptideIdentifictionQualityControl {
                 .desc("Individual database file name.")
                 .build();
         options.addOption(individualDB);
-        Option output = Option.builder("o")
+        Option output = Option.builder("op")
                 .hasArg()
                 .desc("Individual database file name.")
                 .build();
         options.addOption(output);
+        Option rnaSeq = Option.builder("on")
+                .hasArg()
+                .desc("RNASeqCommon or RNAseqUnique name for output file.")
+                .build();
+        options.addOption(rnaSeq);
         //Checks files.
         input = new ValidFileChecker();
         //Creates peptide collections.
@@ -191,7 +196,8 @@ public class PeptideIdentifictionQualityControl {
             String databasePath = cmd.getOptionValue("db");
             String dbName = cmd.getOptionValue("dbn");
             String indivDbFile = cmd.getOptionValue("idb");
-            String outputPath = cmd.getOptionValue("o");
+            String outputPath = cmd.getOptionValue("op");
+            String rnaSeq = cmd.getOptionValue("on");
             //Check all files and paths.
             File checkPath = new File(outputPath);
             if (!checkPath.isDirectory()) {
@@ -215,7 +221,7 @@ public class PeptideIdentifictionQualityControl {
             //usually uniprot.
             databases = new ArrayList<>();
             databases = input.checkFileValidity(databasePath, dbName, databases);
-            PeptideQualityControl(psmFiles, proPepFiles, indivDbFiles, databases, outputPath, sampleSize);
+            PeptideQualityControl(psmFiles, proPepFiles, indivDbFiles, databases, outputPath, rnaSeq, sampleSize);
         }
     }
 
@@ -226,12 +232,13 @@ public class PeptideIdentifictionQualityControl {
      * @param indivDbFiles individual database files of each sample.
      * @param databases protein database(s) such as uniprot.
      * @param outputPath outputpath for the matrix csv file.
+     * @param rnaSeq RNAseq name for output file.
      * @param sampleSize size of the samples. (10x COPD and 9x Healthy = sample size of 20 (healthy 10 is empty)
      * @throws IOException could not open/find the specified file or directory.
      */
     public final void PeptideQualityControl(ArrayList<String> psmFiles, final ArrayList<String> proPepFiles,
             final ArrayList<String> indivDbFiles, final ArrayList<String> databases, final String outputPath,
-            final Integer sampleSize)  throws IOException {
+            final String rnaSeq, final Integer sampleSize)  throws IOException {
         //Gets the separator for files of the current system.
         String pattern = Pattern.quote(File.separator);
         ArrayList<String> datasets = new ArrayList<>();
@@ -270,6 +277,6 @@ public class PeptideIdentifictionQualityControl {
         proteinPeptideMatrix = createMatrix.createMatrix(finalCollection, sampleSize, datasets);
         proteinPeptideMatrix = matrix.setValues(finalCollection, proteinPeptideMatrix, sampleSize, datasets);
         //Write data to unknown_dataset_peptide_matrix.csv.
-        fileWriter.generateCsvFile(proteinPeptideMatrix, outputPath, datasets, sampleSize);
+        fileWriter.generateCsvFile(proteinPeptideMatrix, outputPath, datasets, rnaSeq, sampleSize);
     }
 }

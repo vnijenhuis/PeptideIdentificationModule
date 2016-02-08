@@ -19,14 +19,20 @@ public class DataToCsvWriter {
      * @param peptideMatrix set of arrays with protein-peptide data.
      * @param path path to write the output file to.
      * @param datasets name of the dataset(s) to which the peptides belong.
+     * @param rnaSeq rnaSeq name of the dataset.
      * @param sampleSize amount of samples.
      * @throws IOException can't open/find the specified file.
      */
     public void generateCsvFile(HashSet<ArrayList<String>> peptideMatrix, final String path,
-            final ArrayList<String> datasets, final Integer sampleSize) throws IOException {
+            final ArrayList<String> datasets, final String rnaSeq, final Integer sampleSize) throws IOException {
         //Create a new FileWriter instance.
-	try (FileWriter writer = new FileWriter(path + "combined_1D2D_CommonRNASeq_peptide_matrix.csv")) {
-            System.out.println("Writing data to text file...");
+        String name = "";
+        for (String dataset: datasets) {
+            name = name + (dataset + "_");
+        }
+        name = name + rnaSeq;
+	try (FileWriter writer = new FileWriter(path + name + "_peptide_matrix.csv")) {
+            System.out.println("Writing data to text file " + name + "_peptide_matrix.csv");
             ArrayList<String> states = new ArrayList<>();
             // Create header with line separator="," and line ending="\n"
             states.add("Healthy");
