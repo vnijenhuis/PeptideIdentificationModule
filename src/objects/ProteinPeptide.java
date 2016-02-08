@@ -47,7 +47,7 @@ public class ProteinPeptide {
     /**
      * Highest coverage value of the peptide.
      */
-    private Double coverage;
+    private String coverage;
 
     /**
      * ID of the sample. (COPD1, Healthy2 etc) (might rename Healthy to Control).
@@ -68,7 +68,7 @@ public class ProteinPeptide {
      */
     public ProteinPeptide(final String proteinGroup, final String accession, final String sequence,
             final String sample, final String uniqueToGroup, final String uniqueCombined, final String dataSet,
-            final Integer count,final Double coverage) {
+            final Integer count,final String coverage) {
         this.proteinGroup = proteinGroup;
         this.accession = accession;
         this.sequence = sequence;
@@ -93,7 +93,7 @@ public class ProteinPeptide {
      * @param proteinGroup protein group as String.
      */
     public final void setProteinGroup(final String proteinGroup) {
-        this.proteinGroup = this.proteinGroup + "" + proteinGroup;
+        this.proteinGroup = this.proteinGroup + "|" + proteinGroup;
     }
 
     /**
@@ -108,8 +108,8 @@ public class ProteinPeptide {
      * Sets the accession id of the protein.
      * @param accession accession id as String.
      */
-    public final void addAccession(final String accession) {
-        this.accession = (this.accession + "|" + accession);
+    public final void setAccession(final String accession) {
+        this.accession = this.accession + "|" + accession;
     }
 
     /**
@@ -164,7 +164,7 @@ public class ProteinPeptide {
      * Adds a dataset.
      * @param set dataset.
      */
-    public final void addDataset(final String set) {
+    public final void setDataset(final String set) {
         this.dataset = this.dataset + "|" + set;
     }
 
@@ -181,14 +181,14 @@ public class ProteinPeptide {
      * @param count counting number as Integer.
      */
     public final void setCounter(final Integer count) {
-        this.count = (this.count + count);
+        this.count = this.count + count;
     }
 
     /**
      * Coverage identity % of the peptide sequence.
      * @return coverage % as Double.
      */
-    public final Double getCoverage() {
+    public final String getCoverage() {
         return this.coverage;
     }
 
@@ -196,8 +196,8 @@ public class ProteinPeptide {
      * Sets the coverage of the peptide sequence.
      * @param cover
      */
-    public final void setCoverage(final Double cover) {
-        this.coverage = cover;
+    public final void setCoverage(final String cover) {
+        this.coverage = this.coverage + "|" + cover;
     }
 
     /**

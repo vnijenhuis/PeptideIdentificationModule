@@ -53,7 +53,7 @@ public class ProteinPeptideCollectionCreator {
         int uniqueIndex = 0;
         int coverageIndex = 0;
         Boolean firstLine = true;
-        //Read the file.
+        //Read the file. Determine indices by using first line parameters.
         while ((line = bffFr.readLine()) != null) {
             if (firstLine) {
                 String[] data = line.split(",");
@@ -81,33 +81,35 @@ public class ProteinPeptideCollectionCreator {
             //Remove first and last 2 indices.
             sequence = sequence.replaceAll("\\.[A-Z]$", "");
             sequence = sequence.replaceAll("^[A-Z]\\.", "");
-            //Possibility to remove (+15.99) values from peptides
+            //Possibility to remove (+15.99) values from sequences
 //            sequence = sequence.replaceAll("\\(\\+[0-9]+\\.[0-9]+\\)", "");
             String uniqueToGroup = data[uniqueIndex];
-            Double coverage = Double.parseDouble(data[coverageIndex]);
+            String coverage = data[coverageIndex];
             boolean newPeptide = true;
             ProteinPeptide match = new ProteinPeptide(proteinGroup, accession, sequence, sample, uniqueToGroup,
                     uniqueCombined, dataset, count, coverage);
-            //Add matches to a ProteinPeptideCollection.
+            //Creates a proteinPeptide object with data per sample.
             if (!proteinPeptides.getProteinPeptideMatches().isEmpty()) {
                 for (ProteinPeptide proteinPeptide: proteinPeptides.getProteinPeptideMatches()) {
                     if (proteinPeptide.getSequence().equals(sequence)) {
                         newPeptide = false;
                         proteinPeptide.setCounter(count);
+                        //Collects all protein groups per sequence for a sample.
                         if (!proteinPeptide.getProteinGroup().contains(proteinGroup)) {
                             proteinPeptide.setProteinGroup(proteinGroup);
                         }
+                        //Collects all accession IDs per sequence for a sample.
                         if (!proteinPeptide.getAccession().contains(accession)) {
-                            proteinPeptide.addAccession(accession);
+                            proteinPeptide.setAccession(accession);
+                            if (sequence.equals("LVQDVSGPLR")) {
+                            System.out.println(proteinPeptide.getAccession());
+                            proteinPeptide.setAccession(accession);
+                            System.out.println(proteinPeptide.getAccession());
+                            }
                         }
-                        if (proteinPeptide.getCoverage() < coverage) {
+                        //Collects all -10lgP scores per sequence for a sample.
+                        if (!proteinPeptide.getCoverage().contains(coverage)) {
                             proteinPeptide.setCoverage(coverage);
-                        }
-                        if (!proteinPeptide.getAccession().contains(accession)) {
-                            proteinPeptide.addAccession(accession);
-                        }
-                        if (!proteinPeptide.getDataset().contains(dataset)) {
-                            proteinPeptide.addDataset(dataset);
                         }
                     }
                 }
@@ -116,6 +118,7 @@ public class ProteinPeptideCollectionCreator {
                     proteinPeptides.addProteinPeptideMatch(match);
                 }
             } else {
+                //Adds first match to the collection.
                 proteinPeptides.addProteinPeptideMatch(match);
             }
         }

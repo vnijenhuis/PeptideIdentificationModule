@@ -16,45 +16,54 @@ import objects.ProteinPeptide;
 public class CsvMatrixCreator {
     public final HashSet<ArrayList<String>> createMatrix(final ProteinPeptideCollection proteinPeptides,
             final Integer size, final ArrayList<String> datasets) {
-        ArrayList<String> newMatch;
+        ArrayList<String> newEntry;
         HashSet<ArrayList<String>> proteinPeptideMatrix = new HashSet<>();
         //Make an array of each proteinPeptide object.
-        System.out.println("Creating protein-peptide matrix...");
         for (ProteinPeptide proteinPeptide: proteinPeptides.getProteinPeptideMatches()) {
-            newMatch = new ArrayList<>();
-            newMatch.add(proteinPeptide.getProteinGroup());
-            newMatch.add(proteinPeptide.getAccession());
-            newMatch.add(proteinPeptide.getSequence());
-            newMatch.add(proteinPeptide.getUniqueGroup());
-            newMatch.add(proteinPeptide.getUniqueCombined());
-            newMatch.add(proteinPeptide.getDataset());
+            newEntry = new ArrayList<>();
+            newEntry.add(proteinPeptide.getProteinGroup());
+            newEntry.add(proteinPeptide.getAccession());
+            newEntry.add(proteinPeptide.getSequence());
+            newEntry.add(proteinPeptide.getUniqueGroup());
+            newEntry.add(proteinPeptide.getUniqueCombined());
+            newEntry.add(proteinPeptide.getDataset());
             //Add values for each sample: 1 value for count, 1 value for coverage.
             //Starting values are zero.
             for (int i = 0; i <size; i++) {
-                newMatch.add("0");
-                newMatch.add("0.0");
+                newEntry.add("0");
+                newEntry.add("0");
             }
             for (String dataset : datasets) {
-                newMatch.add("0");
+                newEntry.add("0");
             }
             boolean newArray = true;
             //Checks if the matrix exists already.
             if (!proteinPeptideMatrix.isEmpty()) {
-                for (ArrayList<String> match: proteinPeptideMatrix) {
-                    //Matches group id, accession and sequence to check for similar results.
-                    //Prevents multiple entries with the same values.
-                    if (match.get(1).equals(newMatch.get(1)) && match.get(2).equals(newMatch.get(2))) {
+                for (ArrayList<String> entry: proteinPeptideMatrix) {
+                    //Match sequences of each entry.
+                    if (entry.get(2).equals(proteinPeptide.getSequence())) {
+                        System.out.println(entry.get(2));
+                        if (!entry.get(0).contains(proteinPeptide.getProteinGroup())) {
+                            entry.set(0, entry.get(0) + "|" + proteinPeptide.getProteinGroup());
+                        }
+                        if (!entry.get(1).contains(proteinPeptide.getAccession())) {
+                            entry.set(1, entry.get(1) + "|" + proteinPeptide.getAccession());
+                        }
+                        if (!entry.get(5).contains(proteinPeptide.getDataset())) {
+                            entry.set(5, entry.get(5) + "|" + proteinPeptide.getDataset());
+                        }
+                        System.out.println(entry);
                         newArray = false;
                         break;
                     }
                 }
                 //Add new array to the hashset.
                 if (newArray) {
-                    proteinPeptideMatrix.add(newMatch);
+                    proteinPeptideMatrix.add(newEntry);
                 }
                 //Add first array to the hashset.
             } else {
-                proteinPeptideMatrix.add(newMatch);
+                proteinPeptideMatrix.add(newEntry);
             }
         }
         //Returns the matrix.
