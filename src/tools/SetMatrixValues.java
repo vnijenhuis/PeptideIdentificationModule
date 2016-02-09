@@ -27,7 +27,7 @@ public class SetMatrixValues {
         for (ArrayList<String> array: peptideMatrix) {
             for (ProteinPeptide proteinPeptide: proteinPeptides.getProteinPeptideMatches()) {
                 //Check if ProteinPeptide exists inside the matrix.
-                if (array.get(1).equals(proteinPeptide.getAccession()) && array.get(2).equals(proteinPeptide.getSequence())) {
+                if (array.get(2).equals(proteinPeptide.getSequence())) {
                     //Add Healthy sample data.
                     int arraySize = array.size();
                     if (proteinPeptide.getSample().contains("Healthy")) {

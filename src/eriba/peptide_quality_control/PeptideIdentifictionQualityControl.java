@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.regex.Pattern;
+import objects.ProteinPeptide;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -99,7 +100,7 @@ public class PeptideIdentifictionQualityControl {
     private HashSet<ProteinCollection> combinedProteins;
     private HashSet<ProteinCollection> databaseProteins;
     private ProteinCollection combinedDatabase;
-    private final CombinedIndividualDatabaseMatcher individualDatabaseMatcher;
+    private final CombinedIndividualDatabaseMatcher combinedDatabaseMatcher;
     private HashSet<ArrayList<String>> proteinPeptideMatrix;
     
     /**
@@ -162,7 +163,7 @@ public class PeptideIdentifictionQualityControl {
         //creates a collection of protein-peptide objects that are not matched to a database(uniprot) protein sequence.
         databaseMatcher = new UniprotDatabaseMatcher();
         //matches the remaining protein-peptide objects to the combined individual database.
-        individualDatabaseMatcher = new CombinedIndividualDatabaseMatcher();
+        combinedDatabaseMatcher = new CombinedIndividualDatabaseMatcher();
         //Creates a hashset of arrays as matrix.
         createMatrix = new CsvMatrixCreator();
         //Sets the values per matrix.
@@ -264,7 +265,12 @@ public class PeptideIdentifictionQualityControl {
             // Match to uniprot. This removes proteinPeptides that match in a database sequence.
             proteinPeptides = databaseMatcher.matchToDatabases(database, proteinPeptides);
             //Match to the individual database. Flags sequences that occur once inside this database.
-            proteinPeptides = individualDatabaseMatcher.matchToIndividuals(proteinPeptides, combinedDatabase);
+            proteinPeptides = combinedDatabaseMatcher.matchToIndividuals(proteinPeptides, combinedDatabase);
+            for (ProteinPeptide p : proteinPeptides.getProteinPeptideMatches()) {
+                if (p.getSequence().equals("QSVQEVAEKGK")) {
+                    System.out.println(p);
+                }
+            }
             finalCollection.getProteinPeptideMatches().addAll(proteinPeptides.getProteinPeptideMatches());
             if (!datasets.contains(dataset)) {
                 datasets.add(dataset);

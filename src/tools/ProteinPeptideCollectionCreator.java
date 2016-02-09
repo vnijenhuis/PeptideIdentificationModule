@@ -99,13 +99,19 @@ public class ProteinPeptideCollectionCreator {
                             proteinPeptide.setProteinGroup(proteinGroup);
                         }
                         //Collects all accession IDs per sequence for a sample.
-                        if (!proteinPeptide.getAccession().contains(accession)) {
-                            proteinPeptide.setAccession(accession);
-                            if (sequence.equals("LVQDVSGPLR")) {
-                            System.out.println(proteinPeptide.getAccession());
-                            proteinPeptide.setAccession(accession);
-                            System.out.println(proteinPeptide.getAccession());
+                        if (proteinPeptide.getAccession().contains("|")) {
+                            Boolean newAcc = true;
+                            String[] accessionList = proteinPeptide.getAccession().split("|");
+                            for (String acc: accessionList) {
+                                if (proteinPeptide.getAccession().equals(accession)) {
+                                    newAcc = false;
+                                }
                             }
+                            if (newAcc) {
+                                proteinPeptide.setAccession(accession);
+                            }
+                        } else if (!proteinPeptide.getAccession().equals(accession)) {
+                            proteinPeptide.setAccession(accession);
                         }
                         //Collects all -10lgP scores per sequence for a sample.
                         if (!proteinPeptide.getCoverage().contains(coverage)) {

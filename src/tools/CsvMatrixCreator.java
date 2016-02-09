@@ -42,7 +42,6 @@ public class CsvMatrixCreator {
                 for (ArrayList<String> entry: proteinPeptideMatrix) {
                     //Match sequences of each entry.
                     if (entry.get(2).equals(proteinPeptide.getSequence())) {
-                        System.out.println(entry.get(2));
                         if (!entry.get(0).contains(proteinPeptide.getProteinGroup())) {
                             entry.set(0, entry.get(0) + "|" + proteinPeptide.getProteinGroup());
                         }
@@ -52,7 +51,6 @@ public class CsvMatrixCreator {
                         if (!entry.get(5).contains(proteinPeptide.getDataset())) {
                             entry.set(5, entry.get(5) + "|" + proteinPeptide.getDataset());
                         }
-                        System.out.println(entry);
                         newArray = false;
                         break;
                     }
