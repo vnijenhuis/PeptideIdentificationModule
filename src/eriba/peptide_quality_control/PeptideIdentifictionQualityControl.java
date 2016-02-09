@@ -261,8 +261,10 @@ public class PeptideIdentifictionQualityControl {
             peptides = peptideCollection.createCollection(psmFiles.get(sample));
             // Match to uniprot. This removes proteinPeptides that match in a database sequence.
             peptides = databaseMatcher.matchToDatabases(database, peptides);
+            System.out.println(peptides.getPeptides());
             //Makes protein peptide objects, remove flag, add patient ID
             proteinPeptides = proteinPeptideCollection.createCollection(proPepFiles.get(sample));
+            System.out.println(proteinPeptides.getProteinPeptideMatches());
             //Matches protein peptide to db peptides, keeps single matches and counts occurences etc.
             proteinPeptides = proteinPeptideMatching.matchPeptides(peptides, proteinPeptides);
             //Match to the individual database. Flags sequences that occur once inside this database.
