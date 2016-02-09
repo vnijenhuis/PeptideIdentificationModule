@@ -251,6 +251,7 @@ public class PeptideIdentifictionQualityControl {
                 if (folder.toUpperCase().contains("2D") || folder.toUpperCase().contains("1D")) {
                     dataset = folder;
                 }
+                //RNAseq name: usually can change between RNASeqUnique and RNASeqCommon
                 if (folder.toUpperCase().contains("RNASEQ")) {
                     rnaSeq = folder;
                 }
@@ -258,19 +259,14 @@ public class PeptideIdentifictionQualityControl {
             proteinPeptides = new ProteinPeptideCollection();
             //Loads unique peptide sequences from DB search psm.csv.
             peptides = peptideCollection.createCollection(psmFiles.get(sample));
+            // Match to uniprot. This removes proteinPeptides that match in a database sequence.
+            peptides = databaseMatcher.matchToDatabases(database, peptides);
             //Makes protein peptide objects, remove flag, add patient ID
             proteinPeptides = proteinPeptideCollection.createCollection(proPepFiles.get(sample));
             //Matches protein peptide to db peptides, keeps single matches and counts occurences etc.
             proteinPeptides = proteinPeptideMatching.matchPeptides(peptides, proteinPeptides);
-            // Match to uniprot. This removes proteinPeptides that match in a database sequence.
-            proteinPeptides = databaseMatcher.matchToDatabases(database, proteinPeptides);
             //Match to the individual database. Flags sequences that occur once inside this database.
             proteinPeptides = combinedDatabaseMatcher.matchToIndividuals(proteinPeptides, combinedDatabase);
-            for (ProteinPeptide p : proteinPeptides.getProteinPeptideMatches()) {
-                if (p.getSequence().equals("QSVQEVAEKGK")) {
-                    System.out.println(p);
-                }
-            }
             finalCollection.getProteinPeptideMatches().addAll(proteinPeptides.getProteinPeptideMatches());
             if (!datasets.contains(dataset)) {
                 datasets.add(dataset);

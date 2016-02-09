@@ -4,12 +4,12 @@
  */
 package tools;
 
+import collections.PeptideCollection;
 import collections.ProteinCollection;
 import objects.Protein;
-import collections.ProteinPeptideCollection;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import objects.ProteinPeptide;
+import objects.Peptide;
 
 /**
  * Matches peptides from a txt file to a collection of proteins (uniprot for example).
@@ -24,32 +24,32 @@ public class UniprotDatabaseMatcher {
      * @throws FileNotFoundException file not found.
      * @throws IOException can't open file.
      */
-    public final ProteinPeptideCollection matchToDatabases(final ProteinCollection proteins,
-            final ProteinPeptideCollection proteinPeptides) throws FileNotFoundException, IOException {
+    public final PeptideCollection matchToDatabases(final ProteinCollection proteins,
+            final PeptideCollection peptides) throws FileNotFoundException, IOException {
         int cnt = 0;
         //New ProteinPeptide Collection for non matched entries.
-        ProteinPeptideCollection newCollection = new ProteinPeptideCollection();
+        PeptideCollection newCollection = new PeptideCollection();
         System.out.println("Starting to match peptides to protein database.");
-        for (ProteinPeptide proteinPeptide : proteinPeptides.getProteinPeptideMatches()) {
+        for (Peptide peptide : peptides.getPeptides()) {
             cnt += 1;
             boolean noMatch = true;
             for (Protein protein : proteins.getProteins()) {
                 // Cast object to protein and check if peptide is present
-                String sequence = proteinPeptide.getSequence().replaceAll("\\(\\+[0-9]+\\.[0-9]+\\)", "");
+                String sequence = peptide.getSequence().replaceAll("\\(\\+[0-9]+\\.[0-9]+\\)", "");
                 if (protein.getSequence().contains(sequence)) {
                         noMatch = false;
                         break;
                     }
                 }
                 if (noMatch) {
-                    newCollection.addProteinPeptideMatch(proteinPeptide);
+                    newCollection.addPeptide(peptide);
                 }
             if (cnt % 1000 == 0) {
                 System.out.println("Matched " + cnt + " peptide sequences to database.");
             }
         }
-        System.out.println("Finished matching " + proteinPeptides.getProteinPeptideMatches().size() + " peptides!");
-        System.out.println("Found " + newCollection.getProteinPeptideMatches().size()
+        System.out.println("Finished matching " + peptides.getPeptides().size() + " peptides!");
+        System.out.println("Found " + newCollection.getPeptides().size()
                 + " peptides that did not match the database.");
         //Returns the new collection of ProteinPeptide objects.
         return newCollection;
