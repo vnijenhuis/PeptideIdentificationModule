@@ -2,7 +2,7 @@
  * @author Vikthor Nijenhuis
  * @project peptide spectrum matrix quality control  * 
  */
-package eriba.peptide_quality_control;
+package peptideidentificationqualitycontrol;
 
 import collections.PeptideCollection;
 import collections.ProteinCollection;
@@ -19,17 +19,17 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import object.matcher.CombinedIndividualDatabaseMatcher;
+import matcher.CombinedIndividualDatabaseMatcher;
 import matrix.CsvMatrixCreator;
 import matrix.DataToCsvWriter;
-import collection.creation.PeptideCollectionCreator;
-import object.matcher.UniprotDatabaseMatcher;
-import object.matcher.PeptideToProteinPeptideMatcher;
-import collection.creation.ProteinCollectionCreator;
-import collection.creation.ProteinPeptideCollectionCreator;
+import collectioncreator.PeptideCollectionCreator;
+import matcher.UniprotDatabaseMatcher;
+import matcher.PeptideToProteinPeptideMatcher;
+import collectioncreator.ProteinCollectionCreator;
+import collectioncreator.ProteinPeptideCollectionCreator;
 import tools.SampleSizeGenerator;
 import matrix.SetMatrixValues;
-import object.matcher.IndividualDatabaseMatcher;
+import matcher.IndividualDatabaseMatcher;
 import tools.ValidFileChecker;
 
 /**
@@ -284,7 +284,7 @@ public class PeptideIdentifictionQualityControl {
             individualFile.add(indivDbFiles.get(sample));
             //Match to the individual database. Flags sequences that occur once inside this database.
             individualDatabase = new ProteinCollection();
-            individualDatabase = databaseCollection.createCollection(individualFile, combinedDatabase);
+            individualDatabase = databaseCollection.createCollection(individualFile, individualDatabase);
             proteinPeptides = individualDatabaseMatcher.matchToIndividual(proteinPeptides, individualDatabase);
             //Adds all proteinPeptides to a single collection.
             finalCollection.getProteinPeptideMatches().addAll(proteinPeptides.getProteinPeptideMatches());

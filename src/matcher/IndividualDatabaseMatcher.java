@@ -2,7 +2,7 @@
  * @author Vikthor Nijenhuis
  * @project peptide spectrum identification quality control  * 
  */
-package object.matcher;
+package matcher;
 
 import collections.ProteinCollection;
 import collections.ProteinPeptideCollection;
@@ -14,14 +14,14 @@ import objects.ProteinPeptide;
  * For example: uniprot, ensemble, all individual proteins.
  * @author vnijenhuis
  */
-public class CombinedIndividualDatabaseMatcher {
+public class IndividualDatabaseMatcher {
     /**
      * Matches peptide sequences to a combined database of individual protein sequences.
      * @param proteinPeptides collection of ProteinPeptide objects.
      * @param proteins collection of Protein objects.
      * @return ProteinPeptideCollection with adjusted values.
      */
-    public final ProteinPeptideCollection matchToIndividuals(ProteinPeptideCollection proteinPeptides, ProteinCollection proteins) {
+    public final ProteinPeptideCollection matchToIndividual(ProteinPeptideCollection proteinPeptides, ProteinCollection proteins) {
         System.out.println("Matching sequences to individual database.");
         for (ProteinPeptide proteinPeptide: proteinPeptides.getProteinPeptideMatches()) {
             Integer oneMatch = 0;
@@ -31,16 +31,17 @@ public class CombinedIndividualDatabaseMatcher {
                     oneMatch += 1;
                 }
             }
+            System.out.println(oneMatch + "  |  " + proteinPeptide);
             //Set uniqueness depending on the oneMatch counter.
             if (oneMatch == 1) {
                 //If only one match has been found: set flag to Y(es)
-                if (proteinPeptide.getUniqueCombined().equals("") || proteinPeptide.getUniqueCombined().equals("N")) {
-                    proteinPeptide.setUniqueCombined("Y");    
+                if (proteinPeptide.getUniqueIndividual().equals("") || proteinPeptide.getUniqueIndividual().equals("N")) {
+                    proteinPeptide.setUniqueIndividual("Y");    
                 }
                 //Set flag to N(o) if more/less then one match was found.
             } else {
-                if (!proteinPeptide.getUniqueCombined().contains("Y")) {
-                    proteinPeptide.setUniqueCombined("N");
+                if (!proteinPeptide.getUniqueIndividual().contains("Y")) {
+                    proteinPeptide.setUniqueIndividual("N");
                 }
             }
         }

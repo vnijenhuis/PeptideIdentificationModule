@@ -30,8 +30,10 @@ public class CsvMatrixCreator {
             for (int i = 0; i <datasets.size(); i++) {
                 if (datasets.get(i).equals(proteinPeptide.getDataset())) {
                     newEntry.add(proteinPeptide.getUniqueIndividual());
+                    System.out.println(proteinPeptide.getUniqueIndividual() + "  Y  " + proteinPeptide);
                 } else {
-                    newEntry.add("N");     
+                    newEntry.add("N");   
+                    System.out.println("N    " + proteinPeptide);
                 }
             }
             //Add values for each sample: 1 value for count, 1 value for coverage.

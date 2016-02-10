@@ -41,12 +41,12 @@ public class DataToCsvWriter {
             writer.append("Protein Group,");
             writer.append("Accession,");
             writer.append("Sequence,");
+            writer.append("Dataset,");
             writer.append("Unique to Protein Group,");
             writer.append("Unique to Combined DB,");
             for (String dataset: datasets) {
                 writer.append("Unique to individual;" + dataset + ",");
             }
-            writer.append("Dataset,");
             for (String state: states) {
                 for (int i = 1; i <=(sampleSize / 2); i++) {
                     //Writes the sample id to the header.

@@ -231,7 +231,8 @@ public class ProteinPeptide {
     public final String toString() {
         return "Protein-Peptide{protein group; " + this.proteinGroup + ", accession; " + this.accession
                 + ", sequence; " + this.sequence + ", sample; " + this.sample + ", unique group; "
-                + this.uniqueToGroup + ", unique combined; " + this.uniqueCombined + ", dataset; "
-                + this.dataset + ", count; " + this.count + ", coverage; " + this.coverage + "}";
+                + this.uniqueToGroup + ", unique combined; " + this.uniqueCombined + ", unique individual; "
+                + this.uniqueCombined + ", dataset; " + this.dataset + ", count; " + this.count + ", coverage; "
+                + this.coverage + "}";
     }
 }

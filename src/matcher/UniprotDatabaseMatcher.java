@@ -2,7 +2,7 @@
  * @author Vikthor Nijenhuis
  * @project peptide spectrum identification quality control  * 
  */
-package object.matcher;
+package matcher;
 
 import collections.PeptideCollection;
 import collections.ProteinCollection;
