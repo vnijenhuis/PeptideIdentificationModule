@@ -41,7 +41,8 @@ public class SetMatrixValues {
                         int sampleIndex = Integer.parseInt(sample.substring(7));
                         int cntIndex = (sampleIndex + 5 + individualUnique);
                         int covIndex = (sampleIndex + 5 + individualUnique + sampleSize);
-                        array.set(cntIndex, proteinPeptide.getCounter().toString());
+                        Integer count = (Integer.parseInt(array.get(cntIndex)) + proteinPeptide.getCounter());
+                        array.set(cntIndex, count.toString());
                         if (array.get(covIndex).equals("0")) {
                             array.set(covIndex, proteinPeptide.getCoverage());
                         } else {
@@ -52,7 +53,8 @@ public class SetMatrixValues {
                         int sampleIndex = Integer.parseInt(sample.substring(4));
                         int cntIndex = (sampleIndex + 5 + individualUnique + sampleSize/2);
                         int covIndex = (sampleIndex + 5 + individualUnique + sampleSize + sampleSize/2);
-                        array.set(cntIndex, proteinPeptide.getCounter().toString());
+                        Integer count = (Integer.parseInt(array.get(cntIndex)) + proteinPeptide.getCounter());
+                        array.set(cntIndex, count.toString());
                         if (array.get(covIndex).equals("0")) {
                             array.set(covIndex, proteinPeptide.getCoverage());
                         } else if (!array.get(covIndex).contains(proteinPeptide.getCoverage())){
