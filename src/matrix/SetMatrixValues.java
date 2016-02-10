@@ -70,9 +70,6 @@ public class SetMatrixValues {
                 }
             }
         }
-        for (ArrayList<String> p: peptideMatrix) {
-            System.out.println(p);
-        }
     return peptideMatrix;
     }
 }

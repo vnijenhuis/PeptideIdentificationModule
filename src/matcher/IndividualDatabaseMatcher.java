@@ -31,7 +31,6 @@ public class IndividualDatabaseMatcher {
                     oneMatch += 1;
                 }
             }
-            System.out.println(oneMatch + "  |  " + proteinPeptide);
             //Set uniqueness depending on the oneMatch counter.
             if (oneMatch == 1) {
                 //If only one match has been found: set flag to Y(es)
