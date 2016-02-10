@@ -1,8 +1,8 @@
 /*
  * @author Vikthor Nijenhuis
- * @project peptide spectrum matrix quality control  * 
+ * @project peptide spectrum identification quality control  * 
  */
-package tools;
+package object.matcher;
 
 import collections.PeptideCollection;
 import collections.ProteinCollection;
@@ -19,7 +19,7 @@ public class UniprotDatabaseMatcher {
     /**
      * Matches peptide sequences to a protein database.
      * @param proteins collection of database protein sequences.
-     * @param proteinPeptides collection of protein-peptide objects.
+     * @param peptides collection of peptide objects.
      * @return protein peptide objects and their match with the database.
      * @throws FileNotFoundException file not found.
      * @throws IOException can't open file.

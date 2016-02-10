@@ -1,6 +1,6 @@
 /*
  * @author Vikthor Nijenhuis
- * @project peptide spectrum matrix quality control  * 
+ * @project peptide spectrum identification quality control  * 
  */
 package objects;
 
@@ -10,7 +10,7 @@ package objects;
  */
 public class Peptide {
     /**
-     * Amino acid sequence of the protein.
+     * Amino acid sequence of the peptide.
      */
     private final String peptideSequence;
 

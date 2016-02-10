@@ -1,6 +1,6 @@
 /*
  * @author Vikthor Nijenhuis
- * @project peptide spectrum matrix quality control  * 
+ * @project peptide spectrum identification quality control  * 
  */
 package objects;
 
@@ -33,6 +33,11 @@ public class ProteinPeptide {
      * Unique to one protein sequence from the combined individual database. (Y/N)
      */
     private String uniqueCombined;
+    
+    /**
+     * Unique to one protein sequence from the individual database. (Y/N)
+     */
+    private String uniqueIndividual;
 
     /**
      * Dataset that the peptide belongs to. (2DLCMSMS, 2D25CM etc.)
@@ -62,19 +67,21 @@ public class ProteinPeptide {
      * @param dataSet dataset(s) that the peptide belongs to.
      * @param sample sample id (COPD1, Healthy4 etc)
      * @param uniqueToGroup (yes/no) Y if unique to one protein group, otherwise its a N.
-     * @param uniqueCombined unique to one sequence in the combined database.
+     * @param uniqueIndividual unique to one sequence in the individual database.
+     * @param uniqueCombined unique to one sequence in the combined individual database.
      * @param count counting number of the sequence.
      * @param coverage coverage % of the sequence.
      */
     public ProteinPeptide(final String proteinGroup, final String accession, final String sequence,
-            final String sample, final String uniqueToGroup, final String uniqueCombined, final String dataSet,
-            final Integer count,final String coverage) {
+            final String sample, final String uniqueToGroup, final String uniqueCombined, final String uniqueIndividual,
+            final String dataSet, final Integer count,final String coverage) {
         this.proteinGroup = proteinGroup;
         this.accession = accession;
         this.sequence = sequence;
         this.sample = sample;
         this.uniqueToGroup = uniqueToGroup;
         this.uniqueCombined = uniqueCombined;
+        this.uniqueIndividual = uniqueIndividual;
         this.dataset = dataSet;
         this.count = count;
         this.coverage = coverage;
@@ -152,6 +159,22 @@ public class ProteinPeptide {
         this.uniqueCombined = flag;
     }
 
+        /**
+     * Returns Y(yes) if a sequence is matched once to indiv. database or N(no) if matched more than once.
+     * @return Y or N as String.
+     */
+    public final String getUniqueIndividual() {
+        return this.uniqueIndividual;
+    }
+
+    /**
+     * Sets the uniqueCombined value to yes or no depending on the flag.
+     * @param flag Y or N as String.
+     */
+    public final void setUniqueIndividual(final String flag) {
+        this.uniqueIndividual = flag;
+    }
+    
     /**
      * Returns the name of the dataset that this peptide belongs to.
      * @return dataset as String.

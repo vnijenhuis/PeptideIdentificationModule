@@ -1,7 +1,6 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * @author Vikthor Nijenhuis
+ * @project peptide spectrum identification quality control  * 
  */
 package tools;
 
@@ -32,15 +31,16 @@ public class ValidFileChecker {
                 return new File(current, name).isDirectory();
             }
           });
-          for (String sample: directories) {
-              File path = new File(filePath + sample);
-              for (File f: path.listFiles()) {
-                  if (f.toString().contains(fileName)) {
-                      System.out.println("Found " + f);
-                      fileList.add(f.toString());
-                  }
-              }
-          }
+        //Goes through all sample folders inside the RNASeq folder and creates a list of files.
+        for (String sample: directories) {
+            File path = new File(filePath + sample);
+            for (File f: path.listFiles()) {
+                if (f.toString().contains(fileName)) {
+                    System.out.println("Found " + f);
+                    fileList.add(f.toString());
+                }
+            }
+        }
         return fileList;
     }
 }

@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.regex.Pattern;
-import objects.ProteinPeptide;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -20,16 +19,17 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import tools.CombinedIndividualDatabaseMatcher;
-import tools.CsvMatrixCreator;
-import tools.DataToCsvWriter;
-import tools.PeptideCollectionCreator;
-import tools.UniprotDatabaseMatcher;
-import tools.PeptideToProteinPeptideMatcher;
-import tools.ProteinCollectionCreator;
-import tools.ProteinPeptideCollectionCreator;
+import object.matcher.CombinedIndividualDatabaseMatcher;
+import matrix.CsvMatrixCreator;
+import matrix.DataToCsvWriter;
+import collection.creation.PeptideCollectionCreator;
+import object.matcher.UniprotDatabaseMatcher;
+import object.matcher.PeptideToProteinPeptideMatcher;
+import collection.creation.ProteinCollectionCreator;
+import collection.creation.ProteinPeptideCollectionCreator;
 import tools.SampleSizeGenerator;
-import tools.SetMatrixValues;
+import matrix.SetMatrixValues;
+import object.matcher.IndividualDatabaseMatcher;
 import tools.ValidFileChecker;
 
 /**
@@ -87,7 +87,6 @@ public class PeptideIdentifictionQualityControl {
     private final PeptideCollectionCreator peptideCollection;
     private PeptideCollection peptides;
     private final ProteinCollectionCreator databaseCollection;
-    private ProteinCollection proteins;
     private final ProteinPeptideCollectionCreator proteinPeptideCollection;
     private ProteinPeptideCollection proteinPeptides;
     private final PeptideToProteinPeptideMatcher proteinPeptideMatching;
@@ -97,11 +96,11 @@ public class PeptideIdentifictionQualityControl {
     private final SetMatrixValues matrix;
     private ArrayList<String> databases;
     private ProteinCollection database;
-    private HashSet<ProteinCollection> combinedProteins;
-    private HashSet<ProteinCollection> databaseProteins;
     private ProteinCollection combinedDatabase;
+    private final IndividualDatabaseMatcher individualDatabaseMatcher;
     private final CombinedIndividualDatabaseMatcher combinedDatabaseMatcher;
     private HashSet<ArrayList<String>> proteinPeptideMatrix;
+    private ProteinCollection individualDatabase;
     
     /**
      * Private constructor to define primary functions.
@@ -109,32 +108,41 @@ public class PeptideIdentifictionQualityControl {
      * Calls classes and functions to be used with this module.
      */
     private PeptideIdentifictionQualityControl() {
+        //Creates all commandline options and their descriptions.
+        //Help function.
         options = new Options();
         Option help = Option.builder("help")
                 .desc("Help function to display all options.")
                 .optionalArg(true)
                 .build();
         options.addOption(help);
-        Option path = Option.builder("path")
+        //Path(s) to the dataset(s)
+        Option path = Option.builder("p")
                 .hasArgs()
-                .desc("Path to the dataset (/home/name/1D25/commonRNAseq/).")
+                .desc("Path to the dataset (/home/name/1D25/commonRNAseq/)."
+                        + "\n Path should contain folders with sample names. (COPD1 etc.)")
                 .build();
         options.addOption(path);
+        //protein-peptide relations file name. 
         Option proteinPeptide = Option.builder("pp")
                 .hasArg()
                 .desc("Name of the protein-peptide file (protein-peptides.csv).")
                 .build();
         options.addOption(proteinPeptide);
+        //PSM file name.
         Option psm = Option.builder("psm")
                 .hasArg()
                 .desc("Name of the psm file (DB search PSM.csv).")
                 .build();
         options.addOption(psm);
+        //Path to the database(s). Should contain folders per database. (uniprot/ensemble etc.)
         Option dbPath = Option.builder("db")
                 .hasArg()
-                .desc("Path to the uniprot database (/home/name/Databases/.")
+                .desc("Path to the database folder (/home/name/Databases/)"
+                        + "\n Path should contain folders with .fasta.gz files.")
                 .build();
         options.addOption(dbPath);
+        //A string that is present in the database(s). (eg. fasta.gz reads all fasta.gz files, uniprot reads the uniprot db file.
         Option dbName= Option.builder("dbn")
                 .hasArg()
                 .desc("Database file name, or a part of that name. (uniprot)")
@@ -164,6 +172,8 @@ public class PeptideIdentifictionQualityControl {
         databaseMatcher = new UniprotDatabaseMatcher();
         //matches the remaining protein-peptide objects to the combined individual database.
         combinedDatabaseMatcher = new CombinedIndividualDatabaseMatcher();
+        //matches the remaining protein-peptide objects to the individual database.
+        individualDatabaseMatcher = new IndividualDatabaseMatcher();
         //Creates a hashset of arrays as matrix.
         createMatrix = new CsvMatrixCreator();
         //Sets the values per matrix.
@@ -191,9 +201,9 @@ public class PeptideIdentifictionQualityControl {
             formatter.printHelp("Quality Control", options );
         } else {
             //Allocate command line input to variables.
-            String[] path = cmd.getOptionValues("path");
+            String[] path = cmd.getOptionValues("p");
             String psmFile = cmd.getOptionValue("psm");
-            String proPepFile = cmd.getOptionValue("pp");
+            String proteinPeptideFile = cmd.getOptionValue("pp");
             String databasePath = cmd.getOptionValue("db");
             String dbName = cmd.getOptionValue("dbn");
             String indivDbFile = cmd.getOptionValue("idb");
@@ -209,7 +219,7 @@ public class PeptideIdentifictionQualityControl {
                 SampleSizeGenerator sizeGenerator = new SampleSizeGenerator();
                 Integer size = sizeGenerator.getSamples(folder);
                 psmFiles = input.checkFileValidity(folder, psmFile, psmFiles);
-                proPepFiles = input.checkFileValidity(folder, proPepFile, proPepFiles);
+                proPepFiles = input.checkFileValidity(folder, proteinPeptideFile, proPepFiles);
                 indivDbFiles = input.checkFileValidity(folder, indivDbFile, indivDbFiles);
                 if (size > sampleSize) {
                     sampleSize = size;
@@ -223,6 +233,7 @@ public class PeptideIdentifictionQualityControl {
 
     /**
      * Starts the quality control procedure.
+     * Output is written to a .csv file depending on the dataset and RNASeq type.
      * @param psmFiles DB seach psm.csv file of each sample.
      * @param proPepFiles protein-peptides.csv file of each sample
      * @param indivDbFiles individual database files of each sample.
@@ -238,10 +249,11 @@ public class PeptideIdentifictionQualityControl {
         String pattern = Pattern.quote(File.separator);
         ArrayList<String> datasets = new ArrayList<>();
         ProteinPeptideCollection finalCollection = new ProteinPeptideCollection();
-        //Creates a uniprot (and possibly other) database collection.
         String rnaSeq = "";
+        //Creates a database collection
         database = new ProteinCollection();
         database = databaseCollection.createCollection(databases, database);
+        //Creates a database of the combined individual proteins.
         combinedDatabase = new ProteinCollection();
         combinedDatabase = databaseCollection.createCollection(indivDbFiles, combinedDatabase);
         for (int sample = 0; sample < psmFiles.size(); sample++) {
@@ -259,16 +271,22 @@ public class PeptideIdentifictionQualityControl {
             proteinPeptides = new ProteinPeptideCollection();
             //Loads unique peptide sequences from DB search psm.csv.
             peptides = peptideCollection.createCollection(psmFiles.get(sample));
-            // Match to uniprot. This removes proteinPeptides that match in a database sequence.
+            //Match to uniprot. This removes peptides that match in a database sequence.
             peptides = databaseMatcher.matchToDatabases(database, peptides);
-            System.out.println(peptides.getPeptides());
-            //Makes protein peptide objects, remove flag, add patient ID
+            //Creates protein peptide collection from protein-peptides.csv.
             proteinPeptides = proteinPeptideCollection.createCollection(proPepFiles.get(sample));
-            System.out.println(proteinPeptides.getProteinPeptideMatches());
-            //Matches protein peptide to db peptides, keeps single matches and counts occurences etc.
+            //Matches peptides to protein-peptide relationship data.
             proteinPeptides = proteinPeptideMatching.matchPeptides(peptides, proteinPeptides);
-            //Match to the individual database. Flags sequences that occur once inside this database.
+            //Match to the combined individual database. Flags sequences that occur once inside this database.
             proteinPeptides = combinedDatabaseMatcher.matchToIndividuals(proteinPeptides, combinedDatabase);
+            //Creates an array with the individual proteins.fasta file for individual db matching.
+            ArrayList<String> individualFile = new ArrayList<>();
+            individualFile.add(indivDbFiles.get(sample));
+            //Match to the individual database. Flags sequences that occur once inside this database.
+            individualDatabase = new ProteinCollection();
+            individualDatabase = databaseCollection.createCollection(individualFile, combinedDatabase);
+            proteinPeptides = individualDatabaseMatcher.matchToIndividual(proteinPeptides, individualDatabase);
+            //Adds all proteinPeptides to a single collection.
             finalCollection.getProteinPeptideMatches().addAll(proteinPeptides.getProteinPeptideMatches());
             if (!datasets.contains(dataset)) {
                 datasets.add(dataset);
@@ -277,8 +295,9 @@ public class PeptideIdentifictionQualityControl {
         //Create a matrix of all final ProteinPeptide objects.
         proteinPeptideMatrix = new HashSet<>();
         proteinPeptideMatrix = createMatrix.createMatrix(finalCollection, sampleSize, datasets);
+        //Writes count & coverage(-10lgP) values into the matrix.
         proteinPeptideMatrix = matrix.setValues(finalCollection, proteinPeptideMatrix, sampleSize, datasets);
-        //Write data to unknown_dataset_peptide_matrix.csv.
+        //Write data to a .csv file.
         fileWriter.generateCsvFile(proteinPeptideMatrix, outputPath, datasets, rnaSeq, sampleSize);
     }
 }

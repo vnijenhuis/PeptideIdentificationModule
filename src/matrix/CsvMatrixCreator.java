@@ -1,8 +1,8 @@
 /*
  * @author Vikthor Nijenhuis
- * @project peptide spectrum matrix quality control  * 
+ * @project peptide spectrum identification quality control  * 
  */
-package tools;
+package matrix;
 
 import collections.ProteinPeptideCollection;
 import java.util.ArrayList;
@@ -24,9 +24,16 @@ public class CsvMatrixCreator {
             newEntry.add(proteinPeptide.getProteinGroup());
             newEntry.add(proteinPeptide.getAccession());
             newEntry.add(proteinPeptide.getSequence());
+            newEntry.add(proteinPeptide.getDataset());
             newEntry.add(proteinPeptide.getUniqueGroup());
             newEntry.add(proteinPeptide.getUniqueCombined());
-            newEntry.add(proteinPeptide.getDataset());
+            for (int i = 0; i <datasets.size(); i++) {
+                if (datasets.get(i).equals(proteinPeptide.getDataset())) {
+                    newEntry.add(proteinPeptide.getUniqueIndividual());
+                } else {
+                    newEntry.add("N");     
+                }
+            }
             //Add values for each sample: 1 value for count, 1 value for coverage.
             //Starting values are zero.
             for (int i = 0; i <size; i++) {
@@ -48,8 +55,8 @@ public class CsvMatrixCreator {
                         if (!entry.get(1).contains(proteinPeptide.getAccession())) {
                             entry.set(1, entry.get(1) + "|" + proteinPeptide.getAccession());
                         }
-                        if (!entry.get(5).contains(proteinPeptide.getDataset())) {
-                            entry.set(5, entry.get(5) + "|" + proteinPeptide.getDataset());
+                        if (!entry.get(3).contains(proteinPeptide.getDataset())) {
+                            entry.set(3, entry.get(3) + "|" + proteinPeptide.getDataset());
                         }
                         newArray = false;
                         break;
@@ -65,6 +72,9 @@ public class CsvMatrixCreator {
             }
         }
         //Returns the matrix.
+        for (ArrayList<String> p: proteinPeptideMatrix) {
+            System.out.println(p);
+        }
         return proteinPeptideMatrix;
     }
 }

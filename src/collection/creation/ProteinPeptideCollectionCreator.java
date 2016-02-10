@@ -1,8 +1,8 @@
 /*
  * @author Vikthor Nijenhuis
- * @project peptide spectrum matrix quality control  * 
+ * @project peptide spectrum identification quality control  * 
  */
-package tools;
+package collection.creation;
 
 import collections.ProteinPeptideCollection;
 import java.io.BufferedReader;
@@ -32,11 +32,11 @@ public class ProteinPeptideCollectionCreator {
         String[] path = file.split(pattern);
         String sample = "";
         String dataset = "";
-        for (int i = 0; i < path.length; i++) {
-            if (path[i].toLowerCase().contains("copd") || path[i].toLowerCase().contains("healthy")) {
-                sample = path[i];
-            } else if (path[i].toUpperCase().contains("2D") || path[i].toUpperCase().contains("1D")) {
-                dataset = path[i];
+        for (String folder : path) {
+            if (folder.toLowerCase().contains("copd") || folder.toLowerCase().contains("healthy")) {
+                sample = folder;
+            } else if (folder.toUpperCase().contains("2D") || folder.toUpperCase().contains("1D")) {
+                dataset = folder;
             }
         }
         System.out.println("Collecting protein-peptides from " + sample + " " + dataset + "...");
@@ -46,6 +46,7 @@ public class ProteinPeptideCollectionCreator {
         String line;
         Integer count = 1;
         String uniqueCombined = "";
+        String uniqueIndividual = "";
         //Some indixes may vary, so a check is needed to find their position inside a file.
         int groupIndex = 0;
         int accessionIndex = 0;
@@ -87,7 +88,7 @@ public class ProteinPeptideCollectionCreator {
             String coverage = data[coverageIndex];
             boolean newPeptide = true;
             ProteinPeptide match = new ProteinPeptide(proteinGroup, accession, sequence, sample, uniqueToGroup,
-                    uniqueCombined, dataset, count, coverage);
+                    uniqueCombined, uniqueIndividual, dataset, count, coverage);
             //Creates a proteinPeptide object with data per sample.
             if (!proteinPeptides.getProteinPeptideMatches().isEmpty()) {
                 for (ProteinPeptide proteinPeptide: proteinPeptides.getProteinPeptideMatches()) {
@@ -103,7 +104,7 @@ public class ProteinPeptideCollectionCreator {
                             Boolean newAcc = true;
                             String[] accessionList = proteinPeptide.getAccession().split("|");
                             for (String acc: accessionList) {
-                                if (proteinPeptide.getAccession().equals(accession)) {
+                                if (acc.equals(accession)) {
                                     newAcc = false;
                                 }
                             }

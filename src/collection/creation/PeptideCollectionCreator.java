@@ -1,8 +1,8 @@
 /*
  * @author Vikthor Nijenhuis
- * @project peptide spectrum matrix quality control  * 
+ * @project peptide spectrum identification quality control  * 
  */
-package tools;
+package collection.creation;
 
 import collections.PeptideCollection;
 import java.io.BufferedReader;

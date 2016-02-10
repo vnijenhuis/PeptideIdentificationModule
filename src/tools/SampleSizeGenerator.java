@@ -1,12 +1,11 @@
 /*
- * @author vnijenhuis
- * @project peptide spectrum matrix quality control  * 
+ * @author Vikthor Nijenhuis
+ * @project peptide spectrum identification quality control  * 
  */
 package tools;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.ArrayList;
 
 /**
  * Generates a sampleSize based on the input files.

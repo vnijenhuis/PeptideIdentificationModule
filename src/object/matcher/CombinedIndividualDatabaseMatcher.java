@@ -1,8 +1,8 @@
 /*
  * @author Vikthor Nijenhuis
- * @project peptide spectrum matrix quality control  * 
+ * @project peptide spectrum identification quality control  * 
  */
-package tools;
+package object.matcher;
 
 import collections.ProteinCollection;
 import collections.ProteinPeptideCollection;
@@ -22,7 +22,7 @@ public class CombinedIndividualDatabaseMatcher {
      * @return ProteinPeptideCollection with adjusted values.
      */
     public final ProteinPeptideCollection matchToIndividuals(ProteinPeptideCollection proteinPeptides, ProteinCollection proteins) {
-        System.out.println("Matching sequences to combined inidividual database.");
+        System.out.println("Matching sequences to individual database.");
         for (ProteinPeptide proteinPeptide: proteinPeptides.getProteinPeptideMatches()) {
             Integer oneMatch = 0;
             //Test if a protein sequence contains the peptide sequence.
