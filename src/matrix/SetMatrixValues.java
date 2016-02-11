@@ -28,50 +28,49 @@ public class SetMatrixValues {
         int individualUnique = datasets.size();
         for (ArrayList<String> array: peptideMatrix) {
             for (ProteinPeptide proteinPeptide: proteinPeptides.getProteinPeptideMatches()) {
-                //Check if ProteinPeptide exists inside the matrix.
+                //Check if ProteinPeptide exists inside the matrix by matching peptide sequences.
                 if (array.get(2).equals(proteinPeptide.getSequence())) {
                     //Add Healthy sample data.
                     int arraySize = array.size();
+                    int sampleIndex = 0;
+                    int countIndex = 0;
+                    int coverageIndex = 0;
                     String sample = proteinPeptide.getSample();
                     //Index is based on columns. +5 for the standard columns (group, accession, sequence,
                     //unique to group, unique to combined, dataset, + individualUnique to place uniqueness of an
                     //individual for each dataset. Samplesize and sample.substring is used to place counter/coverage of
                     //each sample on the right place.
+                    //Determine Healthy Indices.
                     if (sample.contains("Healthy")) {
-                        int sampleIndex = Integer.parseInt(sample.substring(7));
-                        int cntIndex = (sampleIndex + 5 + individualUnique);
-                        int covIndex = (sampleIndex + 5 + individualUnique + sampleSize);
-                        Integer count = (Integer.parseInt(array.get(cntIndex)) + proteinPeptide.getCounter());
-                        array.set(cntIndex, count.toString());
-                        if (array.get(covIndex).equals("0")) {
-                            array.set(covIndex, proteinPeptide.getCoverage());
-                        } else {
-                            array.set(covIndex, array.get(covIndex) + "|" + proteinPeptide.getCoverage());
-                        }
-                    //Add COPD sample data
+                        sampleIndex = Integer.parseInt(sample.substring(7));
+                        countIndex = (sampleIndex + 5 + individualUnique);
+                        coverageIndex = (sampleIndex + 5 + individualUnique + sampleSize);
+                    //Determine COPD indices
                     } else if (sample.contains("COPD")) {
-                        int sampleIndex = Integer.parseInt(sample.substring(4));
-                        int cntIndex = (sampleIndex + 5 + individualUnique + sampleSize/2);
-                        int covIndex = (sampleIndex + 5 + individualUnique + sampleSize + sampleSize/2);
-                        Integer count = (Integer.parseInt(array.get(cntIndex)) + proteinPeptide.getCounter());
-                        array.set(cntIndex, count.toString());
-                        if (array.get(covIndex).equals("0")) {
-                            array.set(covIndex, proteinPeptide.getCoverage());
-                        } else if (!array.get(covIndex).contains(proteinPeptide.getCoverage())){
-                            array.set(covIndex, array.get(covIndex) + "|" + proteinPeptide.getCoverage());
-                        }
+                        sampleIndex = Integer.parseInt(sample.substring(4));
+                        countIndex = (sampleIndex + 5 + individualUnique + sampleSize/2);
+                        coverageIndex = (sampleIndex + 5 + individualUnique + sampleSize + sampleSize/2);
+                    }
+                    // Sets the data to the given array index value.
+                    Integer count = (Integer.parseInt(array.get(countIndex)) + proteinPeptide.getCounter());
+                    array.set(countIndex, count.toString());
+                    if (array.get(coverageIndex).equals("0")) {
+                        array.set(coverageIndex, proteinPeptide.getCoverage());
+                    } else if (!array.get(coverageIndex).contains(proteinPeptide.getCoverage())){
+                        array.set(coverageIndex, array.get(coverageIndex) + "|" + proteinPeptide.getCoverage());
                     }
                     //Add counter per dataset.
                     for (int i = 0; i < datasets.size(); i++) {
                         if (proteinPeptide.getDataset().equals(datasets.get(i))) {
                             int index = (arraySize-datasets.size())+i;
-                            Integer count = Integer.parseInt(array.get(index)) + proteinPeptide.getCounter();
-                            array.set(index, count.toString());  
+                            Integer dataCount = Integer.parseInt(array.get(index)) + proteinPeptide.getCounter();
+                            array.set(index, dataCount.toString());  
                         }
                     }
                 }
             }
         }
+    //Returns the set of arrays.
     return peptideMatrix;
     }
 }

@@ -22,8 +22,9 @@ public class ProteinPeptideCollectionCreator {
      * Creates a collection of the protein-peptide.csv file;
      * @param file protein-peptide.csv file.
      * @return collection of ProteinPeptide objects.
-     * @throws FileNotFoundException couldn't find the protein-peptide.csv file.
-     * @throws IOException could not find or open the specified file or directory.
+     * @throws FileNotFoundException file was not found/does not exist.
+     * @throws IOException couldn't open/find the specified file. Usually appears when a file is 
+     * already opened by another program.
      */
     public final ProteinPeptideCollection createCollection(final String file) throws FileNotFoundException, IOException {
         ProteinPeptideCollection proteinPeptides = new ProteinPeptideCollection();
@@ -97,7 +98,7 @@ public class ProteinPeptideCollectionCreator {
                         proteinPeptide.setCounter(count);
                         //Collects all protein groups per sequence for a sample.
                         if (!proteinPeptide.getProteinGroup().contains(proteinGroup)) {
-                            proteinPeptide.setProteinGroup(proteinGroup);
+                            proteinPeptide.addProteinGroup(proteinGroup);
                         }
                         //Collects all accession IDs per sequence for a sample.
                         if (proteinPeptide.getAccession().contains("|")) {
@@ -109,14 +110,14 @@ public class ProteinPeptideCollectionCreator {
                                 }
                             }
                             if (newAcc) {
-                                proteinPeptide.setAccession(accession);
+                                proteinPeptide.addAccession(accession);
                             }
                         } else if (!proteinPeptide.getAccession().equals(accession)) {
-                            proteinPeptide.setAccession(accession);
+                            proteinPeptide.addAccession(accession);
                         }
                         //Collects all -10lgP scores per sequence for a sample.
                         if (!proteinPeptide.getCoverage().contains(coverage)) {
-                            proteinPeptide.setCoverage(coverage);
+                            proteinPeptide.addCoverage(coverage);
                         }
                     }
                 }

@@ -15,7 +15,7 @@ public class Peptide {
     private final String peptideSequence;
 
     /**
-     * Creates a DatabasePSM object.
+     * Creates a peptide object.
      * @param peptideSequence contains the peptide amino acid sequence.
      */
     public Peptide(final String peptideSequence) {
@@ -23,7 +23,7 @@ public class Peptide {
     }
 
     /**
-     * Returns the data base PSM sequence.
+     * Returns the peptide sequence.
      * @return peptide amino acid sequence as String.
      */
     public final String getSequence() {
@@ -32,7 +32,7 @@ public class Peptide {
 
     /**
      * To string function.
-     * @return data base PSM object as String.
+     * @return peptide object as String.
      */
     @Override
     public final String toString() {

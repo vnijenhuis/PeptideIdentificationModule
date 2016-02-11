@@ -72,9 +72,6 @@ public class CsvMatrixCreator {
             }
         }
         //Returns the matrix.
-        for (ArrayList<String> p: proteinPeptideMatrix) {
-            System.out.println(p);
-        }
         return proteinPeptideMatrix;
     }
 }

@@ -20,7 +20,8 @@ public class ValidFileChecker {
      * @param fileName string that is unique to the file name. (to prevent unnecessary input).
      * @param fileList list of files to add entries to.
      * @return ArrayList with path as String.
-     * @throws IOException can't open/find the specified file or directory.
+     * @throws IOException couldn't open/find the specified file. Usually appears when a file is 
+     * already opened by another program.
      */
     public ArrayList<String> checkFileValidity(final String filePath, String fileName, ArrayList<String> fileList) throws IOException {
         //Go through all folders and files in a given path.

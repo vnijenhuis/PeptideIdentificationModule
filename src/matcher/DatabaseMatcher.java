@@ -15,14 +15,15 @@ import objects.Peptide;
  * Matches peptides from a txt file to a collection of proteins (uniprot for example).
  * @author vnijenhuis
  */
-public class UniprotDatabaseMatcher {
+public class DatabaseMatcher {
     /**
      * Matches peptide sequences to a protein database.
      * @param proteins collection of database protein sequences.
      * @param peptides collection of peptide objects.
      * @return protein peptide objects and their match with the database.
-     * @throws FileNotFoundException file not found.
-     * @throws IOException can't open file.
+     * @throws FileNotFoundException file was not found/does not exist.
+     * @throws IOException couldn't open/find the specified file. Usually appears when a file is 
+     * already opened by another program.
      */
     public final PeptideCollection matchToDatabases(final ProteinCollection proteins,
             final PeptideCollection peptides) throws FileNotFoundException, IOException {
@@ -34,7 +35,7 @@ public class UniprotDatabaseMatcher {
             cnt += 1;
             boolean noMatch = true;
             for (Protein protein : proteins.getProteins()) {
-                // Cast object to protein and check if peptide is present
+                //Checks if peptide sequence is present in the given database(s).
                 String sequence = peptide.getSequence().replaceAll("\\(\\+[0-9]+\\.[0-9]+\\)", "");
                 if (protein.getSequence().contains(sequence)) {
                         noMatch = false;

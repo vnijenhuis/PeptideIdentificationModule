@@ -21,8 +21,9 @@ public class PeptideToProteinPeptideMatcher {
      * @param peptides collection of DB seach psm peptides.
      * @param proteinPeptides collection of protein-peptide objects.
      * @return array of peptides.
-     * @throws FileNotFoundException file not found.
-     * @throws IOException can't open file.
+     * @throws FileNotFoundException file was not found/does not exist.
+     * @throws IOException couldn't open/find the specified file. Usually appears when a file is 
+     * already opened by another program.
      */
     public final ProteinPeptideCollection matchPeptides(final PeptideCollection peptides,
             final ProteinPeptideCollection proteinPeptides) throws FileNotFoundException, IOException {

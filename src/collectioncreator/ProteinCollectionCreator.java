@@ -41,13 +41,13 @@ public class ProteinCollectionCreator {
             System.out.println("Loading database proteins...");
             for (String database: databases) {
                 File file = new File(database);
-                //Read database files. Can read .fasta.gz and normal fasta files.
-                if (database.contains(".gz")) {
+                //Read database files. Can read .fasta and .fasta.gz files.
+                if (database.contains(".fa.gz") || database.contains(".fasta.gz")) {
                     InputStream fileStream = new FileInputStream(file);
                     InputStream gzipStream = new GZIPInputStream(fileStream);
                     Reader decoder = new InputStreamReader(gzipStream, "US-ASCII");
                     dbReader = new BufferedReader(decoder);
-                } else {
+                } else if (database.contains(".fasta") || database.contains(".fa")){
                     FileReader fr = new FileReader(file);
                     dbReader = new BufferedReader(fr);
                 }

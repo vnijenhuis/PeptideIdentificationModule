@@ -22,33 +22,36 @@ public class PeptideCollectionCreator {
      * Creates a collection of peptide objects.
      * @param file loads a DB search psm.csv file and reads only the peptide sequences.
      * @return Collection of peptide objects.
-     * @throws FileNotFoundException
-     * @throws IOException
+     * @throws FileNotFoundException file was not found/does not exist.
+     * @throws IOException couldn't open/find the specified file. Usually appears when a file is 
+     * already opened by another program.
      */
     public final PeptideCollection createCollection(final String file) throws FileNotFoundException, IOException {
-        // Read the file
+        //Create new collection of peptides.
         PeptideCollection peptides = new PeptideCollection();
+        //Determines the File.separator depending on the platform.
         String pattern = Pattern.quote(File.separator);
         String[] path = file.split(pattern);
         String sample = "";
         String dataset = "";
         //Creates the dataset and sample names.
-        for (int i = 0; i < path.length; i++) {
-            if (path[i].toLowerCase().contains("copd") || path[i].toLowerCase().contains("healthy")) {
-                sample = path[i];
-            } else if (path[i].toUpperCase().contains("2D") || path[i].toUpperCase().contains("1D")) {
-                dataset = path[i];
+        for (String folder : path) {
+            if (folder.toLowerCase().contains("copd") || folder.toLowerCase().contains("healthy")) {
+                sample = folder;
+            } else if (folder.toUpperCase().contains("2D") || folder.toUpperCase().contains("1D")) {
+                dataset = folder;
             }
         }
         System.out.println("Collecting peptides from " + sample + " " + dataset + "...");
-        FileReader fr = new FileReader(file);
-        BufferedReader bffFr = new BufferedReader(fr);
+        FileReader reader = new FileReader(file);
+        BufferedReader bffReader = new BufferedReader(reader);
         String line;
         int accessionIndex = 0;
         int peptideIndex = 0;
         boolean firstLine = true;
-        //Reads each line in the given file.
-        while ((line = bffFr.readLine()) != null) {
+        //Read each line.
+        while ((line = bffReader.readLine()) != null) {
+            //Determines the index of parameters.
             if (firstLine) {
                 String[] data = line.split(",");
                 for (int i = 0; i < data.length; i++) {
@@ -59,7 +62,7 @@ public class PeptideCollectionCreator {
                     }
                 }
                 firstLine = false;
-                line = bffFr.readLine();
+                line = bffReader.readLine();
             }
             String[] data = line.split(",");
             String accession = data[accessionIndex];
@@ -84,6 +87,7 @@ public class PeptideCollectionCreator {
                 }
             }
         }
+        //Return the collection of peptides.
         System.out.println("Collected " + peptides.getPeptides().size() + " unique peptides from " + sample + " " + dataset + "!");
         return peptides;
     }

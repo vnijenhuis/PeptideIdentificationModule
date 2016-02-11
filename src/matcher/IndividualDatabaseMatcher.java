@@ -44,6 +44,8 @@ public class IndividualDatabaseMatcher {
                 }
             }
         }
+        System.out.println("Matched " + proteinPeptides.getProteinPeptideMatches().size()
+                + " peptides to the individual database.");
         return proteinPeptides;
     }
 }

@@ -23,7 +23,7 @@ import matcher.CombinedIndividualDatabaseMatcher;
 import matrix.CsvMatrixCreator;
 import matrix.DataToCsvWriter;
 import collectioncreator.PeptideCollectionCreator;
-import matcher.UniprotDatabaseMatcher;
+import matcher.DatabaseMatcher;
 import matcher.PeptideToProteinPeptideMatcher;
 import collectioncreator.ProteinCollectionCreator;
 import collectioncreator.ProteinPeptideCollectionCreator;
@@ -77,29 +77,88 @@ public class PeptideIdentifictionQualityControl {
     private ArrayList<String> indivDbFiles;
 
     /**
-     * List of database fasta files (uniprot, ensemble etc).
-     */
-    private ArrayList<String> dbFiles;
-
-    /**
      * Creates a PeptideCollection of the DB search psm.csv data.
      */
     private final PeptideCollectionCreator peptideCollection;
+
+    /**
+     * Collection of peptide objects.
+     */
     private PeptideCollection peptides;
+
+    /**
+     * Creates a Protein object Collection of a database.
+     */
     private final ProteinCollectionCreator databaseCollection;
+
+    /**
+     * Creates a ProteinPeptide object collection of protein-peptides.csv.
+     */
     private final ProteinPeptideCollectionCreator proteinPeptideCollection;
+
+    /**
+     * Collection of ProteinPeptide objects.
+     */
     private ProteinPeptideCollection proteinPeptides;
+    
+    /**
+     * Matches Peptide objects to ProteinPeptide objects.
+     */
     private final PeptideToProteinPeptideMatcher proteinPeptideMatching;
-    private final UniprotDatabaseMatcher databaseMatcher;
+    
+    /**
+     * Matches peptides to a protein database.
+     */
+    private final DatabaseMatcher databaseMatcher;
+    
+    /**
+     * Writes data to a .csv file.
+     */
     private final DataToCsvWriter fileWriter;
+    
+    /**
+     * Creates a set of arrays as matrix.
+     */
     private final CsvMatrixCreator createMatrix;
+    
+    /**
+     * Sets the matrix count/coverage values.
+     */
     private final SetMatrixValues matrix;
+    
+    /**
+     * List of databases such as uniprot.
+     */
     private ArrayList<String> databases;
+    
+    /**
+     * Collection of protein objects created from the databases array.
+     */
     private ProteinCollection database;
+    
+    /**
+     * Collection of protein objects created from the combined database array.
+     */
     private ProteinCollection combinedDatabase;
+    
+    /**
+     * Matches collection of peptides of a sample to the collection of individual proteins of the same sample.
+     */
     private final IndividualDatabaseMatcher individualDatabaseMatcher;
+    
+    /**
+     * Matches collection of peptides to the collection of combined individual proteins.
+     */
     private final CombinedIndividualDatabaseMatcher combinedDatabaseMatcher;
+    
+    /**
+     * Set of arrays containing protein-peptide relationship data.
+     */
     private HashSet<ArrayList<String>> proteinPeptideMatrix;
+    
+    /**
+     * Collection of protein objects of the individual database of a sample.
+     */
     private ProteinCollection individualDatabase;
     
     /**
@@ -169,7 +228,7 @@ public class PeptideIdentifictionQualityControl {
         //Flags uniqueCombined column of each protein-peptide object.
         proteinPeptideMatching = new PeptideToProteinPeptideMatcher();
         //creates a collection of protein-peptide objects that are not matched to a database(uniprot) protein sequence.
-        databaseMatcher = new UniprotDatabaseMatcher();
+        databaseMatcher = new DatabaseMatcher();
         //matches the remaining protein-peptide objects to the combined individual database.
         combinedDatabaseMatcher = new CombinedIndividualDatabaseMatcher();
         //matches the remaining protein-peptide objects to the individual database.
@@ -185,8 +244,9 @@ public class PeptideIdentifictionQualityControl {
     /**
      * Starts the Quality Control process and checks command line input.
      * @param args command line arguments.
-     * @throws ParseException encountered an exception in the commandline arguments.
-     * @throws IOException could not open or find the specified file or directory.
+     * @throws FileNotFoundException file was not found/does not exist.
+     * @throws IOException couldn't open/find the specified file. Usually appears when a file is 
+     * already opened by another program.
      */
     private void startQualityControl(String[] args) throws ParseException, IOException {
         CommandLineParser parser = new BasicParser();
@@ -240,7 +300,8 @@ public class PeptideIdentifictionQualityControl {
      * @param databases protein database(s) such as uniprot.
      * @param outputPath outputpath for the matrix csv file.
      * @param sampleSize size of the samples. (10x COPD and 9x Healthy = sample size of 20 (healthy 10 is empty)
-     * @throws IOException could not open/find the specified file or directory.
+     * @throws IOException couldn't open/find the specified file. Usually appears when a file is 
+     * already opened by another program.
      */
     public final void PeptideQualityControl(ArrayList<String> psmFiles, final ArrayList<String> proPepFiles,
             final ArrayList<String> indivDbFiles, final ArrayList<String> databases, final String outputPath,

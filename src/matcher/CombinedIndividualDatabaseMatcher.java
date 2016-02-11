@@ -21,7 +21,8 @@ public class CombinedIndividualDatabaseMatcher {
      * @param proteins collection of Protein objects.
      * @return ProteinPeptideCollection with adjusted values.
      */
-    public final ProteinPeptideCollection matchToIndividuals(ProteinPeptideCollection proteinPeptides, ProteinCollection proteins) {
+    public final ProteinPeptideCollection matchToIndividuals(ProteinPeptideCollection proteinPeptides,
+            ProteinCollection proteins) {
         System.out.println("Matching sequences to individual database.");
         for (ProteinPeptide proteinPeptide: proteinPeptides.getProteinPeptideMatches()) {
             Integer oneMatch = 0;
@@ -31,7 +32,7 @@ public class CombinedIndividualDatabaseMatcher {
                     oneMatch += 1;
                 }
             }
-            //Set uniqueness depending on the oneMatch counter.
+            //Set unique to Y if one match was found.
             if (oneMatch == 1) {
                 //If only one match has been found: set flag to Y(es)
                 if (proteinPeptide.getUniqueCombined().equals("") || proteinPeptide.getUniqueCombined().equals("N")) {
@@ -44,6 +45,9 @@ public class CombinedIndividualDatabaseMatcher {
                 }
             }
         }
+        System.out.println("Matched " + proteinPeptides.getProteinPeptideMatches().size()
+                + " peptides to the combined individual database.");
+        //Return proteinPeptide collection with adjusted uniqueness values.
         return proteinPeptides;
     }
 }

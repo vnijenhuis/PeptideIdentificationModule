@@ -10,7 +10,7 @@ package objects;
  */
 public class ProteinPeptide {
     /**
-     * ID of the group of proteins that this protein belongs to.
+     * ID of the group of proteins that this peptide belongs to.
      */
     private String proteinGroup;
 
@@ -40,7 +40,7 @@ public class ProteinPeptide {
     private String uniqueIndividual;
 
     /**
-     * Dataset that the peptide belongs to. (2DLCMSMS, 2D25CM etc.)
+     * Dataset that the peptide belongs to. (1D25CM, 1D50CM, 2DLCMSMS.)
      */
     private String dataset;
 
@@ -55,7 +55,7 @@ public class ProteinPeptide {
     private String coverage;
 
     /**
-     * ID of the sample. (COPD1, Healthy2 etc) (might rename Healthy to Control).
+     * ID of the sample. (COPD1, Healthy2 etc).
      */
     private final String sample;
 
@@ -64,17 +64,17 @@ public class ProteinPeptide {
      * @param proteinGroup protein group id that this protein belongs to.
      * @param accession protein accession number(s).
      * @param sequence contains the peptide amino acid sequence.
-     * @param dataSet dataset(s) that the peptide belongs to.
+     * @param dataset dataset(s) that the peptide belongs to.
      * @param sample sample id (COPD1, Healthy4 etc)
      * @param uniqueToGroup (yes/no) Y if unique to one protein group, otherwise its a N.
      * @param uniqueIndividual unique to one sequence in the individual database.
      * @param uniqueCombined unique to one sequence in the combined individual database.
-     * @param count counting number of the sequence.
+     * @param count PSM counting number.
      * @param coverage coverage % of the sequence.
      */
     public ProteinPeptide(final String proteinGroup, final String accession, final String sequence,
             final String sample, final String uniqueToGroup, final String uniqueCombined, final String uniqueIndividual,
-            final String dataSet, final Integer count,final String coverage) {
+            final String dataset, final Integer count,final String coverage) {
         this.proteinGroup = proteinGroup;
         this.accession = accession;
         this.sequence = sequence;
@@ -82,7 +82,7 @@ public class ProteinPeptide {
         this.uniqueToGroup = uniqueToGroup;
         this.uniqueCombined = uniqueCombined;
         this.uniqueIndividual = uniqueIndividual;
-        this.dataset = dataSet;
+        this.dataset = dataset;
         this.count = count;
         this.coverage = coverage;
     }
@@ -99,7 +99,7 @@ public class ProteinPeptide {
      * Set the protein group(s) that this peptide belongs to.
      * @param proteinGroup protein group as String.
      */
-    public final void setProteinGroup(final String proteinGroup) {
+    public final void addProteinGroup(final String proteinGroup) {
         this.proteinGroup = this.proteinGroup + "|" + proteinGroup;
     }
 
@@ -115,7 +115,7 @@ public class ProteinPeptide {
      * Sets the accession id of the protein.
      * @param accession accession id as String.
      */
-    public final void setAccession(final String accession) {
+    public final void addAccession(final String accession) {
         this.accession = this.accession + "|" + accession;
     }
 
@@ -187,7 +187,7 @@ public class ProteinPeptide {
      * Adds a dataset.
      * @param set dataset.
      */
-    public final void setDataset(final String set) {
+    public final void addDataset(final String set) {
         this.dataset = this.dataset + "|" + set;
     }
 
@@ -219,7 +219,7 @@ public class ProteinPeptide {
      * Sets the coverage of the peptide sequence.
      * @param cover
      */
-    public final void setCoverage(final String cover) {
+    public final void addCoverage(final String cover) {
         this.coverage = this.coverage + "|" + cover;
     }
 
