@@ -21,7 +21,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import matcher.CombinedIndividualDatabaseMatcher;
 import matrix.CsvMatrixCreator;
-import matrix.DataToCsvWriter;
+import matrix.CsvWriter;
 import collectioncreator.PeptideCollectionCreator;
 import matcher.DatabaseMatcher;
 import matcher.PeptideToProteinPeptideMatcher;
@@ -114,7 +114,7 @@ public class PeptideIdentifictionQualityControl {
     /**
      * Writes data to a .csv file.
      */
-    private final DataToCsvWriter fileWriter;
+    private final CsvWriter fileWriter;
     
     /**
      * Creates a set of arrays as matrix.
@@ -238,7 +238,7 @@ public class PeptideIdentifictionQualityControl {
         //Sets the values per matrix.
         matrix = new SetMatrixValues();
         //Writes data to file.
-        fileWriter = new DataToCsvWriter();
+        fileWriter = new CsvWriter();
     }
 
     /**

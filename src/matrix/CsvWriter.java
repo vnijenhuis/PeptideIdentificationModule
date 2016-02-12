@@ -13,7 +13,7 @@ import java.util.HashSet;
  * Writes array data to a text file.
  * @author vnijenhuis
  */
-public class DataToCsvWriter {
+public class CsvWriter {
     /**
      * Writes data from a ProteinPeptideCollection to a .csv file.
      * @param peptideMatrix set of arrays with protein-peptide data.
