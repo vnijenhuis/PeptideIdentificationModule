@@ -371,12 +371,20 @@ public class PeptideIdentifictionQualityControl {
             //Adds all proteinPeptides to a single collection.
             finalCollection.getProteinPeptideMatches().addAll(proteinPeptides.getProteinPeptideMatches());
         }
-        Integer sampleSize = copdSampleSize + healthySampleSize;
+        Integer sampleSize = 0;
+        Integer sampleValueIndex = 0;
+        if (copdSampleSize > healthySampleSize) {
+            sampleSize = copdSampleSize*2;
+            sampleValueIndex = copdSampleSize;
+        } else {
+            sampleSize = healthySampleSize*2;
+            sampleValueIndex = healthySampleSize;
+        }
         //Create a matrix of all final ProteinPeptide objects.
         proteinPeptideMatrix = new HashSet<>();
         proteinPeptideMatrix = createMatrix.createMatrix(finalCollection, sampleSize, datasets, datasetNumbers);
         //Writes count & coverage(-10lgP) values into the matrix.
-        proteinPeptideMatrix = matrix.setValues(finalCollection, proteinPeptideMatrix, copdSampleSize, healthySampleSize, datasets, datasetNumbers);
+        proteinPeptideMatrix = matrix.setValues(finalCollection, proteinPeptideMatrix, sampleValueIndex, datasets, datasetNumbers);
         //Write data to a .csv file.
         fileWriter.generateCsvFile(proteinPeptideMatrix, outputPath, datasets, sampleSize);
     }
