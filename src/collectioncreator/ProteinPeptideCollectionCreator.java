@@ -1,6 +1,6 @@
 /*
  * @author Vikthor Nijenhuis
- * @project peptide spectrum identification quality control  * 
+ * @project peptide spectrum identification quality control  *
  */
 package collectioncreator;
 
@@ -23,7 +23,7 @@ public class ProteinPeptideCollectionCreator {
      * @param file protein-peptide.csv file.
      * @return collection of ProteinPeptide objects.
      * @throws FileNotFoundException file was not found/does not exist.
-     * @throws IOException couldn't open/find the specified file. Usually appears when a file is 
+     * @throws IOException couldn't open/find the specified file. Usually appears when a file is
      * already opened by another program.
      */
     public final ProteinPeptideCollection createCollection(final String file) throws FileNotFoundException, IOException {
@@ -65,7 +65,7 @@ public class ProteinPeptideCollectionCreator {
                     } else if (data[i].toLowerCase().contains("accession")) {
                         accessionIndex = i;
                     } else if (data[i].toLowerCase().contains("peptide")) {
-                        peptideIndex = i; 
+                        peptideIndex = i;
                     } else if (data[i].toLowerCase().contains("unique")) {
                         uniqueIndex = i;
                     } else if (data[i].toLowerCase().contains("lgp")) {

@@ -1,6 +1,6 @@
 /*
  * @author Vikthor Nijenhuis
- * @project peptide spectrum identification quality control  * 
+ * @project peptide spectrum identification quality control  *
  */
 package objects;
 

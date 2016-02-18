@@ -1,6 +1,6 @@
 /*
  * @author Vikthor Nijenhuis
- * @project peptide spectrum identification quality control  * 
+ * @project peptide spectrum identification quality control  *
  */
 package collectioncreator;
 
@@ -23,7 +23,7 @@ public class PeptideCollectionCreator {
      * @param file loads a DB search psm.csv file and reads only the peptide sequences.
      * @return Collection of peptide objects.
      * @throws FileNotFoundException file was not found/does not exist.
-     * @throws IOException couldn't open/find the specified file. Usually appears when a file is 
+     * @throws IOException couldn't open/find the specified file. Usually appears when a file is
      * already opened by another program.
      */
     public final PeptideCollection createCollection(final String file) throws FileNotFoundException, IOException {
@@ -58,7 +58,7 @@ public class PeptideCollectionCreator {
                     if (data[i].toLowerCase().equals("peptide")) {
                         peptideIndex = i;
                     } else if (data[i].toLowerCase().contains("accession")) {
-                        accessionIndex = i; 
+                        accessionIndex = i;
                     }
                 }
                 firstLine = false;

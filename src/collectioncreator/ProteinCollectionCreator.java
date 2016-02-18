@@ -1,6 +1,6 @@
 /*
  * @author Vikthor Nijenhuis
- * @project peptide spectrum identification quality control  * 
+ * @project peptide spectrum identification quality control  *
  */
 package collectioncreator;
 
@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.ArrayList;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -24,47 +23,45 @@ import java.util.zip.GZIPInputStream;
  */
 public class ProteinCollectionCreator {
     /**
-     * Buffered reader for faster file reading.
+     * Buffered reader for file reading.
      */
     private BufferedReader dbReader;
 
     /**
-     * Reads proteins.fasta files or database file such as the uniprot-database.fasta.gz 
+     * Reads proteins.fasta files or database file such as the uniprot-database.fasta.gz
      * and creates a protein collection.
-     * @param databases database file(s).
+     * @param database database file.
      * @param proteins protein collection.
      * @return returns a collection of proteins.
      */
-    public final ProteinCollection createCollection(final ArrayList<String> databases,
+    public final ProteinCollection createCollection(final String database,
             final ProteinCollection proteins) {
         try {
-            System.out.println("Loading database proteins...");
-            for (String database: databases) {
-                File file = new File(database);
-                //Read database files. Can read .fasta and .fasta.gz files.
-                if (database.contains(".fa.gz") || database.contains(".fasta.gz")) {
-                    InputStream fileStream = new FileInputStream(file);
-                    InputStream gzipStream = new GZIPInputStream(fileStream);
-                    Reader decoder = new InputStreamReader(gzipStream, "US-ASCII");
-                    dbReader = new BufferedReader(decoder);
-                } else if (database.contains(".fasta") || database.contains(".fa")){
-                    FileReader fr = new FileReader(file);
-                    dbReader = new BufferedReader(fr);
-                }
-                String line;
-                boolean firstLine = true;
-                String sequence = "";
-                //Create protein objects with a sequence.
-                while ((line = dbReader.readLine()) != null) {
-                    if (line.startsWith(">") && firstLine) {
-                        firstLine = false;
-                    } else if (line.startsWith(">")) {
-                        Protein protein = new Protein(sequence);
-                        proteins.addProtein(protein);
-                        sequence = "";
-                    } else {
-                        sequence += line.trim();
-                    }
+            System.out.println("Loading database proteins from " + database);
+            File file = new File(database);
+            //Read database files. Can read .fasta and .fasta.gz files.
+            if (database.contains(".fa.gz") || database.contains(".fasta.gz")) {
+                InputStream fileStream = new FileInputStream(file);
+                InputStream gzipStream = new GZIPInputStream(fileStream);
+                Reader decoder = new InputStreamReader(gzipStream, "US-ASCII");
+                dbReader = new BufferedReader(decoder);
+            } else if (database.contains(".fasta") || database.contains(".fa")){
+                FileReader fr = new FileReader(file);
+                dbReader = new BufferedReader(fr);
+            }
+            String line;
+            boolean firstLine = true;
+            String sequence = "";
+            //Create protein objects with a sequence.
+            while ((line = dbReader.readLine()) != null) {
+                if (line.startsWith(">") && firstLine) {
+                    firstLine = false;
+                } else if (line.startsWith(">")) {
+                    Protein protein = new Protein(sequence);
+                    proteins.addProtein(protein);
+                    sequence = "";
+                } else {
+                    sequence += line.trim();
                 }
             }
         }   catch (FileNotFoundException ex) {

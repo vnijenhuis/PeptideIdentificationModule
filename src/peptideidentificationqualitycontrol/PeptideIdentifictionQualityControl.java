@@ -1,6 +1,6 @@
 /*
  * @author Vikthor Nijenhuis
- * @project peptide spectrum matrix quality control  * 
+ * @project peptide spectrum matrix quality control  *
  */
 package peptideidentificationqualitycontrol;
 
@@ -20,13 +20,14 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import matcher.CombinedIndividualDatabaseMatcher;
-import matrix.CsvMatrixCreator;
+import matrix.UniqueSequenceCreator;
 import matrix.CsvWriter;
 import collectioncreator.PeptideCollectionCreator;
 import matcher.DatabaseMatcher;
 import matcher.PeptideToProteinPeptideMatcher;
 import collectioncreator.ProteinCollectionCreator;
 import collectioncreator.ProteinPeptideCollectionCreator;
+import java.util.HashMap;
 import tools.SampleSizeGenerator;
 import matrix.SetMatrixValues;
 import matcher.IndividualDatabaseMatcher;
@@ -55,7 +56,7 @@ public class PeptideIdentifictionQualityControl {
      * Options for the command line interface.
      */
     private final Options options;
-    
+
     /**
      * Checks input files.
      */
@@ -74,7 +75,7 @@ public class PeptideIdentifictionQualityControl {
     /**
      * List of individual database fasta files.
      */
-    private ArrayList<String> indivDbFiles;
+    private ArrayList<String> fastaFiles;
 
     /**
      * Creates a PeptideCollection of the DB search psm.csv data.
@@ -100,67 +101,72 @@ public class PeptideIdentifictionQualityControl {
      * Collection of ProteinPeptide objects.
      */
     private ProteinPeptideCollection proteinPeptides;
-    
+
     /**
      * Matches Peptide objects to ProteinPeptide objects.
      */
     private final PeptideToProteinPeptideMatcher proteinPeptideMatching;
-    
+
     /**
      * Matches peptides to a protein database.
      */
     private final DatabaseMatcher databaseMatcher;
-    
+
     /**
      * Writes data to a .csv file.
      */
     private final CsvWriter fileWriter;
-    
+
     /**
      * Creates a set of arrays as matrix.
      */
-    private final CsvMatrixCreator createMatrix;
-    
+    private final UniqueSequenceCreator createMatrix;
+
     /**
      * Sets the matrix count/coverage values.
      */
     private final SetMatrixValues matrix;
-    
+
     /**
      * List of databases such as uniprot.
      */
-    private ArrayList<String> databases;
-    
+    private String database;
+
     /**
      * Collection of protein objects created from the databases array.
      */
-    private ProteinCollection database;
-    
+    private ProteinCollection proteinDatabase;
+
     /**
      * Collection of protein objects created from the combined database array.
      */
     private ProteinCollection combinedDatabase;
-    
+
     /**
      * Matches collection of peptides of a sample to the collection of individual proteins of the same sample.
      */
     private final IndividualDatabaseMatcher individualDatabaseMatcher;
-    
+
     /**
      * Matches collection of peptides to the collection of combined individual proteins.
      */
     private final CombinedIndividualDatabaseMatcher combinedDatabaseMatcher;
-    
+
     /**
      * Set of arrays containing protein-peptide relationship data.
      */
     private HashSet<ArrayList<String>> proteinPeptideMatrix;
-    
+
     /**
      * Collection of protein objects of the individual database of a sample.
      */
-    private ProteinCollection individualDatabase;
-    
+    private ProteinCollection fastaDatabase;
+
+    /**
+     * List of combined databases.
+     */
+    private String combDatabase;
+
     /**
      * Private constructor to define primary functions.
      * Defines command line argument options.
@@ -176,13 +182,13 @@ public class PeptideIdentifictionQualityControl {
                 .build();
         options.addOption(help);
         //Path(s) to the dataset(s)
-        Option path = Option.builder("p")
+        Option path = Option.builder("in")
                 .hasArgs()
                 .desc("Path to the dataset (/home/name/1D25/commonRNAseq/)."
                         + "\n Path should contain folders with sample names. (COPD1 etc.)")
                 .build();
         options.addOption(path);
-        //protein-peptide relations file name. 
+        //protein-peptide relations file name.
         Option proteinPeptide = Option.builder("pp")
                 .hasArg()
                 .desc("Name of the protein-peptide file (protein-peptides.csv).")
@@ -197,22 +203,23 @@ public class PeptideIdentifictionQualityControl {
         //Path to the database(s). Should contain folders per database. (uniprot/ensemble etc.)
         Option dbPath = Option.builder("db")
                 .hasArg()
-                .desc("Path to the database folder (/home/name/Databases/)"
-                        + "\n Path should contain folders with .fasta.gz files.")
+                .desc("Path to the database folder (/home/name/Databases/uniprot.fasta.gz)")
                 .build();
         options.addOption(dbPath);
         //A string that is present in the database(s). (eg. fasta.gz reads all fasta.gz files, uniprot reads the uniprot db file.
-        Option dbName= Option.builder("dbn")
+        Option dbName= Option.builder("cdb")
                 .hasArg()
-                .desc("Database file name, or a part of that name. (uniprot)")
+                .desc("Path and name of the combined database fasta. (/home/name/Fastsa/COPD-19-DB.fa)")
                 .build();
         options.addOption(dbName);
-        Option individualDB = Option.builder("idb")
+        //Path to the fasta files.
+        Option individualDB = Option.builder("fasta")
                 .hasArg()
-                .desc("Individual database file name. (proteins.fasta)")
+                .desc("Path to the individual fasta files. (/home/name/Fastas/)\nFastas folder should contain files.")
                 .build();
         options.addOption(individualDB);
-        Option output = Option.builder("op")
+        //Path to put the output file to.
+        Option output = Option.builder("out")
                 .hasArg()
                 .desc("Path to the folder to create the output file.")
                 .build();
@@ -234,7 +241,7 @@ public class PeptideIdentifictionQualityControl {
         //matches the remaining protein-peptide objects to the individual database.
         individualDatabaseMatcher = new IndividualDatabaseMatcher();
         //Creates a hashset of arrays as matrix.
-        createMatrix = new CsvMatrixCreator();
+        createMatrix = new UniqueSequenceCreator();
         //Sets the values per matrix.
         matrix = new SetMatrixValues();
         //Writes data to file.
@@ -245,7 +252,7 @@ public class PeptideIdentifictionQualityControl {
      * Starts the Quality Control process and checks command line input.
      * @param args command line arguments.
      * @throws FileNotFoundException file was not found/does not exist.
-     * @throws IOException couldn't open/find the specified file. Usually appears when a file is 
+     * @throws IOException couldn't open/find the specified file. Usually appears when a file is
      * already opened by another program.
      */
     private void startQualityControl(String[] args) throws ParseException, IOException {
@@ -253,112 +260,147 @@ public class PeptideIdentifictionQualityControl {
         CommandLine cmd = parser.parse(options, args);
         psmFiles = new ArrayList<>();
         proPepFiles = new ArrayList<>();
-        indivDbFiles = new ArrayList<>();
-        databases = new ArrayList<>();
-        Integer sampleSize = 0;
+        fastaFiles = new ArrayList<>();
         if (args[0].contains("help")) {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("Quality Control", options );
         } else {
             //Allocate command line input to variables.
-            String[] path = cmd.getOptionValues("p");
+            String[] path = cmd.getOptionValues("in");
             String psmFile = cmd.getOptionValue("psm");
             String proteinPeptideFile = cmd.getOptionValue("pp");
-            String databasePath = cmd.getOptionValue("db");
-            String dbName = cmd.getOptionValue("dbn");
-            String indivDbFile = cmd.getOptionValue("idb");
-            String outputPath = cmd.getOptionValue("op");
-            //Check output path.
-            File checkPath = new File(outputPath);
-            if (!checkPath.isDirectory()) {
-                throw new IllegalArgumentException("Paramter -o requires a valid path "
-                    + "to write data to. \nYou provided an invalid path:" + checkPath);
-            }
+            database = cmd.getOptionValue("db");
+            combDatabase = cmd.getOptionValue("cdb");
+            String fastas = cmd.getOptionValue("fasta");
+            String outputPath = cmd.getOptionValue("out");
+            //Check if files/directories exist.
+            String output = outputPath.substring(0, outputPath.lastIndexOf(File.separator));
+            input.isDirectory(fastas);
+            input.isDirectory(output);
+            input.isFile(database);
+            input.isFile(combDatabase);
             //Creates lists of the given files.
+            Integer copdSampleSize = 0;
+            Integer healthySampleSize = 0;
+            fastaFiles = input.getFastaDatabaseFiles(fastas, fastaFiles);
             for (String folder: path) {
+                input.isDirectory(folder);
                 SampleSizeGenerator sizeGenerator = new SampleSizeGenerator();
-                Integer size = sizeGenerator.getSamples(folder);
+                ArrayList<Integer> sampleSize = sizeGenerator.getSamples(folder);
+                //Creates a list of peptide psm files.
                 psmFiles = input.checkFileValidity(folder, psmFile, psmFiles);
+                //Creates a list of protein-peptide files.
                 proPepFiles = input.checkFileValidity(folder, proteinPeptideFile, proPepFiles);
-                indivDbFiles = input.checkFileValidity(folder, indivDbFile, indivDbFiles);
-                if (size > sampleSize) {
-                    sampleSize = size;
+                //Gets highest healthy sample size
+                if (sampleSize.get(0) > healthySampleSize) {
+                    healthySampleSize = sampleSize.get(0);
+                }
+                //Gets the highest copd sample size.
+                if (sampleSize.get(1) > copdSampleSize) {
+                    copdSampleSize = sampleSize.get(1);
                 }
             }
-            //usually uniprot.
-            databases = input.checkFileValidity(databasePath, dbName, databases);
-            PeptideQualityControl(psmFiles, proPepFiles, indivDbFiles, databases, outputPath, sampleSize);
+            PeptideQualityControl(outputPath, copdSampleSize, healthySampleSize);
         }
     }
 
     /**
      * Starts the quality control procedure.
      * Output is written to a .csv file depending on the dataset and RNASeq type.
-     * @param psmFiles DB seach psm.csv file of each sample.
-     * @param proPepFiles protein-peptides.csv file of each sample
-     * @param indivDbFiles individual database files of each sample.
-     * @param databases protein database(s) such as uniprot.
      * @param outputPath outputpath for the matrix csv file.
-     * @param sampleSize size of the samples. (10x COPD and 9x Healthy = sample size of 20 (healthy 10 is empty)
-     * @throws IOException couldn't open/find the specified file. Usually appears when a file is 
+     * @param healthySampleSize sampleSize of healthy samples.
+     * @param copdSampleSize sampleSize of COPD samples.
+     * @throws IOException couldn't open/find the specified file. Usually appears when a file is
      * already opened by another program.
      */
-    public final void PeptideQualityControl(ArrayList<String> psmFiles, final ArrayList<String> proPepFiles,
-            final ArrayList<String> indivDbFiles, final ArrayList<String> databases, final String outputPath,
-            final Integer sampleSize)  throws IOException {
+    public final void PeptideQualityControl( final String outputPath,
+            final Integer healthySampleSize, final Integer copdSampleSize)  throws IOException {
         //Gets the separator for files of the current system.
         String pattern = Pattern.quote(File.separator);
         ArrayList<String> datasets = new ArrayList<>();
+        HashMap<String, Integer> datasetNumbers = new HashMap<>();
         ProteinPeptideCollection finalCollection = new ProteinPeptideCollection();
-        String rnaSeq = "";
         //Creates a database collection
-        database = new ProteinCollection();
-        database = databaseCollection.createCollection(databases, database);
+        proteinDatabase = new ProteinCollection();
+        proteinDatabase = databaseCollection.createCollection(database, proteinDatabase);
         //Creates a database of the combined individual proteins.
         combinedDatabase = new ProteinCollection();
-        combinedDatabase = databaseCollection.createCollection(indivDbFiles, combinedDatabase);
+        combinedDatabase = databaseCollection.createCollection(combDatabase, combinedDatabase);
+        int datasetCount = 0;
+        //Loop through all sample files.
         for (int sample = 0; sample < psmFiles.size(); sample++) {
             String[] path = psmFiles.get(sample).split(pattern);
             String dataset = "";
+            ArrayList<String> sampleType = new ArrayList<>();
+            //Determine dataset count for 1D and 2D.
             for (String folder : path) {
                 if (folder.toUpperCase().contains("2D") || folder.toUpperCase().contains("1D")) {
                     dataset = folder;
+                    if (!datasets.contains(dataset)) {
+                        datasets.add(dataset);
+                        datasetCount += 1;
+                        datasetNumbers.put(dataset, datasetCount);
+                    }
                 }
-                //RNAseq name: usually can change between RNASeqUnique and RNASeqCommon
-                if (folder.toUpperCase().contains("RNASEQ")) {
-                    rnaSeq = folder;
+                //Gather sample names.
+                if (folder.toUpperCase().matches("COPD_?\\d{1,}")) {
+                    sampleType.add(folder);
+                    sampleType.add(folder.subSequence(0, 4) + "_" + folder.substring(4));
+                } else if (folder.matches("Healthy_?\\d{1,}")) {
+                    sampleType.add(folder);
+                    sampleType.add(folder.subSequence(0, 7) + "_" + folder.substring(7));
                 }
             }
+            //Creates a string with a fasta file corresponding to the sample.
+            String sampleMatch = matchSample(sampleType);
             proteinPeptides = new ProteinPeptideCollection();
             //Loads unique peptide sequences from DB search psm.csv.
             peptides = peptideCollection.createCollection(psmFiles.get(sample));
             //Match to uniprot. This removes peptides that match in a database sequence.
-            peptides = databaseMatcher.matchToDatabases(database, peptides);
+            peptides = databaseMatcher.matchToDatabases(proteinDatabase, peptides);
             //Creates protein peptide collection from protein-peptides.csv.
             proteinPeptides = proteinPeptideCollection.createCollection(proPepFiles.get(sample));
             //Matches peptides to protein-peptide relationship data.
             proteinPeptides = proteinPeptideMatching.matchPeptides(peptides, proteinPeptides);
             //Match to the combined individual database. Flags sequences that occur once inside this database.
-            proteinPeptides = combinedDatabaseMatcher.matchToIndividuals(proteinPeptides, combinedDatabase);
-            //Creates an array with the individual proteins.fasta file for individual db matching.
-            ArrayList<String> individualFile = new ArrayList<>();
-            individualFile.add(indivDbFiles.get(sample));
-            //Match to the individual database. Flags sequences that occur once inside this database.
-            individualDatabase = new ProteinCollection();
-            individualDatabase = databaseCollection.createCollection(individualFile, individualDatabase);
-            proteinPeptides = individualDatabaseMatcher.matchToIndividual(proteinPeptides, individualDatabase);
+            proteinPeptides = combinedDatabaseMatcher.matchToCombined(proteinPeptides, combinedDatabase);
+            //Match to the fasta database. Flags sequences that occur once inside this database.
+            fastaDatabase = new ProteinCollection();
+            fastaDatabase = databaseCollection.createCollection(sampleMatch, fastaDatabase);
+            proteinPeptides = individualDatabaseMatcher.matchToIndividual(proteinPeptides, fastaDatabase);
             //Adds all proteinPeptides to a single collection.
             finalCollection.getProteinPeptideMatches().addAll(proteinPeptides.getProteinPeptideMatches());
-            if (!datasets.contains(dataset)) {
-                datasets.add(dataset);
-            }
         }
+        Integer sampleSize = copdSampleSize + healthySampleSize;
         //Create a matrix of all final ProteinPeptide objects.
         proteinPeptideMatrix = new HashSet<>();
-        proteinPeptideMatrix = createMatrix.createMatrix(finalCollection, sampleSize, datasets);
+        proteinPeptideMatrix = createMatrix.createMatrix(finalCollection, sampleSize, datasets, datasetNumbers);
         //Writes count & coverage(-10lgP) values into the matrix.
-        proteinPeptideMatrix = matrix.setValues(finalCollection, proteinPeptideMatrix, sampleSize, datasets);
+        proteinPeptideMatrix = matrix.setValues(finalCollection, proteinPeptideMatrix, copdSampleSize, healthySampleSize, datasets, datasetNumbers);
         //Write data to a .csv file.
-        fileWriter.generateCsvFile(proteinPeptideMatrix, outputPath, datasets, rnaSeq, sampleSize);
+        fileWriter.generateCsvFile(proteinPeptideMatrix, outputPath, datasets, sampleSize);
+    }
+
+    /**
+     * Matches the sample name to the database fasta files.
+     * @param sampleType name of the sample COPD1/COPD_1/Healthy1/Healthy_1
+     * @return matched database file.
+     */
+    private String matchSample(ArrayList<String> sampleType) {
+        //Used to match sample and sample database.
+        String data = "";
+        Boolean isFasta = false;
+        for (String fasta: fastaFiles) {
+            for (String sample: sampleType) {
+                if (fasta.contains(sample)) {
+                    data = fasta;
+                    isFasta = true;
+                    break;
+                }
+            }
+        } if (!isFasta) {
+            System.out.println("WARNING: samples in list " + sampleType + " has no matching fasta file.");
+        }
+        return data;
     }
 }

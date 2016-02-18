@@ -1,6 +1,6 @@
 /*
  * @author Vikthor Nijenhuis
- * @project peptide spectrum identification quality control  * 
+ * @project peptide spectrum identification quality control  *
  */
 package collections;
 
@@ -31,7 +31,7 @@ public class PeptideCollection {
     public final void addPeptide(final Peptide peptide) {
         peptides.add(peptide);
     }
-    
+
     /**
      * Removes peptide values from the HashSet.
      * @param peptide peptide object.

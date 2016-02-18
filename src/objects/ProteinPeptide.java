@@ -1,6 +1,6 @@
 /*
  * @author Vikthor Nijenhuis
- * @project peptide spectrum identification quality control  * 
+ * @project peptide spectrum identification quality control  *
  */
 package objects;
 
@@ -33,11 +33,11 @@ public class ProteinPeptide {
      * Unique to one protein sequence from the combined individual database. (Y/N)
      */
     private String uniqueCombined;
-    
+
     /**
      * Unique to one protein sequence from the individual database. (Y/N)
      */
-    private String uniqueIndividual;
+    private String uniqueFasta;
 
     /**
      * Dataset that the peptide belongs to. (1D25CM, 1D50CM, 2DLCMSMS.)
@@ -67,13 +67,13 @@ public class ProteinPeptide {
      * @param dataset dataset(s) that the peptide belongs to.
      * @param sample sample id (COPD1, Healthy4 etc)
      * @param uniqueToGroup (yes/no) Y if unique to one protein group, otherwise its a N.
-     * @param uniqueIndividual unique to one sequence in the individual database.
+     * @param uniqueFasta unique to one sequence in the individual database.
      * @param uniqueCombined unique to one sequence in the combined individual database.
      * @param count PSM counting number.
      * @param coverage coverage % of the sequence.
      */
     public ProteinPeptide(final String proteinGroup, final String accession, final String sequence,
-            final String sample, final String uniqueToGroup, final String uniqueCombined, final String uniqueIndividual,
+            final String sample, final String uniqueToGroup, final String uniqueCombined, final String uniqueFasta,
             final String dataset, final Integer count,final String coverage) {
         this.proteinGroup = proteinGroup;
         this.accession = accession;
@@ -81,7 +81,7 @@ public class ProteinPeptide {
         this.sample = sample;
         this.uniqueToGroup = uniqueToGroup;
         this.uniqueCombined = uniqueCombined;
-        this.uniqueIndividual = uniqueIndividual;
+        this.uniqueFasta = uniqueFasta;
         this.dataset = dataset;
         this.count = count;
         this.coverage = coverage;
@@ -94,7 +94,7 @@ public class ProteinPeptide {
     public final String getProteinGroup() {
         return this.proteinGroup;
     }
-    
+
     /**
      * Set the protein group(s) that this peptide belongs to.
      * @param proteinGroup protein group as String.
@@ -131,7 +131,7 @@ public class ProteinPeptide {
      * Returns Y(yes) if a sequence is unique to a protein group.
      * @return Y or N as String.
      */
-    public final String getUniqueGroup() {
+    public final String getUniqueToGroup() {
         return this.uniqueToGroup;
     }
 
@@ -147,7 +147,7 @@ public class ProteinPeptide {
      * Returns Y(yes) if a sequence is matched once to indiv. database or N(no) if matched more than once.
      * @return Y or N as String.
      */
-    public final String getUniqueCombined() {
+    public final String getUniqueToCombined() {
         return this.uniqueCombined;
     }
 
@@ -155,7 +155,7 @@ public class ProteinPeptide {
      * Sets the uniqueCombined value to yes or no depending on the flag.
      * @param flag Y or N as String.
      */
-    public final void setUniqueCombined(final String flag) {
+    public final void setUniqueToCombined(final String flag) {
         this.uniqueCombined = flag;
     }
 
@@ -163,18 +163,18 @@ public class ProteinPeptide {
      * Returns Y(yes) if a sequence is matched once to indiv. database or N(no) if matched more than once.
      * @return Y or N as String.
      */
-    public final String getUniqueIndividual() {
-        return this.uniqueIndividual;
+    public final String getUniqueToFasta() {
+        return this.uniqueFasta;
     }
 
     /**
      * Sets the uniqueCombined value to yes or no depending on the flag.
      * @param flag Y or N as String.
      */
-    public final void setUniqueIndividual(final String flag) {
-        this.uniqueIndividual = flag;
+    public final void setUniqueToFasta(final String flag) {
+        this.uniqueFasta = flag;
     }
-    
+
     /**
      * Returns the name of the dataset that this peptide belongs to.
      * @return dataset as String.

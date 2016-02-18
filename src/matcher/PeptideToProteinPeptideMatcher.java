@@ -1,6 +1,6 @@
 /*
  * @author Vikthor Nijenhuis
- * @project peptide spectrum identification quality control  * 
+ * @project peptide spectrum identification quality control  *
  */
 package matcher;
 
@@ -22,7 +22,7 @@ public class PeptideToProteinPeptideMatcher {
      * @param proteinPeptides collection of protein-peptide objects.
      * @return array of peptides.
      * @throws FileNotFoundException file was not found/does not exist.
-     * @throws IOException couldn't open/find the specified file. Usually appears when a file is 
+     * @throws IOException couldn't open/find the specified file. Usually appears when a file is
      * already opened by another program.
      */
     public final ProteinPeptideCollection matchPeptides(final PeptideCollection peptides,

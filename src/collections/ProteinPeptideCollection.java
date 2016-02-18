@@ -1,6 +1,6 @@
 /*
  * @author Vikthor Nijenhuis
- * @project peptide spectrum identification quality control  * 
+ * @project peptide spectrum identification quality control  *
  */
 package collections;
 
@@ -31,7 +31,7 @@ public class ProteinPeptideCollection {
     public final void addProteinPeptideMatch(final ProteinPeptide proteinPeptideMatch) {
         matches.add(proteinPeptideMatch);
     }
-    
+
     /**
      * Removes ProteinPeptide value from the HashSet.
      * @param proteinPeptideMatch ProteinPeptide.
