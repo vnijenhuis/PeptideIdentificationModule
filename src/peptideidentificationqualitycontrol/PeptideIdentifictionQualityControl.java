@@ -45,6 +45,7 @@ public class PeptideIdentifictionQualityControl {
      * @param args the command line arguments.
      * @throws org.apache.commons.cli.ParseException exception encountered while processing
      * command line options. Please check the input.
+     * 
      * @throws java.io.IOException could not open or find the specified file or directory.
      */
     public static void main(String[] args) throws ParseException, IOException {
@@ -318,6 +319,7 @@ public class PeptideIdentifictionQualityControl {
         //Gets the separator for files of the current system.
         String pattern = Pattern.quote(File.separator);
         ArrayList<String> datasets = new ArrayList<>();
+        ArrayList<String> samples = new ArrayList<>();
         HashMap<String, Integer> datasetNumbers = new HashMap<>();
         ProteinPeptideCollection finalCollection = new ProteinPeptideCollection();
         //Creates a database collection
@@ -331,7 +333,7 @@ public class PeptideIdentifictionQualityControl {
         for (int sample = 0; sample < psmFiles.size(); sample++) {
             String[] path = psmFiles.get(sample).split(pattern);
             String dataset = "";
-            ArrayList<String> sampleType = new ArrayList<>();
+            ArrayList<String> sampleFiles = new ArrayList<>();
             //Determine dataset count for 1D and 2D.
             for (String folder : path) {
                 if (folder.toUpperCase().contains("2D") || folder.toUpperCase().contains("1D")) {
@@ -344,15 +346,15 @@ public class PeptideIdentifictionQualityControl {
                 }
                 //Gather sample names.
                 if (folder.toUpperCase().matches("COPD_?\\d{1,}")) {
-                    sampleType.add(folder);
-                    sampleType.add(folder.subSequence(0, 4) + "_" + folder.substring(4));
+                    sampleFiles.add(folder);
+                    sampleFiles.add(folder.subSequence(0, 4) + "_" + folder.substring(4));
                 } else if (folder.matches("Healthy_?\\d{1,}")) {
-                    sampleType.add(folder);
-                    sampleType.add(folder.subSequence(0, 7) + "_" + folder.substring(7));
+                    sampleFiles.add(folder);
+                    sampleFiles.add(folder.subSequence(0, 7) + "_" + folder.substring(7));
                 }
             }
             //Creates a string with a fasta file corresponding to the sample.
-            String sampleMatch = matchSample(sampleType);
+            String sampleFile = matchSample(sampleFiles);
             proteinPeptides = new ProteinPeptideCollection();
             //Loads unique peptide sequences from DB search psm.csv.
             peptides = peptideCollection.createCollection(psmFiles.get(sample));
@@ -366,7 +368,7 @@ public class PeptideIdentifictionQualityControl {
             proteinPeptides = combinedDatabaseMatcher.matchToCombined(proteinPeptides, combinedDatabase);
             //Match to the fasta database. Flags sequences that occur once inside this database.
             fastaDatabase = new ProteinCollection();
-            fastaDatabase = databaseCollection.createCollection(sampleMatch, fastaDatabase);
+            fastaDatabase = databaseCollection.createCollection(sampleFile, fastaDatabase);
             proteinPeptides = individualDatabaseMatcher.matchToIndividual(proteinPeptides, fastaDatabase);
             //Adds all proteinPeptides to a single collection.
             finalCollection.getProteinPeptideMatches().addAll(proteinPeptides.getProteinPeptideMatches());
@@ -380,13 +382,15 @@ public class PeptideIdentifictionQualityControl {
             sampleSize = healthySampleSize*2;
             sampleValueIndex = healthySampleSize;
         }
+        samples.add("Healthy");
+        samples.add("COPD");
         //Create a matrix of all final ProteinPeptide objects.
         proteinPeptideMatrix = new HashSet<>();
-        proteinPeptideMatrix = createMatrix.createMatrix(finalCollection, sampleSize, datasets, datasetNumbers);
+        proteinPeptideMatrix = createMatrix.createMatrix(finalCollection, sampleSize, datasets, datasetNumbers, samples);
         //Writes count & coverage(-10lgP) values into the matrix.
-        proteinPeptideMatrix = matrix.setValues(finalCollection, proteinPeptideMatrix, sampleValueIndex, datasets, datasetNumbers);
+        proteinPeptideMatrix = matrix.setValues(finalCollection, proteinPeptideMatrix, sampleValueIndex, datasets, datasetNumbers, samples);
         //Write data to a .csv file.
-        fileWriter.generateCsvFile(proteinPeptideMatrix, outputPath, datasets, sampleSize);
+        fileWriter.generateCsvFile(proteinPeptideMatrix, outputPath, datasets, samples, sampleSize);
     }
 
     /**

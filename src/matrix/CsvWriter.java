@@ -19,18 +19,19 @@ public class CsvWriter {
      * @param peptideMatrix set of arrays with protein-peptide data.
      * @param outputPath path and file to write the output file to.
      * @param datasets name of the dataset(s) to which the peptides belong.
+     * @param samples list of samples. (COPD/Healthy).
      * @param sampleSize amount of samples.
      * @throws IOException couldn't open/find the specified file. Usually appears when a file is
      * already opened by another program.
      */
     public void generateCsvFile(HashSet<ArrayList<String>> peptideMatrix, final String outputPath,
-            final ArrayList<String> datasets, final Integer sampleSize) throws IOException {
+            final ArrayList<String> datasets, final ArrayList<String> samples, final Integer sampleSize) throws IOException {
         //Create a new FileWriter instance.
         Integer size = datasets.size();
         Integer doubleSize = datasets.size()*2;
         String delimiter = ",";
         String lineEnding = "\n";
-        String fileHeader = createFileHeader(delimiter, lineEnding, datasets, sampleSize);
+        String fileHeader = createFileHeader(delimiter, lineEnding, datasets, samples ,sampleSize);
         System.out.println("Writing data to " + outputPath);
 	try (FileWriter writer = new FileWriter(outputPath)) {
             writer.append(fileHeader);
@@ -65,45 +66,49 @@ public class CsvWriter {
      * @return header for the file.
      */
     private String createFileHeader(final String delimiter, final String lineEnding, final ArrayList<String> datasets,
-           final Integer sampleSize) {
+           final ArrayList<String> samples, final Integer sampleSize) {
         String header = "";
-        ArrayList<String> samples = new ArrayList<>();
-            //Create list of samples. Might change Healthy to Control.
-            samples.add("Healthy");
-            samples.add("COPD");
-            //Writes values to the header, line separator="," and line ending="\n"
-            header += "Protein Group" + delimiter;
-            header += "Accession" + delimiter;
-            header += "Sequence" + delimiter;
-            header += "Dataset" + delimiter;
-            header += "Unique to Protein Group" + delimiter;
-            header += "Unique to Combined DB" + delimiter;
-            header += "Unique to fasta file" + delimiter;
-            //Writes sample headers to the csv file
-            for (String sample: samples) {
-                for (int i = 1; i <=(sampleSize / 2); i++) {
-                    //Writes the sample id to the header.
-                    header += sample + i + delimiter;
-                    //Writes the sample coverage % to the header.
-                }
+        //Writes values to the header, line separator="," and line ending="\n"
+        header += "Protein Group" + delimiter;
+        header += "Accession" + delimiter;
+        header += "Unique Accession" + delimiter;
+        header += "Sequence" + delimiter;
+        header += "Dataset" + delimiter;
+        header += "Unique to Protein Group" + delimiter;
+        header += "Unique to Combined DB" + delimiter;
+        header += "Unique to fasta file" + delimiter;
+        //Writes sample headers to the csv file
+        for (String sample: samples) {
+            for (int i = 1; i <=(sampleSize / 2); i++) {
+                //Writes the sample id total psm countto the header.
+                header += sample + i + " Total" +  delimiter;
             }
-            for (String sample: samples) {
-                for (int i = 1; i <=(sampleSize / 2); i++) {
-                    //Writes the sample id to the header.
-                     header += sample.substring(0,1) + i + " -10lgP" + delimiter;
-                    //Writes the sample coverage % to the header.
-                }
+        }
+        for (String sample: samples) {
+            for (int i = 1; i <=(sampleSize / 2); i++) {
+                //Writes the sample id to the header.
+                header += sample + i + delimiter;
             }
-            //writes dataset names to the csv file.
-            for (int i = 0; i <= datasets.size()-1; i++) {
-                if (i == datasets.size()-1) {
-                     header += datasets.get(i);
-                } else {
-                    header += datasets.get(i) + delimiter;
-                }
+        }
+        for (String sample: samples) {
+            for (int i = 1; i <=(sampleSize / 2); i++) {
+                //Writes the sample coverage % to the header.
+                 header += sample.substring(0,1) + i + " -10lgP" + delimiter;
             }
-            header += lineEnding;
-        return header;
+        }
+        //writes dataset names to the csv file.
+        for (int i = 0; i <= datasets.size()-1; i++) {
+            header += datasets.get(i) + delimiter;
+        }
+        for (String sample: samples) {
+            if (sample.equals(samples.get(samples.size()-1))) {
+                header += sample + " Total";
+            } else {
+                header += sample + " Total" + delimiter;
+            }
+        }
+        header += lineEnding;
+    return header;
     }
 
     /**
@@ -166,7 +171,7 @@ public class CsvWriter {
     private String writeDataToCsv(ArrayList<String> proteinPeptide, Integer doubleSize, String delimiter, String lineEnding) {
         String data = "";
         for (int i = doubleSize; i <proteinPeptide.size(); i++) {
-            if (i == proteinPeptide.size()) {
+            if (i == proteinPeptide.size()-1) {
                 data += proteinPeptide.get(i);
             } else {
                  data += proteinPeptide.get(i) + delimiter;

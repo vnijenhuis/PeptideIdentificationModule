@@ -29,7 +29,9 @@ public class PeptideToProteinPeptideMatcher {
             final ProteinPeptideCollection proteinPeptides) throws FileNotFoundException, IOException {
         ProteinPeptideCollection proteinPeptideMatches = new ProteinPeptideCollection();
         System.out.println("Starting to match peptides to protein-peptide entries.");
+        int count = 0;
         for (ProteinPeptide proteinPeptide : proteinPeptides.getProteinPeptideMatches()) {
+            count += 1;
             boolean newMatch = false;
             for (Peptide peptide : peptides.getPeptides()) {
                 //Test if peptide sequences are equal to each other.
@@ -42,8 +44,11 @@ public class PeptideToProteinPeptideMatcher {
             if (newMatch) {
                 proteinPeptideMatches.addProteinPeptideMatch(proteinPeptide);
             }
+            if (count %1000 == 0) {
+                System.out.println("Matched " + count + " peptides to the protein-peptides file.");
+            }
         }
-        System.out.println("Finished matching " + proteinPeptideMatches.getProteinPeptideMatches().size() + " peptides!");
+        System.out.println("Matched " + count + " peptides to the protein-peptides file.");
         //Returns the new collection.
         return proteinPeptideMatches;
     }
