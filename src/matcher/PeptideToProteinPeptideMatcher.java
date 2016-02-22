@@ -45,10 +45,10 @@ public class PeptideToProteinPeptideMatcher {
                 proteinPeptideMatches.addProteinPeptideMatch(proteinPeptide);
             }
             if (count %1000 == 0) {
-                System.out.println("Matched " + count + " peptides to the protein-peptides file.");
+                System.out.println("Matched " + count + " protein-peptides to the peptide collection.");
             }
         }
-        System.out.println("Matched " + count + " peptides to the protein-peptides file.");
+        System.out.println("Matched " + count + " protein-peptides  to the peptide collection.");
         //Returns the new collection.
         return proteinPeptideMatches;
     }

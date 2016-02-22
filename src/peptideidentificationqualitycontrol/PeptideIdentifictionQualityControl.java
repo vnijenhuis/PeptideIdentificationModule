@@ -20,7 +20,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import matcher.CombinedIndividualDatabaseMatcher;
-import matrix.UniqueSequenceCreator;
+import matrix.UniqueRowCreator;
 import matrix.CsvWriter;
 import collectioncreator.PeptideCollectionCreator;
 import matcher.DatabaseMatcher;
@@ -121,7 +121,7 @@ public class PeptideIdentifictionQualityControl {
     /**
      * Creates a set of arrays as matrix.
      */
-    private final UniqueSequenceCreator createMatrix;
+    private final  UniqueRowCreator createMatrix;
 
     /**
      * Sets the matrix count/coverage values.
@@ -242,7 +242,7 @@ public class PeptideIdentifictionQualityControl {
         //matches the remaining protein-peptide objects to the individual database.
         individualDatabaseMatcher = new IndividualDatabaseMatcher();
         //Creates a hashset of arrays as matrix.
-        createMatrix = new UniqueSequenceCreator();
+        createMatrix = new UniqueRowCreator();
         //Sets the values per matrix.
         matrix = new SetMatrixValues();
         //Writes data to file.
@@ -348,9 +348,15 @@ public class PeptideIdentifictionQualityControl {
                 if (folder.toUpperCase().matches("COPD_?\\d{1,}")) {
                     sampleFiles.add(folder);
                     sampleFiles.add(folder.subSequence(0, 4) + "_" + folder.substring(4));
+                    if (!samples.contains("COPD")) {
+                        samples.add("COPD");
+                    }
                 } else if (folder.matches("Healthy_?\\d{1,}")) {
                     sampleFiles.add(folder);
                     sampleFiles.add(folder.subSequence(0, 7) + "_" + folder.substring(7));
+                    if (!samples.contains("Healthy")) {
+                        samples.add("Healthy");
+                    }
                 }
             }
             //Creates a string with a fasta file corresponding to the sample.
@@ -382,8 +388,6 @@ public class PeptideIdentifictionQualityControl {
             sampleSize = healthySampleSize*2;
             sampleValueIndex = healthySampleSize;
         }
-        samples.add("Healthy");
-        samples.add("COPD");
         //Create a matrix of all final ProteinPeptide objects.
         proteinPeptideMatrix = new HashSet<>();
         proteinPeptideMatrix = createMatrix.createMatrix(finalCollection, sampleSize, datasets, datasetNumbers, samples);

@@ -209,14 +209,14 @@ public class SetMatrixValues {
         String sample = proteinPeptide.getSample();
         //Index is based on sample number, size of the dataset and amount of samples.
         //Can add .replaceAll("[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]","") to replace special characters.
-        if (sample.contains("Healthy")) {
-            sampleIndex = Integer.parseInt(sample.substring(7));
+        if (sample.contains("COPD")) {
+            sampleIndex = Integer.parseInt(sample.substring(4));
             totalCountIndex = (startIndex + sampleIndex);
             countIndex = (startIndex + sampleIndex + sampleValueIndex*2);
             coverageIndex = (startIndex + sampleIndex + sampleValueIndex*4);
         //Determine COPD indices
-        } else if (sample.contains("COPD")) {
-            sampleIndex = Integer.parseInt(sample.substring(4));
+        } else if (sample.contains("Healthy")) {
+            sampleIndex = Integer.parseInt(sample.substring(7));
             totalCountIndex = (startIndex + sampleIndex + sampleValueIndex);
             countIndex = (startIndex + sampleIndex + sampleValueIndex*3);
             coverageIndex = (startIndex + sampleIndex + sampleValueIndex*5);
@@ -315,15 +315,16 @@ public class SetMatrixValues {
         Boolean newAccessionMatch = true;
         ArrayList<String> newAccessions = new ArrayList<>();
         ArrayList<String> accessions = new ArrayList<>();
-        //Checks if one or more accessions are present in the array and ProteinPeptide object.
-        if (proteinPeptide.getAccession().contains("|")) {
-            String[] newAcc = proteinPeptide.getAccession().split("|");
+        //Checks if one or more accessions are present (separator | is present) in the array and ProteinPeptide object.
+        if (proteinPeptide.getAccession().contains("\\|")) {
+            String[] newAcc = proteinPeptide.getAccession().split("\\|");
             newAccessions.addAll(Arrays.asList(newAcc));
         } else {
             newAccessions.add(proteinPeptide.getAccession());
         }
-        if (array.get(uniqueAccessionIndex).contains("|")) {
-            String[] newAcc = array.get(uniqueAccessionIndex).split("|");
+        //Checks if one or more accessions are present in the array and ProteinPeptide object.
+        if (array.get(uniqueAccessionIndex).contains("\\|")) {
+            String[] newAcc = array.get(uniqueAccessionIndex).split("\\|");
             accessions.addAll(Arrays.asList(newAcc));
         } else {
             accessions.add(array.get(uniqueAccessionIndex));

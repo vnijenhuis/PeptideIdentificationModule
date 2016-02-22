@@ -15,7 +15,7 @@ import objects.ProteinPeptide;
  * Creates a HashSet of arrays which serves as a matrix.
  * @author vnijenhuis
  */
-public class UniqueSequenceCreator {
+public class UniqueRowCreator {
     /**
      * Creates arrays with unique sequences and a part of the corresponding data.
      * Data will be added in the SetMatrixValues.class
@@ -31,17 +31,17 @@ public class UniqueSequenceCreator {
             final ArrayList<String> samples) {
         System.out.println("Creating lists to store protein-peptide data...");
         ArrayList<String> newEntry;
+        Integer setSize = datasets.size() + 1;
         HashSet<ArrayList<String>> proteinPeptideMatrix = new HashSet<>();
         //Create an array of each unique peptide sequence and add
         for (ProteinPeptide proteinPeptide: proteinPeptides.getProteinPeptideMatches()) {
             newEntry = new ArrayList<>();
-            //Delimiter.
             //Creates a new entry.
             newEntry = createNewEntry(newEntry, proteinPeptide, size,datasets, datasetNumbers, samples);
             boolean newArray = true;
             if (!proteinPeptideMatrix.isEmpty()) {
                 for (ArrayList<String> entry: proteinPeptideMatrix) {
-                    String sequence = entry.get(6);
+                    String sequence = entry.get(setSize);
                     if (proteinPeptide.getSequence().equals(sequence)) {
                         newArray = false;
                     }
@@ -60,8 +60,8 @@ public class UniqueSequenceCreator {
     }
 
     /**
-     * Creates a new entry with a sequence and dataset.
-     * This is a unique sequence entry to which data can be added.
+     * Creates a new entry for each unique sequence. Adds unique values from the first dataset that this sequence was 
+     * encountered in. The data of other datasets with a similar sequence is added in SetMatrixValues.java
      * @param newEntry new array to add the sequence and dataset to.
      * @param proteinPeptide proteinPeptide object with data.
      * @param sampleSize biggest sample size of the 
@@ -72,7 +72,7 @@ public class UniqueSequenceCreator {
     private ArrayList<String> createNewEntry(final ArrayList<String> newEntry, final ProteinPeptide proteinPeptide,
             final Integer sampleSize, final ArrayList<String> datasets, final HashMap<String, Integer> datasetNumbers,
             final ArrayList<String> samples) {
-        //Separated indices for protein group numbers.
+        //A column per dataset for protein group ID's.
         for (String dataset: datasets) {
             for (Map.Entry<String, Integer> entry : datasetNumbers.entrySet()) {
                 if (entry.getKey().equals(dataset)) {
@@ -80,7 +80,7 @@ public class UniqueSequenceCreator {
                 }
             }
         }
-        //Separated indices for accession IDs.
+        //A column per dataset for accession ID's.
         for (String dataset: datasets) {
             for (Map.Entry<String, Integer> entry : datasetNumbers.entrySet()) {
                 if (entry.getKey().equals(dataset)) {
@@ -88,34 +88,37 @@ public class UniqueSequenceCreator {
                 }
             }
         }
-        //Add sequence, dataset and standard uniqueness values.
+        //Column for unique accessions. First set of unique accessions from one dataset is added already.
         newEntry.add(proteinPeptide.getAccession());
+        //Column for the peptide sequence.
         newEntry.add(proteinPeptide.getSequence());
+        //Column for dataset names. First name is added already.
         newEntry.add(proteinPeptide.getDataset());
-        //Set default of uniqueness to N.
+        //Column for the 3 uniqueness values.
         newEntry.add("N");
         newEntry.add("N");
         newEntry.add("N");
-        //Add array indices for psm count per individual per dataset
+        //Columns for the total psm count per individual.
         for (int i = 0; i < sampleSize; i++) {
             newEntry.add("0");
         }
-        //Add array indices for total psm count per individual for all datasets.
+        //Columns for the psm count per individual for all datasets.
         for (int i = 0; i < sampleSize; i++) {
             newEntry.add("0");
         }
-        //Add array indices for psm coverage per individual
+        //Columns for the psm coverage per individual
         for (int i = 0; i < sampleSize; i++) {
             newEntry.add("0.0");
         }
-        //Total count for each dataset.
+        //Column for the total psm count for each dataset.
         for (Map.Entry<String, Integer> dataset : datasetNumbers.entrySet()) {
             newEntry.add("0");
         }
-        //Total count for each sample type (Healthy/COPD)
+        //Column for the total psm count for each sample type
         for (String sample: samples) {
             newEntry.add("0");
         }
+        //Returns an array with indices for all data that is required.
         return newEntry;
     }
 }
