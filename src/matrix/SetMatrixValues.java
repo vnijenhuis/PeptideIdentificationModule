@@ -20,7 +20,7 @@ public class SetMatrixValues {
     /**
      * Adds count and coverage values to the matrix.
      * @param proteinPeptides protein peptide collection.
-     * @param peptideMatrix matrix of peptides.
+     * @param proteinPeptideMatrix matrix of protein-peptides.
      * @param sampleValueIndex maximum of COPD/Healthy samples. Highest value is used.
      * This value is needed for proper count/coverage placement when using uneven amount of samples.
      * @param datasets array with datasets.
@@ -29,11 +29,11 @@ public class SetMatrixValues {
      * @return HashSet with count and coverage values.
      */
     public final HashSet<ArrayList<String>> setValues(final ProteinPeptideCollection proteinPeptides,
-            final HashSet<ArrayList<String>> peptideMatrix, final Integer sampleValueIndex,
+            final HashSet<ArrayList<String>> proteinPeptideMatrix, final Integer sampleValueIndex,
             ArrayList<String> datasets, final HashMap<String,Integer> datasetNumbers, final ArrayList<String> samples) {
         //Go throigh all arrays for each proteinPeptide object.
         System.out.println("Adding protein-peptide data to the matrix. this may take a few minutes.");
-        for (ArrayList<String> array: peptideMatrix) {
+        for (ArrayList<String> array: proteinPeptideMatrix) {
             //Set integers. Dataset size can vary and is used to deterime parameter positions.
             Integer datasetSize = datasets.size()*2;
             Integer uniqueAccessionIndex = datasetSize;
@@ -69,7 +69,7 @@ public class SetMatrixValues {
                 }
             }
         }
-    return peptideMatrix;
+    return proteinPeptideMatrix;
     }
 
     /**

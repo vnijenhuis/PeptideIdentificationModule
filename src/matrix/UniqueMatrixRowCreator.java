@@ -15,7 +15,7 @@ import objects.ProteinPeptide;
  * Creates a HashSet of arrays which serves as a matrix.
  * @author vnijenhuis
  */
-public class UniqueRowCreator {
+public class UniqueMatrixRowCreator {
     /**
      * Creates arrays with unique sequences and a part of the corresponding data.
      * Data will be added in the SetMatrixValues.class
@@ -31,7 +31,7 @@ public class UniqueRowCreator {
             final ArrayList<String> samples) {
         System.out.println("Creating lists to store protein-peptide data...");
         ArrayList<String> newEntry;
-        Integer setSize = datasets.size() + 1;
+        Integer sequenceIndex = (datasets.size()*2 + 1);
         HashSet<ArrayList<String>> proteinPeptideMatrix = new HashSet<>();
         //Create an array of each unique peptide sequence and add
         for (ProteinPeptide proteinPeptide: proteinPeptides.getProteinPeptideMatches()) {
@@ -41,7 +41,7 @@ public class UniqueRowCreator {
             boolean newArray = true;
             if (!proteinPeptideMatrix.isEmpty()) {
                 for (ArrayList<String> entry: proteinPeptideMatrix) {
-                    String sequence = entry.get(setSize);
+                    String sequence = entry.get(sequenceIndex);
                     if (proteinPeptide.getSequence().equals(sequence)) {
                         newArray = false;
                     }

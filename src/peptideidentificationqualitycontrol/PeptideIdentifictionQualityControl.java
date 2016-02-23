@@ -20,7 +20,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import matcher.CombinedIndividualDatabaseMatcher;
-import matrix.UniqueRowCreator;
+import matrix.UniqueMatrixRowCreator;
 import matrix.CsvWriter;
 import collectioncreator.PeptideCollectionCreator;
 import matcher.DatabaseMatcher;
@@ -121,7 +121,7 @@ public class PeptideIdentifictionQualityControl {
     /**
      * Creates a set of arrays as matrix.
      */
-    private final  UniqueRowCreator createMatrix;
+    private final  UniqueMatrixRowCreator createMatrix;
 
     /**
      * Sets the matrix count/coverage values.
@@ -242,7 +242,7 @@ public class PeptideIdentifictionQualityControl {
         //matches the remaining protein-peptide objects to the individual database.
         individualDatabaseMatcher = new IndividualDatabaseMatcher();
         //Creates a hashset of arrays as matrix.
-        createMatrix = new UniqueRowCreator();
+        createMatrix = new UniqueMatrixRowCreator();
         //Sets the values per matrix.
         matrix = new SetMatrixValues();
         //Writes data to file.
