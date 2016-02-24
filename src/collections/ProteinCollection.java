@@ -4,7 +4,7 @@
  */
 package collections;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import objects.Protein;
 
 /**
@@ -15,13 +15,13 @@ public class ProteinCollection {
     /**
      * Creates a HashSet for protein objects.
      */
-    private final HashSet<Protein>  proteins;
+    private final ArrayList<Protein>  proteins;
 
     /**
      * Creates a new HashSet.
      */
     public ProteinCollection() {
-        proteins = new HashSet();
+        proteins = new ArrayList();
     }
 
     /**
@@ -36,7 +36,7 @@ public class ProteinCollection {
      * Returns the HashSet.
      * @return HashSet of protein objects.
      */
-    public final HashSet<Protein> getProteins() {
+    public final ArrayList<Protein> getProteins() {
         return proteins;
     }
 }

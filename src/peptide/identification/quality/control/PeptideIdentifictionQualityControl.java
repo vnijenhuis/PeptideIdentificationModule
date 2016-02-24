@@ -2,7 +2,7 @@
  * @author Vikthor Nijenhuis
  * @project peptide spectrum matrix quality control  *
  */
-package peptideidentificationqualitycontrol;
+package peptide.identification.quality.control;
 
 import collections.PeptideCollection;
 import collections.ProteinCollection;
@@ -22,15 +22,17 @@ import org.apache.commons.cli.ParseException;
 import matcher.CombinedIndividualDatabaseMatcher;
 import matrix.UniqueMatrixRowCreator;
 import matrix.CsvWriter;
-import collectioncreator.PeptideCollectionCreator;
+import collection.creator.PeptideCollectionCreator;
 import matcher.DatabaseMatcher;
 import matcher.PeptideToProteinPeptideMatcher;
-import collectioncreator.ProteinCollectionCreator;
-import collectioncreator.ProteinPeptideCollectionCreator;
+import collection.creator.ProteinCollectionCreator;
+import collection.creator.ProteinPeptideCollectionCreator;
 import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
 import tools.SampleSizeGenerator;
 import matrix.SetMatrixValues;
 import matcher.IndividualDatabaseMatcher;
+import matcher.MultiThreadDatabaseMatcher;
 import tools.ValidFileChecker;
 
 /**
@@ -47,8 +49,10 @@ public class PeptideIdentifictionQualityControl {
      * command line options. Please check the input.
      * 
      * @throws java.io.IOException could not open or find the specified file or directory.
+     * @throws InterruptedException process was interrupted.
+     * @throws ExecutionException could not execute the call function.
      */
-    public static void main(String[] args) throws ParseException, IOException {
+    public static void main(String[] args) throws ParseException, IOException, InterruptedException, ExecutionException {
         PeptideIdentifictionQualityControl peptideIdentification = new PeptideIdentifictionQualityControl();
         peptideIdentification.startQualityControl(args);
     }
@@ -167,6 +171,8 @@ public class PeptideIdentifictionQualityControl {
      * List of combined databases.
      */
     private String combDatabase;
+    
+    private MultiThreadDatabaseMatcher multithreadMatcher;
 
     /**
      * Private constructor to define primary functions.
@@ -208,13 +214,13 @@ public class PeptideIdentifictionQualityControl {
                 .build();
         options.addOption(dbPath);
         //A string that is present in the database(s). (eg. fasta.gz reads all fasta.gz files, uniprot reads the uniprot db file.
-        Option dbName= Option.builder("cdb")
+        Option dbName= Option.builder("fdb")
                 .hasArg()
                 .desc("Path and name of the combined database fasta. (/home/name/Fastsa/COPD-19-DB.fa)")
                 .build();
         options.addOption(dbName);
         //Path to the fasta files.
-        Option individualDB = Option.builder("fasta")
+        Option individualDB = Option.builder("fastas")
                 .hasArg()
                 .desc("Path to the individual fasta files. (/home/name/Fastas/)\nFastas folder should contain files.")
                 .build();
@@ -225,6 +231,12 @@ public class PeptideIdentifictionQualityControl {
                 .desc("Path to the folder to create the output file.")
                 .build();
         options.addOption(output);
+        //Amount of threads to use.
+        Option thread = Option.builder("threads")
+                .hasArg()
+                .desc("Amount of threads to use for multithreading. (Default 2)")
+                .build();
+        options.addOption(thread);
         //Checks files.
         input = new ValidFileChecker();
         //Creates peptide collections.
@@ -255,8 +267,11 @@ public class PeptideIdentifictionQualityControl {
      * @throws FileNotFoundException file was not found/does not exist.
      * @throws IOException couldn't open/find the specified file. Usually appears when a file is
      * already opened by another program.
+     * @throws InterruptedException process was interrupted.
+     * @throws ExecutionException could not execute the call function.
      */
-    private void startQualityControl(String[] args) throws ParseException, IOException {
+    private void startQualityControl(String[] args) throws ParseException, IOException,
+            InterruptedException, ExecutionException {
         CommandLineParser parser = new BasicParser();
         CommandLine cmd = parser.parse(options, args);
         psmFiles = new ArrayList<>();
@@ -271,9 +286,14 @@ public class PeptideIdentifictionQualityControl {
             String psmFile = cmd.getOptionValue("psm");
             String proteinPeptideFile = cmd.getOptionValue("pp");
             database = cmd.getOptionValue("db");
-            combDatabase = cmd.getOptionValue("cdb");
-            String fastas = cmd.getOptionValue("fasta");
+            combDatabase = cmd.getOptionValue("fdb");
+            String fastas = cmd.getOptionValue("fastas");
             String outputPath = cmd.getOptionValue("out");
+            String thread = cmd.getOptionValue("threads");
+            Integer threads = 2;
+            if (thread.matches("^[0-9]{1,}$")) {
+                threads = Integer.parseInt(thread);
+            }
             //Check if files/directories exist.
             String output = outputPath.substring(0, outputPath.lastIndexOf(File.separator));
             input.isDirectory(fastas);
@@ -301,7 +321,7 @@ public class PeptideIdentifictionQualityControl {
                     copdSampleSize = sampleSize.get(1);
                 }
             }
-            PeptideQualityControl(outputPath, copdSampleSize, healthySampleSize);
+            PeptideQualityControl(outputPath, copdSampleSize, healthySampleSize, threads);
         }
     }
 
@@ -311,11 +331,14 @@ public class PeptideIdentifictionQualityControl {
      * @param outputPath outputpath for the matrix csv file.
      * @param healthySampleSize sampleSize of healthy samples.
      * @param copdSampleSize sampleSize of COPD samples.
+     * @param threads amount of threads.
      * @throws IOException couldn't open/find the specified file. Usually appears when a file is
      * already opened by another program.
+     * @throws InterruptedException process was interrupted.
+     * @throws ExecutionException could not execute the call function.
      */
     public final void PeptideQualityControl( final String outputPath,
-            final Integer healthySampleSize, final Integer copdSampleSize)  throws IOException {
+            final Integer healthySampleSize, final Integer copdSampleSize, final Integer threads)  throws IOException, InterruptedException, ExecutionException {
         //Gets the separator for files of the current system.
         String pattern = Pattern.quote(File.separator);
         ArrayList<String> datasets = new ArrayList<>();
@@ -330,6 +353,7 @@ public class PeptideIdentifictionQualityControl {
         combinedDatabase = databaseCollection.createCollection(combDatabase, combinedDatabase);
         int datasetCount = 0;
         //Loop through all sample files.
+        long start = System.currentTimeMillis();
         for (int sample = 0; sample < psmFiles.size(); sample++) {
             String[] path = psmFiles.get(sample).split(pattern);
             String dataset = "";
@@ -365,7 +389,9 @@ public class PeptideIdentifictionQualityControl {
             //Loads unique peptide sequences from DB search psm.csv.
             peptides = peptideCollection.createCollection(psmFiles.get(sample));
             //Match to uniprot. This removes peptides that match in a database sequence.
-            peptides = databaseMatcher.matchToDatabases(proteinDatabase, peptides);
+//            peptides = databaseMatcher.matchToDatabases(proteinDatabase, peptides);
+            multithreadMatcher = new MultiThreadDatabaseMatcher(peptides, proteinDatabase);
+            peptides = multithreadMatcher.getMatchedPeptides(peptides, proteinDatabase, threads);
             //Creates protein peptide collection from protein-peptides.csv.
             proteinPeptides = proteinPeptideCollection.createCollection(proPepFiles.get(sample));
             //Matches peptides to protein-peptide relationship data.
@@ -373,12 +399,14 @@ public class PeptideIdentifictionQualityControl {
             //Match to the combined individual database. Flags sequences that occur once inside this database.
             proteinPeptides = combinedDatabaseMatcher.matchToCombined(proteinPeptides, combinedDatabase);
             //Match to the fasta database. Flags sequences that occur once inside this database.
-            fastaDatabase = new ProteinCollection();
-            fastaDatabase = databaseCollection.createCollection(sampleFile, fastaDatabase);
-            proteinPeptides = individualDatabaseMatcher.matchToIndividual(proteinPeptides, fastaDatabase);
+//            fastaDatabase = new ProteinCollection();
+//            fastaDatabase = databaseCollection.createCollection(sampleFile, fastaDatabase);
+//            proteinPeptides = individualDatabaseMatcher.matchToIndividual(proteinPeptides, fastaDatabase);
             //Adds all proteinPeptides to a single collection.
             finalCollection.getProteinPeptideMatches().addAll(proteinPeptides.getProteinPeptideMatches());
         }
+        System.out.println("Process took " + (System.currentTimeMillis()-start)/1000 + " seconds");
+        System.exit(0);
         Integer sampleSize = 0;
         Integer sampleValueIndex = 0;
         if (copdSampleSize > healthySampleSize) {
@@ -387,7 +415,7 @@ public class PeptideIdentifictionQualityControl {
         } else {
             sampleSize = healthySampleSize*2;
             sampleValueIndex = healthySampleSize;
-        }
+        }        
         //Create a matrix of all final ProteinPeptide objects.
         proteinPeptideMatrix = new HashSet<>();
         proteinPeptideMatrix = createMatrix.createMatrix(finalCollection, sampleSize, datasets, datasetNumbers, samples);

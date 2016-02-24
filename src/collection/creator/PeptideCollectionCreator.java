@@ -2,7 +2,7 @@
  * @author Vikthor Nijenhuis
  * @project peptide spectrum identification quality control  *
  */
-package collectioncreator;
+package collection.creator;
 
 import collections.PeptideCollection;
 import java.io.BufferedReader;

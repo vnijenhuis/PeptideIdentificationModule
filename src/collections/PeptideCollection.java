@@ -4,8 +4,8 @@
  */
 package collections;
 
+import java.util.ArrayList;
 import objects.Peptide;
-import java.util.HashSet;
 
 /**
  * A collection of peptide objects.
@@ -15,13 +15,13 @@ public class PeptideCollection {
     /**
      * Creates a HashSet for peptide objects.
      */
-    private final HashSet<Peptide>  peptides;
+    private final ArrayList<Peptide>  peptides;
 
     /**
      * Creates a new HashSet.
      */
     public PeptideCollection() {
-        peptides = new HashSet();
+        peptides = new ArrayList<>();
     }
 
     /**
@@ -43,7 +43,7 @@ public class PeptideCollection {
      * Returns the HashSet.
      * @return HashSet of peptides.
      */
-    public final HashSet<Peptide> getPeptides() {
+    public final ArrayList<Peptide> getPeptides() {
         return peptides;
     }
 }
