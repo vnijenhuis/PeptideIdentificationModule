@@ -16,9 +16,10 @@ public class SampleSizeGenerator {
     /**
      * Gathers sample numbers from the files.
      * @param filePath path of the files.
+     * @param sampleList list of samples.
      * @return list of samples sizes: Healthy on index 0, COPD on index 1.
      */
-    public final ArrayList<Integer> getSamples(final String filePath) {
+    public final ArrayList<Integer> getSamples(final String filePath, final ArrayList<String> sampleList) {
         File file = new File(filePath);
         String[] directories = file.list(new FilenameFilter() {
             @Override
@@ -26,26 +27,33 @@ public class SampleSizeGenerator {
                 return new File(current, name).isDirectory();
             }
         });
+        Integer targetSampleSize = 0;
+        Integer controlSampleSize = 0;
+        String controlSample = sampleList.get(0);
+        String targetSample = sampleList.get(1);
         //Goes through all sample folders inside the RNASeq folder.
-        Integer copdSamples = 0;
-        Integer healthySamples = 0;
         for (String sample: directories) {
-            if (sample.toLowerCase().contains("copd")) {
-                int index = (Integer.parseInt(sample.substring(4)));
-                if (copdSamples < index) {
-                    copdSamples = index;
-                }
-            } else if (sample.toLowerCase().contains("healthy")) {
-                int index = (Integer.parseInt(sample.substring(7)));
-                if (healthySamples < index) {
-                    healthySamples = index;
+            //Matches to the target sample(s)
+            if (sample.contains(targetSample)) {
+                int index = (Integer.parseInt(sample.substring(targetSample.length())));
+                //Amount of copd samples.
+                if (targetSampleSize < index) {
+                    targetSampleSize = index;
                 }
             }
+            //Matches to the control sample(s).
+            if (sample.contains(controlSample)) {
+                int index = (Integer.parseInt(sample.substring(controlSample.length())));
+                //Amount of control samples.
+                if (controlSampleSize < index) {
+                    controlSampleSize = index;
+                }
+            } 
         }
         //Returns sample sizes of COPD and Healthy.
         ArrayList<Integer> sampleSize = new ArrayList<>();
-        sampleSize.add(healthySamples);
-        sampleSize.add(copdSamples);
+        sampleSize.add(controlSampleSize);
+        sampleSize.add(targetSampleSize);
         //Matrix is generated based on the biggest samplesize.
         return sampleSize;
     }

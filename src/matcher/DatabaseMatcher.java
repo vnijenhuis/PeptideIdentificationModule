@@ -27,12 +27,12 @@ public class DatabaseMatcher {
      */
     public final PeptideCollection matchToDatabases(final ProteinCollection proteins,
             final PeptideCollection peptides) throws FileNotFoundException, IOException {
-        int cnt = 0;
+        int count = 0;
         //New ProteinPeptide Collection for non matched entries.
         PeptideCollection newCollection = new PeptideCollection();
         System.out.println("Starting to match peptides to protein database.");
         for (Peptide peptide : peptides.getPeptides()) {
-            cnt += 1;
+            count += 1;
             boolean noMatch = true;
             for (Protein protein : proteins.getProteins()) {
                 //Checks if peptide sequence is present in the given database(s).
@@ -45,8 +45,8 @@ public class DatabaseMatcher {
                 if (noMatch) {
                     newCollection.addPeptide(peptide);
                 }
-            if (cnt % 1000 == 0) {
-                System.out.println("Matched " + cnt + " peptide sequences to database.");
+            if (count % 1000 == 0) {
+                System.out.println("Matched " + count + " peptide sequences to database.");
             }
         }
         System.out.println("Finished matching " + peptides.getPeptides().size() + " peptides!");

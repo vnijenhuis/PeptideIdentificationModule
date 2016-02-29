@@ -69,7 +69,7 @@ public class SetMatrixValues {
                 }
             }
         }
-    return proteinPeptideMatrix;
+        return proteinPeptideMatrix;
     }
 
     /**
@@ -215,7 +215,7 @@ public class SetMatrixValues {
             countIndex = (startIndex + sampleIndex + sampleValueIndex*2);
             coverageIndex = (startIndex + sampleIndex + sampleValueIndex*4);
         //Determine COPD indices
-        } else if (sample.contains("Healthy")) {
+        } else if (sample.contains("Healthy") || sample.contains("Control")) {
             sampleIndex = Integer.parseInt(sample.substring(7));
             totalCountIndex = (startIndex + sampleIndex + sampleValueIndex);
             countIndex = (startIndex + sampleIndex + sampleValueIndex*3);

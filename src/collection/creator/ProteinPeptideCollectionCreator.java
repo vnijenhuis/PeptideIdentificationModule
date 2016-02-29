@@ -34,9 +34,11 @@ public class ProteinPeptideCollectionCreator {
         String sample = "";
         String dataset = "";
         for (String folder : path) {
-            if (folder.toLowerCase().contains("copd") || folder.toLowerCase().contains("healthy")) {
+            //Match sample names.
+            if (folder.toLowerCase().matches("^(copd|healthy|control)_?\\d{1,}$")) {
                 sample = folder;
-            } else if (folder.toUpperCase().contains("2D") || folder.toUpperCase().contains("1D")) {
+                //Match dataset names.
+            } else if (folder.toUpperCase().matches("^(1D25CM|1D50CM|2DLCMSMS)$")) {
                 dataset = folder;
             }
         }
@@ -55,10 +57,11 @@ public class ProteinPeptideCollectionCreator {
         int uniqueIndex = 0;
         int coverageIndex = 0;
         Boolean firstLine = true;
-        //Read the file. Determine indices by using first line parameters.
+        //Read the file.
         while ((line = bffFr.readLine()) != null) {
             if (firstLine) {
                 String[] data = line.split(",");
+                //Determine indices by using names on first line.
                 for (int i = 0; i < data.length; i++) {
                     if (data[i].toLowerCase().contains("protein group")) {
                         groupIndex = i;
@@ -85,16 +88,18 @@ public class ProteinPeptideCollectionCreator {
             sequence = sequence.replaceAll("^[A-Z]\\.", "");
             //Possibility to remove (+15.99) values from sequences
 //            sequence = sequence.replaceAll("\\(\\+[0-9]+\\.[0-9]+\\)", "");
+            //Set get data according to indices.
             String uniqueToGroup = data[uniqueIndex];
             String coverage = data[coverageIndex];
-            boolean newPeptide = true;
-            ProteinPeptide match = new ProteinPeptide(proteinGroup, accession, sequence, sample, uniqueToGroup,
+            boolean newEntry = true;
+            //Create new ProteinPeptide object.
+            ProteinPeptide newProteinPeptide = new ProteinPeptide(proteinGroup, accession, sequence, sample, uniqueToGroup,
                     uniqueCombined, uniqueIndividual, dataset, count, coverage);
             //Creates a proteinPeptide object with data per sample.
             if (!proteinPeptides.getProteinPeptideMatches().isEmpty()) {
                 for (ProteinPeptide proteinPeptide: proteinPeptides.getProteinPeptideMatches()) {
                     if (proteinPeptide.getSequence().equals(sequence)) {
-                        newPeptide = false;
+                        newEntry = false;
                         proteinPeptide.setCounter(count);
                         //Collects all protein groups per sequence for a sample.
                         if (!proteinPeptide.getProteinGroup().contains(proteinGroup)) {
@@ -109,6 +114,7 @@ public class ProteinPeptideCollectionCreator {
                                     newAcc = false;
                                 }
                             }
+                            //Adds new accession to the ProteinPeptide object.
                             if (newAcc) {
                                 proteinPeptide.addAccession(accession);
                             }
@@ -122,15 +128,16 @@ public class ProteinPeptideCollectionCreator {
                     }
                 }
                 //If no match was found: add new entry to collection.
-                if (newPeptide) {
-                    proteinPeptides.addProteinPeptideMatch(match);
+                if (newEntry) {
+                    proteinPeptides.addProteinPeptideMatch(newProteinPeptide);
                 }
             } else {
                 //Adds first match to the collection.
-                proteinPeptides.addProteinPeptideMatch(match);
+                proteinPeptides.addProteinPeptideMatch(newProteinPeptide);
             }
         }
-        System.out.println("Collected " + proteinPeptides.getProteinPeptideMatches().size() + " protein-peptides from " + file);
+        System.out.println("Collected " + proteinPeptides.getProteinPeptideMatches().size()
+                + " protein-peptides from " + sample + " " + dataset + "!");
         return proteinPeptides;
     }
 }

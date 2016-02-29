@@ -28,6 +28,7 @@ import matcher.PeptideToProteinPeptideMatcher;
 import collection.creator.ProteinCollectionCreator;
 import collection.creator.ProteinPeptideCollectionCreator;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import tools.SampleSizeGenerator;
 import matrix.SetMatrixValues;
@@ -42,7 +43,7 @@ import tools.ValidFileChecker;
  * and counts the occurrences of each peptide per sample.
  * @author vnijenhuis
  */
-public class PeptideIdentifictionQualityControl {
+public class PeptideIdentificationModule {
     /**
      * @param args the command line arguments.
      * @throws org.apache.commons.cli.ParseException exception encountered while processing
@@ -53,7 +54,7 @@ public class PeptideIdentifictionQualityControl {
      * @throws ExecutionException could not execute the call function.
      */
     public static void main(String[] args) throws ParseException, IOException, InterruptedException, ExecutionException {
-        PeptideIdentifictionQualityControl peptideIdentification = new PeptideIdentifictionQualityControl();
+        PeptideIdentificationModule peptideIdentification = new PeptideIdentificationModule();
         peptideIdentification.startQualityControl(args);
     }
 
@@ -171,7 +172,10 @@ public class PeptideIdentifictionQualityControl {
      * List of combined databases.
      */
     private String combDatabase;
-    
+
+    /**
+     * Matches peptides to the protein database using multi-threading.
+     */
     private MultiThreadDatabaseMatcher multithreadMatcher;
 
     /**
@@ -179,7 +183,7 @@ public class PeptideIdentifictionQualityControl {
      * Defines command line argument options.
      * Calls classes and functions to be used with this module.
      */
-    private PeptideIdentifictionQualityControl() {
+    private PeptideIdentificationModule() {
         //Creates all commandline options and their descriptions.
         //Help function.
         options = new Options();
@@ -214,7 +218,7 @@ public class PeptideIdentifictionQualityControl {
                 .build();
         options.addOption(dbPath);
         //A string that is present in the database(s). (eg. fasta.gz reads all fasta.gz files, uniprot reads the uniprot db file.
-        Option dbName= Option.builder("fdb")
+        Option dbName = Option.builder("fdb")
                 .hasArg()
                 .desc("Path and name of the combined database fasta. (/home/name/Fastsa/COPD-19-DB.fa)")
                 .build();
@@ -231,9 +235,21 @@ public class PeptideIdentifictionQualityControl {
                 .desc("Path to the folder to create the output file.")
                 .build();
         options.addOption(output);
+        //Add sample names.
+        Option target = Option.builder("target")
+                .hasArg()
+                .desc("Give the name of used samples. Currently only supports 2 arguments. (CASE SENSITIVE!)")
+                .build();
+        options.addOption(target);
+        Option control = Option.builder("control")
+                .hasArg()
+                .desc("Give the name of used samples. Currently only supports 2 arguments. (CASE SENSITIVE!)")
+                .build();
+        options.addOption(control);
         //Amount of threads to use.
         Option thread = Option.builder("threads")
                 .hasArg()
+                .optionalArg(true)
                 .desc("Amount of threads to use for multithreading. (Default 2)")
                 .build();
         options.addOption(thread);
@@ -272,11 +288,16 @@ public class PeptideIdentifictionQualityControl {
      */
     private void startQualityControl(String[] args) throws ParseException, IOException,
             InterruptedException, ExecutionException {
+        //Creates a new commandline parser.
         CommandLineParser parser = new BasicParser();
+        //Adds allocates option values to variable.
         CommandLine cmd = parser.parse(options, args);
+        //Creates multiple new lists.
+        ArrayList<String> sampleList = new ArrayList<>();
         psmFiles = new ArrayList<>();
         proPepFiles = new ArrayList<>();
         fastaFiles = new ArrayList<>();
+        //Help function.
         if (args[0].contains("help")) {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("Quality Control", options );
@@ -289,39 +310,55 @@ public class PeptideIdentifictionQualityControl {
             combDatabase = cmd.getOptionValue("fdb");
             String fastas = cmd.getOptionValue("fastas");
             String outputPath = cmd.getOptionValue("out");
-            String thread = cmd.getOptionValue("threads");
-            Integer threads = 2;
-            if (thread.matches("^[0-9]{1,}$")) {
-                threads = Integer.parseInt(thread);
+            String targetSample = cmd.getOptionValue("target");
+            String controlSample = cmd.getOptionValue("control");
+            //Check if sample names are given.
+            if (controlSample.isEmpty() || targetSample.isEmpty()) {
+                throw new IllegalArgumentException("You forgot to add a target or control sample."
+                        + "Please check the -target and -control input.");
             }
-            //Check if files/directories exist.
+            sampleList.add(controlSample);
+            sampleList.add(targetSample);
+            //Allocate amount of threads to use for multithreading.
+            String thread = "";
+            Integer threads = 2;
+            if (cmd.hasOption("threads")) {
+                thread = cmd.getOptionValue("threads"); 
+                if (thread.matches("^[0-9]{1,}$")) {
+                    threads = Integer.parseInt(thread);
+                }
+            }
+            //Check if output path exists.
             String output = outputPath.substring(0, outputPath.lastIndexOf(File.separator));
-            input.isDirectory(fastas);
             input.isDirectory(output);
+            input.isDirectory(fastas);
             input.isFile(database);
             input.isFile(combDatabase);
             //Creates lists of the given files.
-            Integer copdSampleSize = 0;
-            Integer healthySampleSize = 0;
+            Integer targetSampleSize = 0;
+            Integer controlSampleSize = 0;
             fastaFiles = input.getFastaDatabaseFiles(fastas, fastaFiles);
+            //Add files to lists according to the given folder and file name.
             for (String folder: path) {
                 input.isDirectory(folder);
                 SampleSizeGenerator sizeGenerator = new SampleSizeGenerator();
-                ArrayList<Integer> sampleSize = sizeGenerator.getSamples(folder);
+                ArrayList<Integer> sampleSize = sizeGenerator.getSamples(folder, sampleList);
                 //Creates a list of peptide psm files.
                 psmFiles = input.checkFileValidity(folder, psmFile, psmFiles);
                 //Creates a list of protein-peptide files.
                 proPepFiles = input.checkFileValidity(folder, proteinPeptideFile, proPepFiles);
                 //Gets highest healthy sample size
-                if (sampleSize.get(0) > healthySampleSize) {
-                    healthySampleSize = sampleSize.get(0);
+                if (sampleSize.get(0) > controlSampleSize) {
+                    controlSampleSize = sampleSize.get(0);
                 }
                 //Gets the highest copd sample size.
-                if (sampleSize.get(1) > copdSampleSize) {
-                    copdSampleSize = sampleSize.get(1);
+                if (sampleSize.get(1) > targetSampleSize) {
+                    targetSampleSize = sampleSize.get(1);
                 }
             }
-            PeptideQualityControl(outputPath, copdSampleSize, healthySampleSize, threads);
+            //Checks if both a target (COPD) and a control sample name has been given.
+            //Starts peptide identification
+            StartPeptideIdentification(outputPath, targetSampleSize, controlSampleSize, threads, sampleList);
         }
     }
 
@@ -329,20 +366,20 @@ public class PeptideIdentifictionQualityControl {
      * Starts the quality control procedure.
      * Output is written to a .csv file depending on the dataset and RNASeq type.
      * @param outputPath outputpath for the matrix csv file.
-     * @param healthySampleSize sampleSize of healthy samples.
-     * @param copdSampleSize sampleSize of COPD samples.
+     * @param controlSampleSize sample size of healthy/control samples.
+     * @param targetSampleSize sample size of COPD samples.
      * @param threads amount of threads.
+     * @param sampleList list of samples.
      * @throws IOException couldn't open/find the specified file. Usually appears when a file is
      * already opened by another program.
      * @throws InterruptedException process was interrupted.
      * @throws ExecutionException could not execute the call function.
      */
-    public final void PeptideQualityControl( final String outputPath,
-            final Integer healthySampleSize, final Integer copdSampleSize, final Integer threads)  throws IOException, InterruptedException, ExecutionException {
+    public final void StartPeptideIdentification( final String outputPath, final Integer controlSampleSize,
+            final Integer targetSampleSize, final Integer threads, final ArrayList<String> sampleList)  throws IOException, InterruptedException, ExecutionException {
         //Gets the separator for files of the current system.
         String pattern = Pattern.quote(File.separator);
         ArrayList<String> datasets = new ArrayList<>();
-        ArrayList<String> samples = new ArrayList<>();
         HashMap<String, Integer> datasetNumbers = new HashMap<>();
         ProteinPeptideCollection finalCollection = new ProteinPeptideCollection();
         //Creates a database collection
@@ -356,84 +393,91 @@ public class PeptideIdentifictionQualityControl {
         long start = System.currentTimeMillis();
         for (int sample = 0; sample < psmFiles.size(); sample++) {
             String[] path = psmFiles.get(sample).split(pattern);
-            String dataset = "";
             ArrayList<String> sampleFiles = new ArrayList<>();
             //Determine dataset count for 1D and 2D.
+            Boolean newDataset = true;
             for (String folder : path) {
-                if (folder.toUpperCase().contains("2D") || folder.toUpperCase().contains("1D")) {
-                    dataset = folder;
-                    if (!datasets.contains(dataset)) {
+                String dataset = path[path.length-4];
+                if (!datasetNumbers.isEmpty()) {
+                    for (Entry set : datasetNumbers.entrySet()) {
+                        if (set.getKey().equals(dataset)) {
+                            newDataset = false;
+                        }
+                    }
+                    if (newDataset) {
                         datasets.add(dataset);
                         datasetCount += 1;
-                        datasetNumbers.put(dataset, datasetCount);
+                        datasetNumbers.put(dataset, datasetCount);  
                     }
+                } else {
+                    datasets.add(dataset);
+                    datasetCount += 1;
+                    datasetNumbers.put(dataset, datasetCount);
                 }
-                //Gather sample names.
-                if (folder.toUpperCase().matches("COPD_?\\d{1,}")) {
+                //Gathers sample names to match to the individual database.fasta files.
+                if (folder.matches("(" + sampleList.get(1) + ")_?\\d{1,}")) {
                     sampleFiles.add(folder);
                     sampleFiles.add(folder.subSequence(0, 4) + "_" + folder.substring(4));
-                    if (!samples.contains("COPD")) {
-                        samples.add("COPD");
-                    }
-                } else if (folder.matches("Healthy_?\\d{1,}")) {
+                } else if (folder.matches("(" + sampleList.get(0) + ")_?\\d{1,}")) {
                     sampleFiles.add(folder);
                     sampleFiles.add(folder.subSequence(0, 7) + "_" + folder.substring(7));
-                    if (!samples.contains("Healthy")) {
-                        samples.add("Healthy");
-                    }
                 }
             }
             //Creates a string with a fasta file corresponding to the sample.
             String sampleFile = matchSample(sampleFiles);
-            proteinPeptides = new ProteinPeptideCollection();
             //Loads unique peptide sequences from DB search psm.csv.
+            peptides = new PeptideCollection();
             peptides = peptideCollection.createCollection(psmFiles.get(sample));
-            //Match to uniprot. This removes peptides that match in a database sequence.
+            //Matches peptides without multi-threading.
 //            peptides = databaseMatcher.matchToDatabases(proteinDatabase, peptides);
+            //Matches peptides to uniprot (or other given database). Makes use of multithread.
             multithreadMatcher = new MultiThreadDatabaseMatcher(peptides, proteinDatabase);
             peptides = multithreadMatcher.getMatchedPeptides(peptides, proteinDatabase, threads);
             //Creates protein peptide collection from protein-peptides.csv.
+            proteinPeptides = new ProteinPeptideCollection();
             proteinPeptides = proteinPeptideCollection.createCollection(proPepFiles.get(sample));
             //Matches peptides to protein-peptide relationship data.
             proteinPeptides = proteinPeptideMatching.matchPeptides(peptides, proteinPeptides);
             //Match to the combined individual database. Flags sequences that occur once inside this database.
             proteinPeptides = combinedDatabaseMatcher.matchToCombined(proteinPeptides, combinedDatabase);
             //Match to the fasta database. Flags sequences that occur once inside this database.
-//            fastaDatabase = new ProteinCollection();
-//            fastaDatabase = databaseCollection.createCollection(sampleFile, fastaDatabase);
-//            proteinPeptides = individualDatabaseMatcher.matchToIndividual(proteinPeptides, fastaDatabase);
+            fastaDatabase = new ProteinCollection();
+            fastaDatabase = databaseCollection.createCollection(sampleFile, fastaDatabase);
+            proteinPeptides = individualDatabaseMatcher.matchToIndividual(proteinPeptides, fastaDatabase);
             //Adds all proteinPeptides to a single collection.
             finalCollection.getProteinPeptideMatches().addAll(proteinPeptides.getProteinPeptideMatches());
         }
-        System.out.println("Process took " + (System.currentTimeMillis()-start)/1000 + " seconds");
-        System.exit(0);
+        System.out.println("Matching process took " + (System.currentTimeMillis()-start)/1000 + " seconds for " + threads + " threads");
+        //Deterime sample size and index.
         Integer sampleSize = 0;
         Integer sampleValueIndex = 0;
-        if (copdSampleSize > healthySampleSize) {
-            sampleSize = copdSampleSize*2;
-            sampleValueIndex = copdSampleSize;
+        if (targetSampleSize > controlSampleSize) {
+            sampleSize = targetSampleSize*2;
+            sampleValueIndex = targetSampleSize;
         } else {
-            sampleSize = healthySampleSize*2;
-            sampleValueIndex = healthySampleSize;
+            sampleSize = controlSampleSize*2;
+            sampleValueIndex = controlSampleSize;
         }        
         //Create a matrix of all final ProteinPeptide objects.
         proteinPeptideMatrix = new HashSet<>();
-        proteinPeptideMatrix = createMatrix.createMatrix(finalCollection, sampleSize, datasets, datasetNumbers, samples);
+        proteinPeptideMatrix = createMatrix.createMatrix(finalCollection, sampleSize, datasets, datasetNumbers, sampleList);
         //Writes count & coverage(-10lgP) values into the matrix.
-        proteinPeptideMatrix = matrix.setValues(finalCollection, proteinPeptideMatrix, sampleValueIndex, datasets, datasetNumbers, samples);
+        proteinPeptideMatrix = matrix.setValues(finalCollection, proteinPeptideMatrix, sampleValueIndex, datasets, datasetNumbers, sampleList);
         //Write data to a .csv file.
-        fileWriter.generateCsvFile(proteinPeptideMatrix, outputPath, datasets, samples, sampleSize);
+        fileWriter.generateCsvFile(proteinPeptideMatrix, outputPath, datasets, sampleList, sampleSize);
     }
 
     /**
      * Matches the sample name to the database fasta files.
-     * @param sampleType name of the sample COPD1/COPD_1/Healthy1/Healthy_1
+     * @param sampleType name of the sample: COPD1/COPD_1/Control/Control_1.
      * @return matched database file.
      */
     private String matchSample(ArrayList<String> sampleType) {
         //Used to match sample and sample database.
         String data = "";
         Boolean isFasta = false;
+        //List of individual database fasta files is matched to sample names.
+        //If a name matched the peptides can matched to the database file
         for (String fasta: fastaFiles) {
             for (String sample: sampleType) {
                 if (fasta.contains(sample)) {
@@ -443,8 +487,10 @@ public class PeptideIdentifictionQualityControl {
                 }
             }
         } if (!isFasta) {
-            System.out.println("WARNING: samples in list " + sampleType + " has no matching fasta file.");
+            System.out.println("WARNING: the sample(s) in list " + sampleType + " has/have no matching fasta file.");
         }
+        //If a name matched the peptides can matched to the database file
+        //Otherwise a warning is displayed.
         return data;
     }
 }

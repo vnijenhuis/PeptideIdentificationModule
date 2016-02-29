@@ -83,7 +83,7 @@ public class ValidFileChecker {
         File filePath = new File(path);
         for (File f: filePath.listFiles()) {
             //match to any database.fa(sta) files with COPD/Healthy as sample name.
-            if (f.toString().matches(".*(COPD|Healthy)_?\\d{1,}.*_database.fa(sta)?")) {
+            if (f.toString().matches(".*(COPD|Healthy|Control)_?\\d{1,}.*_database.fa(sta)?")) {
                 System.out.println("Found " + f);
                 fileList.add(f.toString());
             }

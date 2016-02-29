@@ -225,7 +225,7 @@ public class ProteinPeptide {
 
     /**
      * To string function.
-     * @return protein object as string.
+     * @return ProteinPeptide object as string.
      */
     @Override
     public final String toString() {

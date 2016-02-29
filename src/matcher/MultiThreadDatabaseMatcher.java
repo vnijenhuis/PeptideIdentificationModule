@@ -47,11 +47,23 @@ public class MultiThreadDatabaseMatcher implements Callable {
     public Object call() {
         PeptideCollection matchedPeptideCollection = new PeptideCollection();
         //Matches peptides to the protein database.
-        for (Peptide peptide: peptides.getPeptides().subList(0, 500)) {
-            for (Protein protein: proteins.getProteins().subList(0, 100)) {
-                if (protein.getSequence().contains(peptide.getSequence())) {
+        int count = 0;
+        for (Peptide peptide: peptides.getPeptides()) {
+            count += 1;
+            Boolean noMatch = true;
+            for (Protein protein : proteins.getProteins()) {
+                //Checks if peptide sequence is present in the given database(s).
+                String sequence = peptide.getSequence().replaceAll("\\(\\+[0-9]+\\.[0-9]+\\)", "");
+                if (protein.getSequence().contains(sequence)) {
+                        noMatch = false;
+                        break;
+                    }
+                }
+                if (noMatch) {
                     matchedPeptideCollection.addPeptide(peptide);
                 }
+            if (count % 1000 == 0) {
+                System.out.println("Matched " + count + " peptide sequences to database.");
             }
         }
         //Returns the peptides that did NOT match to the protein database.
@@ -71,6 +83,7 @@ public class MultiThreadDatabaseMatcher implements Callable {
             final Integer threads) throws InterruptedException, ExecutionException {
         PeptideCollection finalPeptides = new PeptideCollection();
         //Creates a new execution service and sets the amount of threads to use. (if available)
+        System.out.println("Using " + threads + " threads to match peptides to the protein database.");
         ExecutorService pool = Executors.newFixedThreadPool(threads);
         //Executes the call function of MultiThreadDatabaseMatcher.
         Callable<PeptideCollection> callable = new MultiThreadDatabaseMatcher(peptides, proteins);
@@ -78,6 +91,9 @@ public class MultiThreadDatabaseMatcher implements Callable {
         Future<PeptideCollection> future = pool.submit(callable);
         //Adds the output to finalPeptides.
         finalPeptides = future.get();
+        System.out.println(finalPeptides.getPeptides().size() + " peptides did not match to the protein database.");
+        //Shutdown command for the pool to prevent the script from running infinitely.
+        pool.shutdown();
         return finalPeptides;
     }
 }

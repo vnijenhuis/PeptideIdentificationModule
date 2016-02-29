@@ -84,22 +84,23 @@ public class CsvWriter {
                 header += sample + i + " Total" +  delimiter;
             }
         }
+        //Writes the sample id to the header.
         for (String sample: samples) {
             for (int i = 1; i <=(sampleSize / 2); i++) {
-                //Writes the sample id to the header.
                 header += sample + i + delimiter;
             }
         }
+        //Writes the sample coverage % to the header.
         for (String sample: samples) {
             for (int i = 1; i <=(sampleSize / 2); i++) {
-                //Writes the sample coverage % to the header.
                  header += sample.substring(0,1) + i + " -10lgP" + delimiter;
             }
         }
-        //writes dataset names to the csv file.
+        //Writes columnnames for dataset names to the header.
         for (int i = 0; i <= datasets.size()-1; i++) {
             header += datasets.get(i) + delimiter;
         }
+        //Writes column names for total count to the header.
         for (String sample: samples) {
             if (sample.equals(samples.get(samples.size()-1))) {
                 header += sample + " Total";

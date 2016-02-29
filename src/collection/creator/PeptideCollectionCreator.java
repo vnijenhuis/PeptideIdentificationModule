@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.regex.Pattern;
 import objects.Peptide;
 
@@ -36,9 +38,11 @@ public class PeptideCollectionCreator {
         String dataset = "";
         //Creates the dataset and sample names.
         for (String folder : path) {
-            if (folder.toLowerCase().contains("copd") || folder.toLowerCase().contains("healthy")) {
+            //Match sample names.
+            if (folder.toLowerCase().matches("^(copd|healthy|control)_?\\d{1,}$")) {
                 sample = folder;
-            } else if (folder.toUpperCase().contains("2D") || folder.toUpperCase().contains("1D")) {
+                //Match dataset names.
+            } else if (folder.toUpperCase().matches("^(1D25CM|1D50CM|2DLCMSMS)$")) {
                 dataset = folder;
             }
         }
@@ -65,25 +69,38 @@ public class PeptideCollectionCreator {
                 line = bffReader.readLine();
             }
             String[] data = line.split(",");
-            String accession = data[accessionIndex];
-            if (!accession.toUpperCase().matches("^ENST[0-9]+$") && !accession.toUpperCase().contains("DECOY")) {
-                String sequence = data[peptideIndex];
-                //Can remove (+15.99) and similar matches from a peptide sequence.
-//                sequence = sequence.replaceAll("\\(\\+[0-9]+\\.[0-9]+\\)", "");
-                Peptide peptide = new Peptide(sequence);
-                Boolean newPeptide = true;
-                //Create new peptide objects.
-                if (!peptides.getPeptides().isEmpty()) {
-                    for (Peptide p: peptides.getPeptides()) {
-                        if (p.getSequence().equals(sequence)) {
-                            newPeptide = false;
+            String accessionData = "";
+            ArrayList<String> accessions = new ArrayList<>();
+            //Checks if accession index is possible to grab. (empty columns reduce data.length)
+            if (data.length >  accessionIndex) {
+                accessionData = data[accessionIndex];
+                //Splits the accessions names if possible.
+                if (accessionData.contains(":")) {
+                    accessions.addAll(Arrays.asList(accessionData.split(":")));
+                } else {
+                    accessions.add(accessionData);
+                }
+            }
+            for (String accession: accessions) {
+                if (!accession.toUpperCase().matches("^ENST[0-9]+$") && !accession.toUpperCase().contains("DECOY")) {
+                    String sequence = data[peptideIndex];
+                    //Can remove (+15.99) and similar matches from a peptide sequence.
+    //                sequence = sequence.replaceAll("\\(\\+[0-9]+\\.[0-9]+\\)", "");
+                    Peptide peptide = new Peptide(sequence);
+                    Boolean newPeptide = true;
+                    //Create new peptide objects.
+                    if (!peptides.getPeptides().isEmpty()) {
+                        for (Peptide p: peptides.getPeptides()) {
+                            if (p.getSequence().equals(sequence)) {
+                                newPeptide = false;
+                            }
                         }
-                    }
-                    if (newPeptide) {
+                        if (newPeptide) {
+                            peptides.addPeptide(peptide);
+                        }
+                    } else {
                         peptides.addPeptide(peptide);
                     }
-                } else {
-                    peptides.addPeptide(peptide);
                 }
             }
         }
