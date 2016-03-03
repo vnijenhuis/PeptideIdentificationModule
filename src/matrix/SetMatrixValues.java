@@ -25,12 +25,12 @@ public class SetMatrixValues {
      * This value is needed for proper count/coverage placement when using uneven amount of samples.
      * @param datasets array with datasets.
      * @param datasetNumbers dataset name as key, number as value.
-     * @param samples set of sample names.
+     * @param sampleList set of sample names.
      * @return HashSet with count and coverage values.
      */
     public final HashSet<ArrayList<String>> setValues(final ProteinPeptideCollection proteinPeptides,
             final HashSet<ArrayList<String>> proteinPeptideMatrix, final Integer sampleValueIndex,
-            ArrayList<String> datasets, final HashMap<String,Integer> datasetNumbers, final ArrayList<String> samples) {
+            ArrayList<String> datasets, final HashMap<String,Integer> datasetNumbers, final ArrayList<String> sampleList) {
         //Go throigh all arrays for each proteinPeptide object.
         System.out.println("Adding protein-peptide data to the matrix. this may take a few minutes.");
         for (ArrayList<String> array: proteinPeptideMatrix) {
@@ -38,17 +38,20 @@ public class SetMatrixValues {
             Integer datasetSize = datasets.size()*2;
             Integer uniqueAccessionIndex = datasetSize;
             Integer sequenceIndex = datasetSize + 1;
-            Integer datasetIndex = datasetSize + 2;
-            Integer uniqueGroupIndex = datasetSize + 3;
-            Integer uniqueCombinedIndex = datasetSize + 4;
-            Integer uniqueFastaIndex = datasetSize + 5;
+            Integer positionIndex = datasetSize + 2;
+            Integer datasetIndex = datasetSize + 3;
+            Integer uniqueGroupIndex = datasetSize + 4;
+            Integer uniqueCombinedIndex = datasetSize + 5;
+            Integer uniqueFastaIndex = datasetSize + 6;
             for (ProteinPeptide proteinPeptide: proteinPeptides.getProteinPeptideMatches()) {
                 //Match array sequence to protein-peptide sequence to gather data from the right ProteinPeptide objects.
                 if (array.get(sequenceIndex).equals(proteinPeptide.getSequence())) {
                     //Adds accession values per dataset
                     array = setAccessionValues(array, proteinPeptide, datasets, datasetNumbers);
                     //Adds unique accession values.
-                    array = setUniqueAccessionValues(array, proteinPeptide, uniqueAccessionIndex, datasets, datasetNumbers);
+                    array = setUniqueAccessionValues(array, proteinPeptide, uniqueAccessionIndex);
+                    //Adds position values to the array.
+                    array = setPositionValues(array, proteinPeptide, positionIndex);
                     //Adds dataset names.
                     array = setDatasetValues(array, proteinPeptide, datasetIndex);
                     //Adds proteingroup values per dataset
@@ -61,11 +64,11 @@ public class SetMatrixValues {
                     array = setUniqueToFasta(array, proteinPeptide, uniqueFastaIndex, datasetIndex);
                     //Add count and coverage to the array.
                     array = setCountAndCoverage(array, proteinPeptide, datasetSize,
-                            sampleValueIndex, datasetNumbers);
+                            sampleValueIndex, datasetNumbers, sampleList);
                     //Add total count of psm's per dataset to the array.
-                    array = setDatasetCounter(array, proteinPeptide, datasets, samples);
+                    array = setDatasetCounter(array, proteinPeptide, datasets, sampleList);
                     //Adds total count of psms per sample set (Healthy/COPD) to the array.
-                    array = setTotalValues(array, proteinPeptide, samples);
+                    array = setTotalValues(array, proteinPeptide, sampleList);
                 }
             }
         }
@@ -200,23 +203,24 @@ public class SetMatrixValues {
      * @return array with corresponding count and coverage values.
      */
     private ArrayList<String> setCountAndCoverage(final ArrayList<String> array, final ProteinPeptide proteinPeptide,
-            final Integer datasetSize, final Integer sampleValueIndex, final HashMap<String, Integer> datasetNumbers) {
+            final Integer datasetSize, final Integer sampleValueIndex, final HashMap<String, Integer> datasetNumbers,
+            final ArrayList<String> sampleList) {
         int sampleIndex = 0;
         int countIndex = 0;
         int totalCountIndex = 0;
         int coverageIndex = 0;
-        int startIndex = datasetSize + 5; //+4 indices for @param sequence, dataset, unique to combined, unique to group
+        int startIndex = datasetSize + 6; //+4 indices for @param sequence, dataset, unique to combined, unique to group
         String sample = proteinPeptide.getSample();
         //Index is based on sample number, size of the dataset and amount of samples.
         //Can add .replaceAll("[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]","") to replace special characters.
-        if (sample.contains("COPD")) {
-            sampleIndex = Integer.parseInt(sample.substring(4));
+        if (sample.contains(sampleList.get(0))) {
+            sampleIndex = Integer.parseInt(sample.substring(7));
             totalCountIndex = (startIndex + sampleIndex);
             countIndex = (startIndex + sampleIndex + sampleValueIndex*2);
             coverageIndex = (startIndex + sampleIndex + sampleValueIndex*4);
-        //Determine COPD indices
-        } else if (sample.contains("Healthy") || sample.contains("Control")) {
-            sampleIndex = Integer.parseInt(sample.substring(7));
+        //Determine COPD indices. sampleList index 1 contains target sample (COPD)
+        } else if (sample.contains(sampleList.get(1))) {
+            sampleIndex = Integer.parseInt(sample.substring(4));
             totalCountIndex = (startIndex + sampleIndex + sampleValueIndex);
             countIndex = (startIndex + sampleIndex + sampleValueIndex*3);
             coverageIndex = (startIndex + sampleIndex + sampleValueIndex*5);
@@ -311,7 +315,7 @@ public class SetMatrixValues {
      * @param datasetNumbers numbers corresponding to the dataset names.
      * @return array with unique accessions.
      */
-    private ArrayList<String> setUniqueAccessionValues(ArrayList<String> array, ProteinPeptide proteinPeptide, Integer uniqueAccessionIndex, ArrayList<String> datasets, HashMap<String, Integer> datasetNumbers) {
+    private ArrayList<String> setUniqueAccessionValues(ArrayList<String> array, ProteinPeptide proteinPeptide, Integer uniqueAccessionIndex) {
         Boolean newAccessionMatch = true;
         ArrayList<String> newAccessions = new ArrayList<>();
         ArrayList<String> accessions = new ArrayList<>();
@@ -341,6 +345,21 @@ public class SetMatrixValues {
             }
         }
         //Return array with added accessions.
+        return array;
+    }
+
+    /**
+     * Adds the name of the dataset to the given array index.
+     * @param array array with peptide sequence and preset values.
+     * @param proteinPeptide ProteinPeptide object that has a matching sequence in the array.
+     * @param positionIndex index of the position values.
+     * @return array with adjusted dataset names.
+     */
+    private ArrayList<String> setPositionValues(ArrayList<String> array, ProteinPeptide proteinPeptide, Integer positionIndex) {
+        //Add the dataset name to the array index if conditions are met.
+        if (!array.get(positionIndex).contains(proteinPeptide.getPosition())) {
+            array.set(positionIndex, array.get(positionIndex) + " " + proteinPeptide.getPosition());
+        }
         return array;
     }
 }

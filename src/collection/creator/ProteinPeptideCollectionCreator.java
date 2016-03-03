@@ -21,25 +21,24 @@ public class ProteinPeptideCollectionCreator {
     /**
      * Creates a collection of the protein-peptide.csv file;
      * @param file protein-peptide.csv file.
+     * @param dataset name of the dataset.
      * @return collection of ProteinPeptide objects.
      * @throws FileNotFoundException file was not found/does not exist.
      * @throws IOException couldn't open/find the specified file. Usually appears when a file is
      * already opened by another program.
      */
-    public final ProteinPeptideCollection createCollection(final String file) throws FileNotFoundException, IOException {
+    public final ProteinPeptideCollection createCollection(final String file, final String dataset)
+            throws FileNotFoundException, IOException {
         ProteinPeptideCollection proteinPeptides = new ProteinPeptideCollection();
         //Creates dataset and patient names depending on the map names.
         String pattern = Pattern.quote(File.separator);
         String[] path = file.split(pattern);
         String sample = "";
-        String dataset = "";
         for (String folder : path) {
             //Match sample names.
             if (folder.toLowerCase().matches("^(copd|healthy|control)_?\\d{1,}$")) {
                 sample = folder;
                 //Match dataset names.
-            } else if (folder.toUpperCase().matches("^(1D25CM|1D50CM|2DLCMSMS)$")) {
-                dataset = folder;
             }
         }
         System.out.println("Collecting protein-peptides from " + sample + " " + dataset + "...");

@@ -25,14 +25,42 @@ public class IndividualDatabaseMatcher {
         System.out.println("Matching sequences to individual database.");
         int count = 0;
         for (ProteinPeptide proteinPeptide: proteinPeptides.getProteinPeptideMatches()) {
+            String sequence = proteinPeptide.getSequence().replaceAll("\\(\\+[0-9]+\\.[0-9]+\\)", "");
             count += 1;
             Integer oneMatch = 0;
+            //Get accession names.
+            String[] accessions = proteinPeptide.getAccession().split("\\|");
+            String positions = "";
+            Boolean newPosition = false;
             //Test if a protein sequence contains the peptide sequence.
-            for (Protein protein: proteins.getProteins()) {
-                if (protein.getSequence().contains(proteinPeptide.getSequence())) {
+            for (String accession: accessions) {
+                String position = "0";
+                for (Protein protein: proteins.getProteins()) {
+                    if (protein.getSequence().contains(sequence)) {
+                        //Check if accessions match to gather start and end positions of the peptide sequence.
+                        if (accession.equals(protein.getAccession())) {
+                            Integer start = protein.getSequence().indexOf(sequence) + 1;
+                            Integer end = (start + sequence.length());
+                            position = start + "_" + end;
+                            newPosition = true;
+                            break;
+                        }
+                    }
                     oneMatch += 1;
                 }
+                //Determines the position value.
+                if (newPosition && positions.isEmpty()) {
+                    positions += position;
+                } else if (newPosition) {
+                    positions += "|" + position;
+                } else if (positions.isEmpty()) {
+                    positions += position;
+                } else {
+                    positions += "|0";
+                }
             }
+            //Adds position values to the proteinPeptide object.
+            proteinPeptide.setPosition(positions);
             //Set uniqueness depending on the oneMatch counter.
             if (oneMatch == 1) {
                 //If only one match has been found: set flag to Y(es)

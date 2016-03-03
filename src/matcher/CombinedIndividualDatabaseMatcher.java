@@ -26,11 +26,12 @@ public class CombinedIndividualDatabaseMatcher {
         System.out.println("Matching sequences to combined database.");
         int count = 0;
         for (ProteinPeptide proteinPeptide: proteinPeptides.getProteinPeptideMatches()) {
+            String sequence = proteinPeptide.getSequence().replaceAll("\\(\\+[0-9]+\\.[0-9]+\\)", "");
             count += 1;
             Integer oneMatch = 0;
             //Test if a protein sequence contains the peptide sequence.
             for (Protein protein: proteins.getProteins()) {
-                if (protein.getSequence().contains(proteinPeptide.getSequence())) {
+                if (protein.getSequence().contains(sequence)) {
                     oneMatch += 1;
                 }
             }

@@ -40,25 +40,28 @@ public class ProteinCollectionCreator {
             System.out.println("Loading database proteins from " + database);
             File file = new File(database);
             //Read database files. Can read .fasta and .fasta.gz files.
-            if (database.contains(".fa.gz") || database.contains(".fasta.gz")) {
+            if (database.matches(".*\\.fa(sta){0,1}\\.gz")) {
                 InputStream fileStream = new FileInputStream(file);
                 InputStream gzipStream = new GZIPInputStream(fileStream);
                 Reader decoder = new InputStreamReader(gzipStream, "US-ASCII");
                 dbReader = new BufferedReader(decoder);
-            } else if (database.contains(".fasta") || database.contains(".fa")){
+            } else if (database.matches(".*\\.fa(sta){0,1}")){
                 FileReader fr = new FileReader(file);
                 dbReader = new BufferedReader(fr);
             }
             String line;
             boolean firstLine = true;
             String sequence = "";
+            String accession = "";
             //Create protein objects with a sequence.
             while ((line = dbReader.readLine()) != null) {
                 if (line.startsWith(">") && firstLine) {
+                    accession = line.split(" ")[0].replace(">", "");
                     firstLine = false;
                 } else if (line.startsWith(">")) {
-                    Protein protein = new Protein(sequence);
+                    Protein protein = new Protein(sequence, accession);
                     proteins.addProtein(protein);
+                    accession = line.split(" ")[0].replace(">", "");
                     sequence = "";
                 } else {
                     sequence += line.trim();

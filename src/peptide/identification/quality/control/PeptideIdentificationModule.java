@@ -332,12 +332,12 @@ public class PeptideIdentificationModule {
             String output = outputPath.substring(0, outputPath.lastIndexOf(File.separator));
             input.isDirectory(output);
             input.isDirectory(fastas);
-            input.isFile(database);
-            input.isFile(combDatabase);
+            input.isFasta(database);
+            input.isFasta(combDatabase);
             //Creates lists of the given files.
             Integer targetSampleSize = 0;
             Integer controlSampleSize = 0;
-            fastaFiles = input.getFastaDatabaseFiles(fastas, fastaFiles);
+            fastaFiles = input.getFastaDatabaseFiles(fastas, fastaFiles, sampleList);
             //Add files to lists according to the given folder and file name.
             for (String folder: path) {
                 input.isDirectory(folder);
@@ -376,7 +376,8 @@ public class PeptideIdentificationModule {
      * @throws ExecutionException could not execute the call function.
      */
     public final void StartPeptideIdentification( final String outputPath, final Integer controlSampleSize,
-            final Integer targetSampleSize, final Integer threads, final ArrayList<String> sampleList)  throws IOException, InterruptedException, ExecutionException {
+            final Integer targetSampleSize, final Integer threads, final ArrayList<String> sampleList)
+            throws IOException, InterruptedException, ExecutionException {
         //Gets the separator for files of the current system.
         String pattern = Pattern.quote(File.separator);
         ArrayList<String> datasets = new ArrayList<>();
@@ -390,14 +391,13 @@ public class PeptideIdentificationModule {
         combinedDatabase = databaseCollection.createCollection(combDatabase, combinedDatabase);
         int datasetCount = 0;
         //Loop through all sample files.
-        long start = System.currentTimeMillis();
         for (int sample = 0; sample < psmFiles.size(); sample++) {
             String[] path = psmFiles.get(sample).split(pattern);
             ArrayList<String> sampleFiles = new ArrayList<>();
             //Determine dataset count for 1D and 2D.
+            String dataset = path[path.length-4];
             Boolean newDataset = true;
             for (String folder : path) {
-                String dataset = path[path.length-4];
                 if (!datasetNumbers.isEmpty()) {
                     for (Entry set : datasetNumbers.entrySet()) {
                         if (set.getKey().equals(dataset)) {
@@ -427,27 +427,26 @@ public class PeptideIdentificationModule {
             String sampleFile = matchSample(sampleFiles);
             //Loads unique peptide sequences from DB search psm.csv.
             peptides = new PeptideCollection();
-            peptides = peptideCollection.createCollection(psmFiles.get(sample));
+            peptides = peptideCollection.createCollection(psmFiles.get(sample), dataset);
             //Matches peptides without multi-threading.
 //            peptides = databaseMatcher.matchToDatabases(proteinDatabase, peptides);
             //Matches peptides to uniprot (or other given database). Makes use of multithread.
-            multithreadMatcher = new MultiThreadDatabaseMatcher(peptides, proteinDatabase);
-            peptides = multithreadMatcher.getMatchedPeptides(peptides, proteinDatabase, threads);
+//            multithreadMatcher = new MultiThreadDatabaseMatcher(peptides, proteinDatabase);
+//            peptides = multithreadMatcher.getMatchedPeptides(peptides, proteinDatabase, threads);
             //Creates protein peptide collection from protein-peptides.csv.
             proteinPeptides = new ProteinPeptideCollection();
-            proteinPeptides = proteinPeptideCollection.createCollection(proPepFiles.get(sample));
+            proteinPeptides = proteinPeptideCollection.createCollection(proPepFiles.get(sample), dataset);
             //Matches peptides to protein-peptide relationship data.
             proteinPeptides = proteinPeptideMatching.matchPeptides(peptides, proteinPeptides);
             //Match to the combined individual database. Flags sequences that occur once inside this database.
             proteinPeptides = combinedDatabaseMatcher.matchToCombined(proteinPeptides, combinedDatabase);
             //Match to the fasta database. Flags sequences that occur once inside this database.
-            fastaDatabase = new ProteinCollection();
-            fastaDatabase = databaseCollection.createCollection(sampleFile, fastaDatabase);
-            proteinPeptides = individualDatabaseMatcher.matchToIndividual(proteinPeptides, fastaDatabase);
+//            fastaDatabase = new ProteinCollection();
+//            fastaDatabase = databaseCollection.createCollection(sampleFile, fastaDatabase);
+//            proteinPeptides = individualDatabaseMatcher.matchToIndividual(proteinPeptides, fastaDatabase);
             //Adds all proteinPeptides to a single collection.
             finalCollection.getProteinPeptideMatches().addAll(proteinPeptides.getProteinPeptideMatches());
         }
-        System.out.println("Matching process took " + (System.currentTimeMillis()-start)/1000 + " seconds for " + threads + " threads");
         //Deterime sample size and index.
         Integer sampleSize = 0;
         Integer sampleValueIndex = 0;
@@ -464,7 +463,7 @@ public class PeptideIdentificationModule {
         //Writes count & coverage(-10lgP) values into the matrix.
         proteinPeptideMatrix = matrix.setValues(finalCollection, proteinPeptideMatrix, sampleValueIndex, datasets, datasetNumbers, sampleList);
         //Write data to a .csv file.
-        fileWriter.generateCsvFile(proteinPeptideMatrix, outputPath, datasets, sampleList, sampleSize);
+        fileWriter.generateCsvFile(proteinPeptideMatrix, outputPath, datasets, sampleList, sampleSize, datasetNumbers);
     }
 
     /**

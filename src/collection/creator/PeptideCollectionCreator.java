@@ -23,27 +23,26 @@ public class PeptideCollectionCreator {
     /**
      * Creates a collection of peptide objects.
      * @param file loads a DB search psm.csv file and reads only the peptide sequences.
+     * @param dataset name of the dataset.
      * @return Collection of peptide objects.
      * @throws FileNotFoundException file was not found/does not exist.
      * @throws IOException couldn't open/find the specified file. Usually appears when a file is
      * already opened by another program.
      */
-    public final PeptideCollection createCollection(final String file) throws FileNotFoundException, IOException {
+    public final PeptideCollection createCollection(final String file, final String dataset)
+            throws FileNotFoundException, IOException {
         //Create new collection of peptides.
         PeptideCollection peptides = new PeptideCollection();
         //Determines the File.separator depending on the platform.
         String pattern = Pattern.quote(File.separator);
         String[] path = file.split(pattern);
         String sample = "";
-        String dataset = "";
         //Creates the dataset and sample names.
         for (String folder : path) {
             //Match sample names.
             if (folder.toLowerCase().matches("^(copd|healthy|control)_?\\d{1,}$")) {
                 sample = folder;
                 //Match dataset names.
-            } else if (folder.toUpperCase().matches("^(1D25CM|1D50CM|2DLCMSMS)$")) {
-                dataset = folder;
             }
         }
         System.out.println("Collecting peptides from " + sample + " " + dataset + "...");

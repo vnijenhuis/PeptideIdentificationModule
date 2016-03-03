@@ -5,7 +5,6 @@
 package collections;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import objects.ProteinPeptide;
 
 /**

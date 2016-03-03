@@ -36,8 +36,8 @@ public class ValidFileChecker {
         for (String sample: directories) {
             File path = new File(filePath + sample);
             for (File f: path.listFiles()) {
-                if (f.toString().contains(fileName)) {
-                    System.out.println("Found " + f);
+                if (f.toString().contains(fileName) && isCsv(f.toString())) {
+                    System.out.println("Found file " + f);
                     fileList.add(f.toString());
                 }
             }
@@ -51,12 +51,12 @@ public class ValidFileChecker {
      * @return file as string.
      * @throws IllegalArgumentException not a file.
      */
-    public final String isFile(final String file){
+    public final Boolean isFile(final String file){
         File checkFile = new File(file);
         if (!checkFile.isFile()) {
             throw new IllegalArgumentException("Invalid file found:" + file);
         }
-        return file;
+        return true;
     }
 
     /**
@@ -65,29 +65,66 @@ public class ValidFileChecker {
      * @return path as String.
      * @throws IllegalArgumentException not a directory.
      */
-    public final String isDirectory(final String path){
+    public final Boolean isDirectory(final String path){
         File checkPath = new File(path);
         if (!checkPath.isDirectory()) {
             throw new IllegalArgumentException("Invalid directory found: " + path);
         }
-        return path;
+        return true;
     }
 
     /**
      * Gets fasta database files.
      * @param path path to the fasta database files.
      * @param fileList list of files.
-     * @return
+     * @param sampleList list of samples.
+     * @return array list with database files.
      */
-    public final ArrayList<String> getFastaDatabaseFiles(String path, ArrayList<String> fileList) {
+    public final ArrayList<String> getFastaDatabaseFiles(String path, ArrayList<String> fileList,
+            final ArrayList<String> sampleList) {
         File filePath = new File(path);
-        for (File f: filePath.listFiles()) {
+        String regexMatch = ".*(" + sampleList.get(0) + "|" + sampleList.get(1) + ")_?\\d{1,}.*_database.fa(sta)?";
+        for (File file: filePath.listFiles()) {
             //match to any database.fa(sta) files with COPD/Healthy as sample name.
-            if (f.toString().matches(".*(COPD|Healthy|Control)_?\\d{1,}.*_database.fa(sta)?")) {
-                System.out.println("Found " + f);
-                fileList.add(f.toString());
+            if (file.toString().matches(regexMatch)) {
+                fileList.add(file.toString());
+                System.out.println("Found " + file);
             }
         }
         return fileList;
+    }
+
+    /**
+     * Check is a file is a fasta file.
+     * @param file file name as string.
+     * @return true if valid, commandline exception if invalid
+     */
+    public final Boolean isFasta(final String file) {
+        File checkFile = new File(file);
+        if (!checkFile.isFile()) {
+            throw new IllegalArgumentException("Invalid file found:" + file);
+        }
+        //Matches fastas files.
+        if (!file.matches(".*\\.fa(sta){0,1}")) {
+            throw new IllegalArgumentException("Invalid fasta file found: " + file);
+        }
+        return true;
+    }
+
+    /**
+     * Check is a file is a csv file.
+     * @param file file name as string.
+     * @return true if valid, commandline exception if invalid
+     */
+    public final Boolean isCsv(final String file) {
+        File checkFile = new File(file);
+        if (!checkFile.isFile()) {
+            throw new IllegalArgumentException("Invalid file found:" + file);
+        }
+        //Matches csv files.
+        if (!file.matches(".*\\.csv")) {
+            throw new IllegalArgumentException("Invalid fasta file found: " + file);
+        }
+        return true;
     }
 }

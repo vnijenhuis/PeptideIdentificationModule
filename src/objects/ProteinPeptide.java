@@ -60,6 +60,11 @@ public class ProteinPeptide {
     private final String sample;
 
     /**
+     * Start position of the peptide inside the matched protein.
+     */
+    private String position;
+
+    /**
      * Creates a protein object.
      * @param proteinGroup protein group id that this protein belongs to.
      * @param accession protein accession number(s).
@@ -85,6 +90,7 @@ public class ProteinPeptide {
         this.dataset = dataset;
         this.count = count;
         this.coverage = coverage;
+        this.position = "";
     }
 
     /**
@@ -224,6 +230,22 @@ public class ProteinPeptide {
     }
 
     /**
+     * Sets the position of the peptide sequence.
+     * @param position
+     */
+    public final void setPosition(final String position) {
+        this.position = position;
+    }    
+
+    /**
+     * Returns the position of the peptide sequence. 
+     * @return return position of the peptide inside the protein sequence.
+     */
+    public final String getPosition() {
+         return this.position;
+    }    
+
+    /**
      * To string function.
      * @return ProteinPeptide object as string.
      */
@@ -233,6 +255,6 @@ public class ProteinPeptide {
                 + ", sequence; " + this.sequence + ", sample; " + this.sample + ", unique group; "
                 + this.uniqueToGroup + ", unique combined; " + this.uniqueCombined + ", unique individual; "
                 + this.uniqueCombined + ", dataset; " + this.dataset + ", count; " + this.count + ", coverage; "
-                + this.coverage + "}";
+                + this.coverage + ", position; " + this.position + "}";
     }
 }
