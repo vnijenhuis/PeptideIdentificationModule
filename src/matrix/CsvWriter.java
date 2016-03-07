@@ -49,9 +49,9 @@ public class CsvWriter {
                 String accession = writeAccessionToCsv(proteinPeptide, size, doubleSize, delimiter);
                 writer.append(accession);
                 //Writes uniqueness, dataset and count/coverage values to the csv file.
-                String dataValues = writeDataToCsv(proteinPeptide, doubleSize, delimiter,lineEnding);
+                String row = writeDataToCsv(proteinPeptide, doubleSize, delimiter,lineEnding);
                 //Write values to the data set.
-                writer.append(dataValues);
+                writer.append(row);
             }
             //Finishes the text file writing.
             writer.flush();

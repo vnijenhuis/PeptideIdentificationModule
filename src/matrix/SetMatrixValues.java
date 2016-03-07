@@ -214,13 +214,13 @@ public class SetMatrixValues {
         //Index is based on sample number, size of the dataset and amount of samples.
         //Can add .replaceAll("[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]","") to replace special characters.
         if (sample.contains(sampleList.get(0))) {
-            sampleIndex = Integer.parseInt(sample.substring(7));
+            sampleIndex = Integer.parseInt(sample.substring(sampleList.get(0).length()));
             totalCountIndex = (startIndex + sampleIndex);
             countIndex = (startIndex + sampleIndex + sampleValueIndex*2);
             coverageIndex = (startIndex + sampleIndex + sampleValueIndex*4);
         //Determine COPD indices. sampleList index 1 contains target sample (COPD)
         } else if (sample.contains(sampleList.get(1))) {
-            sampleIndex = Integer.parseInt(sample.substring(4));
+            sampleIndex = Integer.parseInt(sample.substring(sampleList.get(1).length()));
             totalCountIndex = (startIndex + sampleIndex + sampleValueIndex);
             countIndex = (startIndex + sampleIndex + sampleValueIndex*3);
             coverageIndex = (startIndex + sampleIndex + sampleValueIndex*5);

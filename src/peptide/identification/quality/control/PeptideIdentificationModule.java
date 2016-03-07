@@ -431,8 +431,8 @@ public class PeptideIdentificationModule {
             //Matches peptides without multi-threading.
 //            peptides = databaseMatcher.matchToDatabases(proteinDatabase, peptides);
             //Matches peptides to uniprot (or other given database). Makes use of multithread.
-//            multithreadMatcher = new MultiThreadDatabaseMatcher(peptides, proteinDatabase);
-//            peptides = multithreadMatcher.getMatchedPeptides(peptides, proteinDatabase, threads);
+            multithreadMatcher = new MultiThreadDatabaseMatcher(peptides, proteinDatabase);
+            peptides = multithreadMatcher.getMatchedPeptides(peptides, proteinDatabase, threads);
             //Creates protein peptide collection from protein-peptides.csv.
             proteinPeptides = new ProteinPeptideCollection();
             proteinPeptides = proteinPeptideCollection.createCollection(proPepFiles.get(sample), dataset);
@@ -441,9 +441,9 @@ public class PeptideIdentificationModule {
             //Match to the combined individual database. Flags sequences that occur once inside this database.
             proteinPeptides = combinedDatabaseMatcher.matchToCombined(proteinPeptides, combinedDatabase);
             //Match to the fasta database. Flags sequences that occur once inside this database.
-//            fastaDatabase = new ProteinCollection();
-//            fastaDatabase = databaseCollection.createCollection(sampleFile, fastaDatabase);
-//            proteinPeptides = individualDatabaseMatcher.matchToIndividual(proteinPeptides, fastaDatabase);
+            fastaDatabase = new ProteinCollection();
+            fastaDatabase = databaseCollection.createCollection(sampleFile, fastaDatabase);
+            proteinPeptides = individualDatabaseMatcher.matchToIndividual(proteinPeptides, fastaDatabase);
             //Adds all proteinPeptides to a single collection.
             finalCollection.getProteinPeptideMatches().addAll(proteinPeptides.getProteinPeptideMatches());
         }
