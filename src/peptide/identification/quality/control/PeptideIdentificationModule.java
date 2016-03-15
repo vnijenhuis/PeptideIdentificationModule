@@ -218,13 +218,13 @@ public class PeptideIdentificationModule {
                 .build();
         options.addOption(dbPath);
         //A string that is present in the database(s). (eg. fasta.gz reads all fasta.gz files, uniprot reads the uniprot db file.
-        Option dbName = Option.builder("fdb")
+        Option dbName = Option.builder("cdb")
                 .hasArg()
                 .desc("Path and name of the combined database fasta. (/home/name/Fastsa/COPD-19-DB.fa)")
                 .build();
         options.addOption(dbName);
         //Path to the fasta files.
-        Option individualDB = Option.builder("fastas")
+        Option individualDB = Option.builder("idb")
                 .hasArg()
                 .desc("Path to the individual fasta files. (/home/name/Fastas/)\nFastas folder should contain files.")
                 .build();
@@ -307,8 +307,8 @@ public class PeptideIdentificationModule {
             String psmFile = cmd.getOptionValue("psm");
             String proteinPeptideFile = cmd.getOptionValue("pp");
             database = cmd.getOptionValue("db");
-            combDatabase = cmd.getOptionValue("fdb");
-            String fastas = cmd.getOptionValue("fastas");
+            combDatabase = cmd.getOptionValue("cdb");
+            String fastas = cmd.getOptionValue("idb");
             String outputPath = cmd.getOptionValue("out");
             String targetSample = cmd.getOptionValue("target");
             String controlSample = cmd.getOptionValue("control");

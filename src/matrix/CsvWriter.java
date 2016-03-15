@@ -48,7 +48,7 @@ public class CsvWriter {
                 //Writes accession data to the csv file.
                 String accession = writeAccessionToCsv(proteinPeptide, size, doubleSize, delimiter);
                 writer.append(accession);
-                //Writes uniqueness, dataset and count/coverage values to the csv file.
+                //Writes uniqueness, dataset and count/score values to the csv file.
                 String row = writeDataToCsv(proteinPeptide, doubleSize, delimiter,lineEnding);
                 //Write values to the data set.
                 writer.append(row);
@@ -82,7 +82,7 @@ public class CsvWriter {
         header += "Dataset" + delimiter;
         header += "Unique to Protein Group" + delimiter;
         header += "Unique to Combined DB" + delimiter;
-        header += "Unique to fasta file" + delimiter;
+        header += "Unique to Individual DB" + delimiter;
         //Writes sample headers to the csv file
         for (String sample: samples) {
             for (int i = 1; i <=(sampleSize / 2); i++) {
@@ -96,10 +96,10 @@ public class CsvWriter {
                 header += sample + i + delimiter;
             }
         }
-        //Writes the sample coverage % to the header.
+        //Writes the sample score to the header.
         for (String sample: samples) {
             for (int i = 1; i <=(sampleSize / 2); i++) {
-                 header += sample.substring(0,1) + i + " -10lgP" + delimiter;
+                 header += sample.substring(0,1) + i + "Score -10lgP" + delimiter;
             }
         }
         //Writes columnnames for dataset names to the header.
@@ -173,7 +173,7 @@ public class CsvWriter {
      * @param size size of the array.
      * @param delimiter delimiter for the csv file. (",")
      * @param lineEnding end of a line.
-     * @return string with uniqueness, dataset, count and coverage data.
+     * @return string with uniqueness, dataset, count and score data.
      */
     private String writeDataToCsv(ArrayList<String> proteinPeptide, Integer doubleSize, String delimiter, String lineEnding) {
         String data = "";

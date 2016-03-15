@@ -50,9 +50,9 @@ public class ProteinPeptide {
     private Integer count;
 
     /**
-     * Highest coverage value of the peptide.
+     * Highest score value of the peptide.
      */
-    private String coverage;
+    private String score;
 
     /**
      * ID of the sample. (COPD1, Healthy2 etc).
@@ -75,11 +75,11 @@ public class ProteinPeptide {
      * @param uniqueFasta unique to one sequence in the individual database.
      * @param uniqueCombined unique to one sequence in the combined individual database.
      * @param count PSM counting number.
-     * @param coverage coverage % of the sequence.
+     * @param score score of the peptide sequence.
      */
     public ProteinPeptide(final String proteinGroup, final String accession, final String sequence,
             final String sample, final String uniqueToGroup, final String uniqueCombined, final String uniqueFasta,
-            final String dataset, final Integer count,final String coverage) {
+            final String dataset, final Integer count,final String score) {
         this.proteinGroup = proteinGroup;
         this.accession = accession;
         this.sequence = sequence;
@@ -89,7 +89,7 @@ public class ProteinPeptide {
         this.uniqueFasta = uniqueFasta;
         this.dataset = dataset;
         this.count = count;
-        this.coverage = coverage;
+        this.score = score;
         this.position = "";
     }
 
@@ -124,7 +124,7 @@ public class ProteinPeptide {
     public final void addAccession(final String accession) {
         this.accession = this.accession + "|" + accession;
     }
-
+    
     /**
      * Returns the peptide amino acid sequence.
      * @return sequence as String.
@@ -214,19 +214,19 @@ public class ProteinPeptide {
     }
 
     /**
-     * Coverage identity % of the peptide sequence.
-     * @return coverage % as Double.
+     * Score identity % of the peptide sequence.
+     * @return score % as Double.
      */
-    public final String getCoverage() {
-        return this.coverage;
+    public final String getScore() {
+        return this.score;
     }
 
     /**
-     * Sets the coverage of the peptide sequence.
+     * Sets the score of the peptide sequence.
      * @param cover
      */
-    public final void addCoverage(final String cover) {
-        this.coverage = this.coverage + "|" + cover;
+    public final void addScore(final String score) {
+        this.score = this.score + "|" + score;
     }
 
     /**
@@ -251,10 +251,10 @@ public class ProteinPeptide {
      */
     @Override
     public final String toString() {
-        return "Protein-Peptide{protein group; " + this.proteinGroup + ", accession; " + this.accession
-                + ", sequence; " + this.sequence + ", sample; " + this.sample + ", unique group; "
-                + this.uniqueToGroup + ", unique combined; " + this.uniqueCombined + ", unique individual; "
-                + this.uniqueCombined + ", dataset; " + this.dataset + ", count; " + this.count + ", coverage; "
-                + this.coverage + ", position; " + this.position + "}";
+        return "Protein-Peptide{Protein group; " + this.proteinGroup + ", Accession; " + this.accession
+                + ", Sequence; " + this.sequence + ", Sample; " + this.sample + ", Unique to group; "
+                + this.uniqueToGroup + ", Unique to combined; " + this.uniqueCombined + ", Unique to individual; "
+                + this.uniqueCombined + ", Dataset; " + this.dataset + ", psm Count; " + this.count + ", Score; "
+                + this.score + ", Position; " + this.position + "}";
     }
 }

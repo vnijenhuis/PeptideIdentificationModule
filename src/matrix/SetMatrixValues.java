@@ -13,20 +13,20 @@ import java.util.Map;
 import objects.ProteinPeptide;
 
 /**
- * Sets count and coverage values for the protein-peptide matrix.
+ * Sets count and score values for the protein-peptide matrix.
  * @author vnijenhuis
  */
 public class SetMatrixValues {
     /**
-     * Adds count and coverage values to the matrix.
+     * Adds count and score values to the matrix.
      * @param proteinPeptides protein peptide collection.
      * @param proteinPeptideMatrix matrix of protein-peptides.
      * @param sampleValueIndex maximum of COPD/Healthy samples. Highest value is used.
-     * This value is needed for proper count/coverage placement when using uneven amount of samples.
+     * This value is needed for proper count/score placement when using uneven amount of samples.
      * @param datasets array with datasets.
      * @param datasetNumbers dataset name as key, number as value.
      * @param sampleList set of sample names.
-     * @return HashSet with count and coverage values.
+     * @return HashSet with count and score values.
      */
     public final HashSet<ArrayList<String>> setValues(final ProteinPeptideCollection proteinPeptides,
             final HashSet<ArrayList<String>> proteinPeptideMatrix, final Integer sampleValueIndex,
@@ -62,8 +62,8 @@ public class SetMatrixValues {
                     array = setUniqueToCombinedDatabase(array, proteinPeptide, uniqueCombinedIndex, datasetIndex);
                     //Sets the uniqueness to fasta file parameter to N/Y
                     array = setUniqueToFasta(array, proteinPeptide, uniqueFastaIndex, datasetIndex);
-                    //Add count and coverage to the array.
-                    array = setCountAndCoverage(array, proteinPeptide, datasetSize,
+                    //Add count and score to the array.
+                    array = setCountAndScore(array, proteinPeptide, datasetSize,
                             sampleValueIndex, datasetNumbers, sampleList);
                     //Add total count of psm's per dataset to the array.
                     array = setDatasetCounter(array, proteinPeptide, datasets, sampleList);
@@ -195,20 +195,20 @@ public class SetMatrixValues {
     }
 
     /**
-     * Sets count and coverage values of a ProteinPeptide object into the array.
+     * Sets count and score  values of a ProteinPeptide object into the array.
      * @param array array with peptide sequence and preset values.
      * @param proteinPeptide ProteinPeptide object that has a matching sequence in the array.
      * @param datasetSize size of the dataset.
-     * @param sampleValueIndex used to determine the count/coverage index of the values for each sample.
-     * @return array with corresponding count and coverage values.
+     * @param sampleValueIndex used to determine the count/score index of the values for each sample.
+     * @return array with corresponding count and score values.
      */
-    private ArrayList<String> setCountAndCoverage(final ArrayList<String> array, final ProteinPeptide proteinPeptide,
+    private ArrayList<String> setCountAndScore(final ArrayList<String> array, final ProteinPeptide proteinPeptide,
             final Integer datasetSize, final Integer sampleValueIndex, final HashMap<String, Integer> datasetNumbers,
             final ArrayList<String> sampleList) {
         int sampleIndex = 0;
         int countIndex = 0;
         int totalCountIndex = 0;
-        int coverageIndex = 0;
+        int scoreIndex = 0;
         int startIndex = datasetSize + 6; //+4 indices for @param sequence, dataset, unique to combined, unique to group
         String sample = proteinPeptide.getSample();
         //Index is based on sample number, size of the dataset and amount of samples.
@@ -217,13 +217,13 @@ public class SetMatrixValues {
             sampleIndex = Integer.parseInt(sample.substring(sampleList.get(0).length()));
             totalCountIndex = (startIndex + sampleIndex);
             countIndex = (startIndex + sampleIndex + sampleValueIndex*2);
-            coverageIndex = (startIndex + sampleIndex + sampleValueIndex*4);
+            scoreIndex = (startIndex + sampleIndex + sampleValueIndex*4);
         //Determine COPD indices. sampleList index 1 contains target sample (COPD)
         } else if (sample.contains(sampleList.get(1))) {
             sampleIndex = Integer.parseInt(sample.substring(sampleList.get(1).length()));
             totalCountIndex = (startIndex + sampleIndex + sampleValueIndex);
             countIndex = (startIndex + sampleIndex + sampleValueIndex*3);
-            coverageIndex = (startIndex + sampleIndex + sampleValueIndex*5);
+            scoreIndex = (startIndex + sampleIndex + sampleValueIndex*5);
         }
         //Matches dataset names and gets the integer value which will be written into the array.
         for (Map.Entry<String, Integer> entry: datasetNumbers.entrySet()) {
@@ -240,11 +240,11 @@ public class SetMatrixValues {
                     Integer counter = Integer.parseInt(array.get(totalCountIndex)) + proteinPeptide.getCounter();
                     array.set(totalCountIndex, counter.toString());
                 }
-                //Sets coverage values to the coverage index.
-                if (array.get(coverageIndex).equals("0.0")) {
-                    array.set(coverageIndex, entry.getValue() + ";" + proteinPeptide.getCoverage());
+                //Sets score values to the score index.
+                if (array.get(scoreIndex).equals("0.0")) {
+                    array.set(scoreIndex, entry.getValue() + ";" + proteinPeptide.getScore());
                 } else {
-                    array.set(coverageIndex, array.get(coverageIndex) + "|" + entry.getValue() + ";" + proteinPeptide.getCoverage());
+                    array.set(scoreIndex, array.get(scoreIndex) + "|" + entry.getValue() + ";" + proteinPeptide.getScore());
                 }
             }
         }

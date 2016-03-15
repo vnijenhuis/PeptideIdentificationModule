@@ -54,7 +54,7 @@ public class ProteinPeptideCollectionCreator {
         int accessionIndex = 0;
         int peptideIndex = 0;
         int uniqueIndex = 0;
-        int coverageIndex = 0;
+        int scoreIndex = 0;
         Boolean firstLine = true;
         //Read the file.
         while ((line = bffFr.readLine()) != null) {
@@ -71,7 +71,7 @@ public class ProteinPeptideCollectionCreator {
                     } else if (data[i].toLowerCase().contains("unique")) {
                         uniqueIndex = i;
                     } else if (data[i].toLowerCase().contains("lgp")) {
-                        coverageIndex = i;
+                        scoreIndex = i;
                     }
                 }
                 firstLine = false;
@@ -89,11 +89,11 @@ public class ProteinPeptideCollectionCreator {
 //            sequence = sequence.replaceAll("\\(\\+[0-9]+\\.[0-9]+\\)", "");
             //Set get data according to indices.
             String uniqueToGroup = data[uniqueIndex];
-            String coverage = data[coverageIndex];
+            String score = data[scoreIndex];
             boolean newEntry = true;
             //Create new ProteinPeptide object.
             ProteinPeptide newProteinPeptide = new ProteinPeptide(proteinGroup, accession, sequence, sample, uniqueToGroup,
-                    uniqueCombined, uniqueIndividual, dataset, count, coverage);
+                    uniqueCombined, uniqueIndividual, dataset, count, score);
             //Creates a proteinPeptide object with data per sample.
             if (!proteinPeptides.getProteinPeptideMatches().isEmpty()) {
                 for (ProteinPeptide proteinPeptide: proteinPeptides.getProteinPeptideMatches()) {
@@ -121,8 +121,8 @@ public class ProteinPeptideCollectionCreator {
                             proteinPeptide.addAccession(accession);
                         }
                         //Collects all -10lgP scores per sequence for a sample.
-                        if (!proteinPeptide.getCoverage().contains(coverage)) {
-                            proteinPeptide.addCoverage(coverage);
+                        if (!proteinPeptide.getScore().contains(score)) {
+                            proteinPeptide.addScore(score);
                         }
                     }
                 }
