@@ -102,6 +102,9 @@ public class PeptideCollectionCreator {
                     }
                 }
             }
+            if (peptides.getPeptides().size() == 2000) {
+                return peptides;
+            }
         }
         //Return the collection of peptides.
         System.out.println("Collected " + peptides.getPeptides().size() + " unique peptides from " + sample + " " + dataset + "!");

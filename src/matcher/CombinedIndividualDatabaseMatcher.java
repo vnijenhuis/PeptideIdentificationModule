@@ -41,7 +41,7 @@ public class CombinedIndividualDatabaseMatcher {
                         //Check if accessions match to gather start and end positions of the peptide sequence.
                         if (accession.equals(protein.getAccession())) {
                             Integer start = protein.getSequence().indexOf(sequence) + 1;
-                            Integer end = (start + sequence.length());
+                            Integer end = (start + proteinPeptide.getLength());
                             position = start + "_" + end;
                             newPosition = true;
                             break;

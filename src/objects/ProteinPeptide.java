@@ -65,11 +65,23 @@ public class ProteinPeptide {
     private String position;
 
     /**
+     * Mass of the peptide sequence.
+     */
+    private final String mass;
+
+    /**
+     * Length of the peptide sequence.
+     */
+    private final String length;
+
+    /**
      * Creates a protein object.
      * @param proteinGroup protein group id that this protein belongs to.
      * @param accession protein accession number(s).
      * @param sequence contains the peptide amino acid sequence.
      * @param dataset dataset(s) that the peptide belongs to.
+     * @param mass mass of the peptide sequence.
+     * @param length length of the peptide sequence.
      * @param sample sample id (COPD1, Healthy4 etc)
      * @param uniqueToGroup (yes/no) Y if unique to one protein group, otherwise its a N.
      * @param uniqueFasta unique to one sequence in the individual database.
@@ -78,12 +90,14 @@ public class ProteinPeptide {
      * @param score score of the peptide sequence.
      */
     public ProteinPeptide(final String proteinGroup, final String accession, final String sequence,
-            final String sample, final String uniqueToGroup, final String uniqueCombined, final String uniqueFasta,
+            final String sample, final String mass, final String length, final String uniqueToGroup, final String uniqueCombined, final String uniqueFasta,
             final String dataset, final Integer count,final String score) {
         this.proteinGroup = proteinGroup;
         this.accession = accession;
         this.sequence = sequence;
         this.sample = sample;
+        this.mass = mass;
+        this.length = length;
         this.uniqueToGroup = uniqueToGroup;
         this.uniqueCombined = uniqueCombined;
         this.uniqueFasta = uniqueFasta;
@@ -223,15 +237,15 @@ public class ProteinPeptide {
 
     /**
      * Sets the score of the peptide sequence.
-     * @param cover
+     * @param score score of the peptide sequence.
      */
     public final void addScore(final String score) {
         this.score = this.score + "|" + score;
     }
 
     /**
-     * Sets the position of the peptide sequence.
-     * @param position
+     * Position of the peptide sequence in the combined protein database.
+     * @param position position of the peptide sequence.
      */
     public final void setPosition(final String position) {
         this.position = position;
@@ -243,18 +257,35 @@ public class ProteinPeptide {
      */
     public final String getPosition() {
          return this.position;
-    }    
+    }
 
     /**
-     * To string function.
+     * Returns the length of the peptide sequence.
+     * @return length of the sequence as Integer.
+     */
+    public Integer getLength() {
+        return Integer.parseInt(this.length);
+    }
+
+    /**
+     * Returns the mass of the peptide sequence.
+     * @return mass of the sequence as String.
+     */
+    public String getMass() {
+        return this.mass;
+    }
+    
+    /**
+     * To string function of the ProteinPeptide object.
      * @return ProteinPeptide object as string.
      */
     @Override
     public final String toString() {
         return "Protein-Peptide{Protein group; " + this.proteinGroup + ", Accession; " + this.accession
-                + ", Sequence; " + this.sequence + ", Sample; " + this.sample + ", Unique to group; "
-                + this.uniqueToGroup + ", Unique to combined; " + this.uniqueCombined + ", Unique to individual; "
-                + this.uniqueCombined + ", Dataset; " + this.dataset + ", psm Count; " + this.count + ", Score; "
-                + this.score + ", Position; " + this.position + "}";
+                + ", Sequence; " + this.sequence + ", Sample; " + this.sample + ", Mass; " + this.mass +  ", Length; "
+                + this.length + ", Unique to group; " + this.uniqueToGroup + ", Unique to combined; "
+                + this.uniqueCombined + ", Unique to individual; " + this.uniqueCombined + ", Dataset; "
+                + this.dataset + ", psm Count; " + this.count + ", Score; " + this.score + ", Position; "
+                + this.position + "}";
     }
 }

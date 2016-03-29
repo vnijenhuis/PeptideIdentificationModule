@@ -27,9 +27,10 @@ public class UniqueMatrixRowCreator {
      * @return 
      */
     public final HashSet<ArrayList<String>> createMatrix(final ProteinPeptideCollection proteinPeptides,
-            final Integer size, final ArrayList<String> datasetList, final HashMap<String, Integer> datasetNumbers,
+            Integer size, final ArrayList<String> datasetList, final HashMap<String, Integer> datasetNumbers,
             final ArrayList<String> samples) {
         System.out.println("Creating lists to store protein-peptide data...");
+        size = size * 2;
         ArrayList<String> data = new ArrayList<>();
         ArrayList<String> indexValues = new ArrayList<>();
         data = createProteinAndAccessionIndex(datasetList, datasetNumbers);

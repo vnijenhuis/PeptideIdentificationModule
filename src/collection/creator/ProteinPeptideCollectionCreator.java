@@ -55,6 +55,8 @@ public class ProteinPeptideCollectionCreator {
         int peptideIndex = 0;
         int uniqueIndex = 0;
         int scoreIndex = 0;
+        int massIndex = 0;
+        int lengthIndex = 0;
         Boolean firstLine = true;
         //Read the file.
         while ((line = bffFr.readLine()) != null) {
@@ -66,12 +68,16 @@ public class ProteinPeptideCollectionCreator {
                         groupIndex = i;
                     } else if (data[i].toLowerCase().contains("accession")) {
                         accessionIndex = i;
-                    } else if (data[i].toLowerCase().contains("peptide")) {
+                    } else if (data[i].toLowerCase().contains("sequence")) {
                         peptideIndex = i;
                     } else if (data[i].toLowerCase().contains("unique")) {
                         uniqueIndex = i;
-                    } else if (data[i].toLowerCase().contains("lgp")) {
+                    } else if (data[i].toLowerCase().contains("-10lgp")) {
                         scoreIndex = i;
+                    }  else if (data[i].toLowerCase().equals("mass")) {
+                        massIndex = i;
+                    } else if (data[i].toLowerCase().equals("length")) {
+                        lengthIndex = i;
                     }
                 }
                 firstLine = false;
@@ -82,6 +88,8 @@ public class ProteinPeptideCollectionCreator {
             String proteinGroup = data[groupIndex];
             String accession = data[accessionIndex];
             String sequence = data[peptideIndex];
+            String mass = data[massIndex];
+            String length = data[lengthIndex];
             //Remove first and last 2 indices.
             sequence = sequence.replaceAll("\\.[A-Z]$", "");
             sequence = sequence.replaceAll("^[A-Z]\\.", "");
@@ -92,8 +100,8 @@ public class ProteinPeptideCollectionCreator {
             String score = data[scoreIndex];
             boolean newEntry = true;
             //Create new ProteinPeptide object.
-            ProteinPeptide newProteinPeptide = new ProteinPeptide(proteinGroup, accession, sequence, sample, uniqueToGroup,
-                    uniqueCombined, uniqueIndividual, dataset, count, score);
+            ProteinPeptide newProteinPeptide = new ProteinPeptide(proteinGroup, accession, sequence, sample, mass,
+                    length, uniqueToGroup, uniqueCombined, uniqueIndividual, dataset, count, score);
             //Creates a proteinPeptide object with data per sample.
             if (!proteinPeptides.getProteinPeptideMatches().isEmpty()) {
                 for (ProteinPeptide proteinPeptide: proteinPeptides.getProteinPeptideMatches()) {

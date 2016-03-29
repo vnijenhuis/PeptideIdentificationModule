@@ -30,7 +30,6 @@ import collection.creator.ProteinPeptideCollectionCreator;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
-import tools.SampleSizeGenerator;
 import matrix.SetMatrixValues;
 import matcher.IndividualDatabaseMatcher;
 import matcher.MultiThreadDatabaseMatcher;
@@ -235,17 +234,6 @@ public class PeptideIdentificationModule {
                 .desc("Path to the folder to create the output file.")
                 .build();
         options.addOption(output);
-        //Add sample names.
-        Option target = Option.builder("target")
-                .hasArg()
-                .desc("Give the name of used samples. Currently only supports 2 arguments. (CASE SENSITIVE!)")
-                .build();
-        options.addOption(target);
-        Option control = Option.builder("control")
-                .hasArg()
-                .desc("Give the name of used samples. Currently only supports 2 arguments. (CASE SENSITIVE!)")
-                .build();
-        options.addOption(control);
         //Amount of threads to use.
         Option thread = Option.builder("threads")
                 .hasArg()
@@ -327,8 +315,7 @@ public class PeptideIdentificationModule {
             input.isFasta(database);
             input.isFasta(combDatabase);
             //Creates lists of the given files.
-            Integer targetSampleSize = 0;
-            Integer controlSampleSize = 0;
+            Integer sampleSize = 0;
             //Add files to lists according to the given folder and file name.
             for (String folder: path) {
                 input.isDirectory(folder);
@@ -339,26 +326,21 @@ public class PeptideIdentificationModule {
                 proPepFiles = input.checkFileValidity(folder, proteinPeptideFile, proPepFiles);
                 for (String file: proPepFiles) {
                     String sample = file.split("\\\\")[4];
+                    int newSize = (Integer.parseInt(sample.replaceAll("[A-Za-z]*", "")));
+                     if (sampleSize < newSize) {
+                        sampleSize = newSize;
+                    }
                     sample = sample.replaceAll("\\d", "");
                     if (!sampleList.contains(sample)) {
                         sampleList.add(sample);
                     }
                 }
                 //Gets highest healthy sample size
-                SampleSizeGenerator sizeGenerator = new SampleSizeGenerator();
-                ArrayList<Integer> sampleSize = sizeGenerator.getSamples(folder, sampleList);
-                if (sampleSize.get(0) > controlSampleSize) {
-                    controlSampleSize = sampleSize.get(0);
-                }
-                //Gets the highest copd sample size.
-                if (sampleSize.get(1) > targetSampleSize) {
-                    targetSampleSize = sampleSize.get(1);
-                }
             }
             fastaFiles = input.getFastaDatabaseFiles(fastas, fastaFiles, sampleList);
             //Checks if both a target (COPD) and a control sample name has been given.
             //Starts peptide identification
-            StartPeptideIdentification(outputPath, targetSampleSize, controlSampleSize, threads, sampleList);
+            StartPeptideIdentification(outputPath, sampleSize, threads, sampleList);
         }
     }
 
@@ -366,8 +348,7 @@ public class PeptideIdentificationModule {
      * Starts the quality control procedure.
      * Output is written to a .csv file depending on the dataset and RNASeq type.
      * @param outputPath outputpath for the matrix csv file.
-     * @param controlSampleSize sample size of healthy/control samples.
-     * @param targetSampleSize sample size of COPD samples.
+     * @param sampleSize sample size of the most abundant sample.
      * @param threads amount of threads.
      * @param sampleList list of samples.
      * @throws IOException couldn't open/find the specified file. Usually appears when a file is
@@ -375,8 +356,8 @@ public class PeptideIdentificationModule {
      * @throws InterruptedException process was interrupted.
      * @throws ExecutionException could not execute the call function.
      */
-    public final void StartPeptideIdentification( final String outputPath, final Integer controlSampleSize,
-            final Integer targetSampleSize, final Integer threads, final ArrayList<String> sampleList)
+    public final void StartPeptideIdentification( final String outputPath, final Integer sampleSize,
+            final Integer threads, final ArrayList<String> sampleList)
             throws IOException, InterruptedException, ExecutionException {
         //Gets the separator for files of the current system.
         String pattern = Pattern.quote(File.separator);
@@ -446,22 +427,12 @@ public class PeptideIdentificationModule {
             proteinPeptides = individualDatabaseMatcher.matchToIndividual(proteinPeptides, fastaDatabase);
             //Adds all proteinPeptides to a single collection.
             finalCollection.getProteinPeptideMatches().addAll(proteinPeptides.getProteinPeptideMatches());
-        }
-        //Deterime sample size and index.
-        Integer sampleSize = 0;
-        Integer sampleValueIndex = 0;
-        if (targetSampleSize > controlSampleSize) {
-            sampleSize = targetSampleSize*2;
-            sampleValueIndex = targetSampleSize;
-        } else {
-            sampleSize = controlSampleSize*2;
-            sampleValueIndex = controlSampleSize;
-        }        
+        } 
         //Create a matrix of all final ProteinPeptide objects.
         proteinPeptideMatrix = new HashSet<>();
         proteinPeptideMatrix = createMatrix.createMatrix(finalCollection, sampleSize, datasets, datasetNumbers, sampleList);
         //Writes count & coverage(-10lgP) values into the matrix.
-        proteinPeptideMatrix = matrix.setValues(finalCollection, proteinPeptideMatrix, sampleValueIndex, datasets, datasetNumbers, sampleList);
+        proteinPeptideMatrix = matrix.setValues(finalCollection, proteinPeptideMatrix, sampleSize, datasets, datasetNumbers, sampleList);
         //Write data to a .csv file.
         fileWriter.generateCsvFile(proteinPeptideMatrix, outputPath, datasets, sampleList, sampleSize, datasetNumbers);
     }
