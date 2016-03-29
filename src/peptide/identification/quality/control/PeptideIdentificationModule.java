@@ -310,18 +310,10 @@ public class PeptideIdentificationModule {
             combDatabase = cmd.getOptionValue("cdb");
             String fastas = cmd.getOptionValue("idb");
             String outputPath = cmd.getOptionValue("out");
-            String targetSample = cmd.getOptionValue("target");
-            String controlSample = cmd.getOptionValue("control");
             //Check if sample names are given.
-            if (controlSample.isEmpty() || targetSample.isEmpty()) {
-                throw new IllegalArgumentException("You forgot to add a target or control sample."
-                        + "Please check the -target and -control input.");
-            }
-            sampleList.add(controlSample);
-            sampleList.add(targetSample);
             //Allocate amount of threads to use for multithreading.
             String thread = "";
-            Integer threads = 2;
+            Integer threads = 1;
             if (cmd.hasOption("threads")) {
                 thread = cmd.getOptionValue("threads"); 
                 if (thread.matches("^[0-9]{1,}$")) {
@@ -337,17 +329,24 @@ public class PeptideIdentificationModule {
             //Creates lists of the given files.
             Integer targetSampleSize = 0;
             Integer controlSampleSize = 0;
-            fastaFiles = input.getFastaDatabaseFiles(fastas, fastaFiles, sampleList);
             //Add files to lists according to the given folder and file name.
             for (String folder: path) {
                 input.isDirectory(folder);
-                SampleSizeGenerator sizeGenerator = new SampleSizeGenerator();
-                ArrayList<Integer> sampleSize = sizeGenerator.getSamples(folder, sampleList);
                 //Creates a list of peptide psm files.
                 psmFiles = input.checkFileValidity(folder, psmFile, psmFiles);
+                System.out.println(psmFiles);
                 //Creates a list of protein-peptide files.
                 proPepFiles = input.checkFileValidity(folder, proteinPeptideFile, proPepFiles);
+                for (String file: proPepFiles) {
+                    String sample = file.split("\\\\")[4];
+                    sample = sample.replaceAll("\\d", "");
+                    if (!sampleList.contains(sample)) {
+                        sampleList.add(sample);
+                    }
+                }
                 //Gets highest healthy sample size
+                SampleSizeGenerator sizeGenerator = new SampleSizeGenerator();
+                ArrayList<Integer> sampleSize = sizeGenerator.getSamples(folder, sampleList);
                 if (sampleSize.get(0) > controlSampleSize) {
                     controlSampleSize = sampleSize.get(0);
                 }
@@ -356,6 +355,7 @@ public class PeptideIdentificationModule {
                     targetSampleSize = sampleSize.get(1);
                 }
             }
+            fastaFiles = input.getFastaDatabaseFiles(fastas, fastaFiles, sampleList);
             //Checks if both a target (COPD) and a control sample name has been given.
             //Starts peptide identification
             StartPeptideIdentification(outputPath, targetSampleSize, controlSampleSize, threads, sampleList);
