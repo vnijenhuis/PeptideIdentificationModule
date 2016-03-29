@@ -210,20 +210,22 @@ public class SetMatrixValues {
         int totalCountIndex = 0;
         int scoreIndex = 0;
         int startIndex = datasetSize + 6; //+4 indices for @param sequence, dataset, unique to combined, unique to group
-        String sample = proteinPeptide.getSample();
+        String targetSample = proteinPeptide.getSample();
         //Index is based on sample number, size of the dataset and amount of samples.
         //Can add .replaceAll("[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]","") to replace special characters.
-        if (sample.contains(sampleList.get(0))) {
-            sampleIndex = Integer.parseInt(sample.substring(sampleList.get(0).length()));
-            totalCountIndex = (startIndex + sampleIndex);
-            countIndex = (startIndex + sampleIndex + sampleValueIndex*2);
-            scoreIndex = (startIndex + sampleIndex + sampleValueIndex*4);
-        //Determine COPD indices. sampleList index 1 contains target sample (COPD)
-        } else if (sample.contains(sampleList.get(1))) {
-            sampleIndex = Integer.parseInt(sample.substring(sampleList.get(1).length()));
-            totalCountIndex = (startIndex + sampleIndex + sampleValueIndex);
-            countIndex = (startIndex + sampleIndex + sampleValueIndex*3);
-            scoreIndex = (startIndex + sampleIndex + sampleValueIndex*5);
+        int countInd = sampleList.size();
+        int scoreInd = sampleList.size() * 2;
+        for (String sample: sampleList) {
+            if (targetSample.contains(sample)) {
+                sampleIndex = Integer.parseInt(targetSample.substring(sample.length()));
+                totalCountIndex = (startIndex + sampleIndex);
+                countIndex = (startIndex + sampleIndex + sampleValueIndex * countInd);
+                scoreIndex = (startIndex + sampleIndex + sampleValueIndex * scoreInd);
+                break;
+            } else {
+                countInd++;
+                scoreInd++;
+            }
         }
         //Matches dataset names and gets the integer value which will be written into the array.
         for (Map.Entry<String, Integer> entry: datasetNumbers.entrySet()) {
