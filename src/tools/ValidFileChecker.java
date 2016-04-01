@@ -18,7 +18,7 @@ public class ValidFileChecker {
      * Checks if files exist and add them to an array for further usage.
      * @param filePath path to the file(s).
      * @param fileName string that is unique to the file name. (to prevent unnecessary input).
-     * @param fileList list of files to add entries to.
+     * @param fileList list of file names.
      * @return ArrayList with path as String.
      * @throws IOException couldn't open/find the specified file. Usually appears when a file is
      * already opened by another program.
@@ -76,8 +76,8 @@ public class ValidFileChecker {
     /**
      * Gets fasta database files.
      * @param path path to the fasta database files.
-     * @param fileList list of files.
-     * @param sampleList list of samples.
+     * @param fileList list of file names.
+     * @param sampleList list of sample names.
      * @return array list with database files.
      */
     public final ArrayList<String> getFastaDatabaseFiles(String path, ArrayList<String> fileList,
