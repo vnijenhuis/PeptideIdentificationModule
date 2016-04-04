@@ -325,7 +325,8 @@ public class PeptideIdentificationModule {
                 //Creates a list of protein-peptide files.
                 proPepFiles = input.checkFileValidity(folder, proteinPeptideFile, proPepFiles);
                 for (String file: proPepFiles) {
-                    String sample = file.split("\\\\")[4];
+                    String[] folders = file.split("\\\\");
+                    String sample = folders[folders.length-2];
                     int newSize = (Integer.parseInt(sample.replaceAll("[A-Za-z]*", "")));
                      if (sampleSize < newSize) {
                         sampleSize = newSize;
