@@ -240,8 +240,8 @@ public class PeptideIdentificationModule {
             //Create output file, ensures that duplicate is not overwritten.
             String finalFilePath = outputPath + datasetName + "_Comparison_By_Sequence_ProteinGroup.csv";
             File file = new File(finalFilePath);
+            Integer count = 1;
             while (file.exists()) {
-                Integer count = 1;
                 finalFilePath = outputPath + datasetName + "_Comparison_By_Sequence_ProteinGroup(" + count + ").csv";
                 file = new File(finalFilePath);
                 count++;
@@ -254,8 +254,8 @@ public class PeptideIdentificationModule {
             //Create output file, ensures that duplicate is not overwritten.
             finalFilePath = outputPath + datasetName + "_Comparison_By_Sequence.csv";
             file = new File(finalFilePath);
+            count = 1;
             while (file.exists()) {
-                Integer count = 1;
                 finalFilePath = outputPath + datasetName + "_Comparison_By_Sequence(" + count + ").csv";
                 file = new File(finalFilePath);
                 count++;
