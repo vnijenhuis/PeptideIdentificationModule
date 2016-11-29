@@ -5,6 +5,8 @@
 package collections;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import objects.ProteinPeptide;
 
 /**
@@ -45,5 +47,27 @@ public class ProteinPeptideCollection {
      */
     public final ArrayList<ProteinPeptide> getProteinPeptideMatches() {
         return matches;
+    }
+    
+        
+    /**
+     * Sorts this collection based on the peptide sequence.
+     *
+     * @return integer based on comparator.
+     */
+    static Comparator<ProteinPeptide> getPeptideSequenceSorter() {
+        return new Comparator<ProteinPeptide>() {
+            @Override
+            public int compare(ProteinPeptide o1, ProteinPeptide o2) {
+                return o1.getSequence().compareTo(o2.getSequence());
+            }
+        };
+    }
+
+    /**
+     * Sorts the collection based on the peptide sequence.
+     */
+    public final void sortOnPeptideSequence() {
+        Collections.sort(this.matches, getPeptideSequenceSorter());
     }
 }

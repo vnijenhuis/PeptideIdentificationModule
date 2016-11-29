@@ -21,7 +21,7 @@ import java.util.zip.GZIPInputStream;
  * Creates a collection of protein objects.
  * @author vnijenhuis
  */
-public class ProteinCollectionCreator {
+public class ProteinFileReader {
     /**
      * Buffered reader for file reading.
      */
