@@ -19,7 +19,6 @@ import matcher.ReferenceDatabaseMatcher;
 import collection.creator.ProteinPeptideFileReader;
 import collections.MatrixEntryCollection;
 import java.io.File;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -28,7 +27,6 @@ import java.util.concurrent.ExecutionException;
 import matcher.PublicDatabaseMatcher;
 import matrix.MatrixToCsvWriter;
 import matrix.PeptideMatrix;
-import objects.ProteinPeptide;
 import tools.InputTools;
 
 /**
@@ -193,9 +191,7 @@ public class PeptideIdentificationModule {
             throws IOException, InterruptedException, ExecutionException {
         System.out.println("Starting peptide database identification of PeptideShaker mzid data...");
         String separator = getSeparator();
-        ArrayList<String> datasets = new ArrayList<>();
         ArrayList<String> sampleList = new ArrayList<>();
-        HashMap<String, Integer> datasetNumbers = new HashMap<>();
         ProteinSequenceDatabaseMap proteinMap = new ProteinSequenceDatabaseMap();
         HashMap<String, ArrayList<ProteinCollection>> publicProteinCollectionMap = proteinMap.createProteinSequenceDatabaseMap(publicDatabaseMap);
         HashMap<String, ArrayList<ProteinCollection>> referenceProteinCollectionMap = proteinMap.createProteinSequenceDatabaseMap(referenceDatabaseMap);
@@ -210,30 +206,28 @@ public class PeptideIdentificationModule {
                 sampleSize = entry.getValue().size();
             }
         }
-        Integer datasetCount = 0;
         ProteinPeptideCollection finalProteinPeptideCollection = new ProteinPeptideCollection();
+        //Go through index of datasets.
         for (int currentIndex = 0; currentIndex < datasetKeys.size(); currentIndex++) {
             String datasetName = datasetKeys.get(currentIndex);
+            //Get dataset name for file output purpose and getting correct database for each sample.
             for (Integer currentSample = 0; currentSample < sampleSize; currentSample++) {
+                //Get correct sample.
                 ArrayList<String> proteinPeptideFiles = proteinPeptideFileMap.get(datasetName);
                 for (String file: proteinPeptideFiles) {
                     String[] folders = file.split(separator);
                     String sampleFile = folders[folders.length-2];
-                    String dataset = folders[folders.length-3];
                     if (!sampleList.contains(sampleFile)) {
                         sampleList.add(sampleFile);
                     }
-                    if (datasets.isEmpty() || !datasets.contains(dataset)) {
-                        datasets.add(dataset);
-                        datasetCount++;
-                        datasetNumbers.put(dataset, datasetCount);  
-                    }
                 }
+                //Read and process protein-peptide file.
                 ProteinPeptideFileReader reader = new ProteinPeptideFileReader();
                 ProteinPeptideCollection proteinPeptideCollection = reader.createCollection(proteinPeptideFiles.get(currentSample), datasetName, currentSample, removeEnsemblHits);
+                //Match to public database to remove known sequences.
                 PublicDatabaseMatcher proteinPeptideMatcher = new PublicDatabaseMatcher(null, null);
                 ProteinPeptideCollection filteredProteinPeptideCollection = proteinPeptideMatcher.getMatchedProteinPeptides(proteinPeptideCollection, publicProteinCollection, threads);
-                //Matches peptides to protein-peptide relationship data.
+                //Matches protein-peptide data to sample database to ensure correct hits and to flag uniqueness.
                 for (Entry<String, ArrayList<ProteinCollection>> datasetEntry: referenceProteinCollectionMap.entrySet()) {
                     if (datasetEntry.getKey().contains(datasetName)) {
                         ProteinCollection referenceProteinCollection = datasetEntry.getValue().get(currentSample);
@@ -243,6 +237,7 @@ public class PeptideIdentificationModule {
                     }
                 }
             }
+            //Create output file, ensures that duplicate is not overwritten.
             String finalFilePath = outputPath + datasetName + "_Comparison_By_Sequence_ProteinGroup.csv";
             File file = new File(finalFilePath);
             while (file.exists()) {
@@ -252,9 +247,11 @@ public class PeptideIdentificationModule {
                 count++;
             }
             PeptideMatrix peptideMatrix = new PeptideMatrix();
-            MatrixEntryCollection basedOnProteinGroupMatrixEntryCollection = peptideMatrix.createPeptideMatrixBasedOnProteinGroup(finalProteinPeptideCollection, sampleSize);
             MatrixToCsvWriter write = new MatrixToCsvWriter();
+            //Create matrices and write them to given output directory.
+            MatrixEntryCollection basedOnProteinGroupMatrixEntryCollection = peptideMatrix.createPeptideMatrixBasedOnProteinGroup(finalProteinPeptideCollection, sampleSize);
             write.writeDatasetCsv(basedOnProteinGroupMatrixEntryCollection, sampleList, finalFilePath);
+            //Create output file, ensures that duplicate is not overwritten.
             finalFilePath = outputPath + datasetName + "_Comparison_By_Sequence.csv";
             file = new File(finalFilePath);
             while (file.exists()) {

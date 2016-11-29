@@ -48,15 +48,25 @@ public class PeptideMatrix {
                             for (String currentGroup: matrixEntry.getProteinGroupList()) {
                                 if (currentGroup.matches(proteinGroup)) {
                                     ArrayList<Double> proteinGroupScoreList = proteinPeptide.getScoreList().get(groupIndex);
+                                    //Get highest score and spectra count.
                                     Double highestScore = Collections.max(proteinGroupScoreList);
-                                    Integer count = proteinPeptide.getCountList().get(groupIndex);
+                                    Integer spectraCount = proteinPeptide.getCountList().get(groupIndex);
                                     Integer index = proteinPeptide.getSampleIndexNumber();
-                                    matrixEntry.addCountToSampleIndex(index, count);
+                                    //Add values to correct index.
+                                    matrixEntry.addCountToSampleIndex(index, spectraCount);
                                     matrixEntry.setScoreAtIndex(index, highestScore);
                                     matrixEntry.setUniqueToGroup(false);
-                                    if (matrixEntry.isUniqueToSampleDatabase() == true) {
-                                        matrixEntry.setUniqueToSampleDatabase(proteinPeptide.getUniqueToDatabase());
+                                    //Check if spectra is unique to one sample.
+                                    int counter = 0;
+                                    for (Integer count: matrixEntry.getSampleIndexList()) {
+                                        if (count > 0) {
+                                            counter++;
+                                        }
+                                        if (counter > 1) {
+                                            matrixEntry.setUniqueToSampleDatabase(false);
+                                        }
                                     }
+                                    //Add accession ids to list.
                                     if (!matrixEntry.getAccessionList().isEmpty()) {
                                         for (String accession: proteinPeptide.getCombinedAccessionList().get(groupIndex)) {
                                             if (!matrixEntry.getAccessionList().contains(accession)) {
@@ -75,17 +85,21 @@ public class PeptideMatrix {
                     }
                 }
                 if (newEntry) {
+                    //Create new matrix entry.
                     ArrayList<String> proteinGroupAccessionList = proteinPeptide.getCombinedAccessionList().get(groupIndex);
                     ArrayList<String> proteinGroupList = new ArrayList<>();
                     proteinGroupList.add(proteinGroup);
                     Collections.sort(proteinGroupAccessionList);
                     MatrixEntry newMatrixEntry = new MatrixEntry(proteinGroupList, proteinGroupAccessionList, proteinPeptide.getSequence(), sampleIndexList, proteinPeptide.getMass(), proteinPeptide.getLength(), proteinPeptide.getUniqueToGroup(), proteinPeptide.getUniqueToDatabase(), proteinPeptide.getDataset(), sampleSize, scoreIndexList);
                     ArrayList<Double> proteinGroupScoreList = proteinPeptide.getScoreList().get(groupIndex);
+                    //Get highest score and spectra count for given sample.
                     Double highestScore = Collections.max(proteinGroupScoreList);
                     Integer count = proteinPeptide.getCountList().get(groupIndex);
                     Integer index = proteinPeptide.getSampleIndexNumber();
+                    //Add to correct index.
                     newMatrixEntry.addCountToSampleIndex(index, count);
                     newMatrixEntry.setScoreAtIndex(index, highestScore);
+                    //Set uniqueness values.
                     newMatrixEntry.setUniqueToGroup(true);
                     newMatrixEntry.setUniqueToSampleDatabase(proteinPeptide.getUniqueToDatabase());
                     matrixEntryCollection.addMatrixEntry(newMatrixEntry);
@@ -121,19 +135,30 @@ public class PeptideMatrix {
                         String filteredProteinPeptideSequence = proteinPeptide.getSequence().replaceAll("\\(\\+?\\-?[0-9]+\\.[0-9]+\\)", "");
                         //Match sequences, check for overlapping data.
                         if (filteredMatrixSequence.matches(filteredProteinPeptideSequence)) {
+                            //If a match happens: add count and score to the right index.
                             ArrayList<Double> proteinGroupScoreList = proteinPeptide.getScoreList().get(groupIndex);
                             Double highestScore = Collections.max(proteinGroupScoreList);
-                            Integer count = proteinPeptide.getCountList().get(groupIndex);
+                            Integer spectraCount = proteinPeptide.getCountList().get(groupIndex);
                             Integer index = proteinPeptide.getSampleIndexNumber();
-                            matrixEntry.addCountToSampleIndex(index, count);
+                            matrixEntry.addCountToSampleIndex(index, spectraCount);
                             matrixEntry.setScoreAtIndex(index, highestScore);
-                            matrixEntry.setUniqueToGroup(false);
                             if (!matrixEntry.getProteinGroupList().contains(proteinPeptide.getProteinGroupList().get(groupIndex))) {
+                                //Match means multiple protein groups, so unique is false.
+                                matrixEntry.setUniqueToGroup(false);
+                                //add protein group to list.
                                 matrixEntry.addProteinGroup(proteinPeptide.getProteinGroupList().get(groupIndex));
                             }
-                            if (matrixEntry.isUniqueToSampleDatabase() == true) {
-                                matrixEntry.setUniqueToSampleDatabase(proteinPeptide.getUniqueToDatabase());
+                            //check if spectra count in more then one sample.
+                            int counter = 0;
+                            for (Integer count: matrixEntry.getSampleIndexList()) {
+                                if (count > 0) {
+                                    counter++;
+                                }
+                                if (counter > 1) {
+                                    matrixEntry.setUniqueToSampleDatabase(false);
+                                }
                             }
+                            //Add new accessions to the list.
                             if (!matrixEntry.getAccessionList().isEmpty()) {
                                 for (String accession: proteinPeptide.getCombinedAccessionList().get(groupIndex)) {
                                     if (!matrixEntry.getAccessionList().contains(accession)) {
@@ -143,6 +168,7 @@ public class PeptideMatrix {
                             } else {
                                 matrixEntry.getAccessionList().addAll(proteinPeptide.getCombinedAccessionList().get(groupIndex));
                             }
+                            //sort the accession list for better overview.
                             Collections.sort(matrixEntry.getAccessionList());
                             newEntry = false;
                             break;
@@ -150,18 +176,23 @@ public class PeptideMatrix {
                     }
                 }
                 if (newEntry) {
+                    //Create a new entry for the matrix.
                     ArrayList<String> proteinGroupAccessionList = proteinPeptide.getCombinedAccessionList().get(groupIndex);
                     Collections.sort(proteinGroupAccessionList);
                     MatrixEntry newMatrixEntry = new MatrixEntry(proteinPeptide.getProteinGroupList(), proteinGroupAccessionList, proteinPeptide.getSequence(), sampleIndexList, proteinPeptide.getMass(), proteinPeptide.getLength(), proteinPeptide.getUniqueToGroup(), proteinPeptide.getUniqueToDatabase(), proteinPeptide.getDataset(), sampleSize, scoreIndexList);
                     ArrayList<Double> proteinGroupScoreList = proteinPeptide.getScoreList().get(groupIndex);
+                    //Determine highest score.
                     Double highestScore = Collections.max(proteinGroupScoreList);
                     Integer count = 0;
+                    //Determine total spectra count.
                     for (Integer sampleCount: proteinPeptide.getCountList()) {
                         count += sampleCount;
                     }
+                    //Add values to correct index.
                     Integer index = proteinPeptide.getSampleIndexNumber();
                     newMatrixEntry.addCountToSampleIndex(index, count);
                     newMatrixEntry.setScoreAtIndex(index, highestScore);
+                    //set uniqueness values..
                     if (proteinPeptide.getProteinGroupList().size() == 1) {
                         newMatrixEntry.setUniqueToGroup(true);
                     } else {
