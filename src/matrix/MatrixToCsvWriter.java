@@ -55,8 +55,8 @@ public class MatrixToCsvWriter {
      */
     private String createFileHeader(final ArrayList<String> sampleList, final String delimiter, final String lineEnding) {
         String matrixHeader = "";
-        matrixHeader += "Protein Group" + delimiter;
-        matrixHeader += "Sequence" + delimiter;
+        matrixHeader += "Protein Groups" + delimiter;
+        matrixHeader += "Peptide Sequence" + delimiter;
         matrixHeader += "Accessions" + delimiter;
         matrixHeader += "Unique to Protein Group" + delimiter;
         matrixHeader += "Unique to Sample Database" + delimiter;
